@@ -6,11 +6,12 @@ const photoBlurs: Record<string, string> = photoBlursJson;
 @Component({
   selector: 'app-photo-list',
   imports: [CommonModule],
+  standalone: true,
   templateUrl: './photo-list.component.html',
   styleUrl: './photo-list.component.scss'
 })
 export class PhotoListComponent {
-  photos = Array.from({ length: 27 }).map((_, i) => `/photos/TR-${i + 1}.jpg`);
+  photos = Array.from({ length: 27 }).map((_, i) => `assets/photos/maternity/TR-${i + 1}.jpg`);
 
   randomHeights = this.photos.map(() => this.getRandomHeight());
   selectedPhoto: string | null = null;
