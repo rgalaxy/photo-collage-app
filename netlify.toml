@@ -1,5 +1,5 @@
 [build]
-  publish = "dist/photo-collage-app"
+  publish = "dist/photo-collage-app/browser"
   command = "ng build --configuration=production"
 
 [[redirects]]
