@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BlogService } from '../../services/blog.service';
 import { CommonModule } from '@angular/common';
+import { documentToHtmlString } from '@contentful/rich-text-html-renderer';
+import { Document } from '@contentful/rich-text-types';
+
 
 @Component({
   selector: 'app-blog-detail',
@@ -13,6 +16,8 @@ import { CommonModule } from '@angular/common';
 export class BlogDetailComponent {
   post: any;
   notFound = false;
+  htmlContent: string = '';
+  content?: Document
 
 
   constructor(
@@ -30,6 +35,7 @@ export class BlogDetailComponent {
           return;
         } else {
           this.post = post;
+          this.htmlContent = documentToHtmlString(post.fields['content'] as Document);
         }
       }).catch(error => {
         console.error('Error fetching post:', error);
