@@ -20,4 +20,12 @@ export class BlogService {
       order: [`-fields.publishedAt`],
     }).then(res => res.items);
   }
+
+  getPostBySlug(slug: string): Promise<Entry<any> | undefined> {
+    return this.client.getEntries({
+      content_type: CONFIG.contentType,
+      'fields.slug': slug,
+      limit: 1
+    }).then(res => res.items[0]);
+  }
 }

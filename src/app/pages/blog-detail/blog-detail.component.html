@@ -1,0 +1,11 @@
+<div *ngIf="notFound" class="not-found">
+  <h2>404 – Blog Post Not Found</h2>
+  <p>We couldn’t find the post you were looking for.</p>
+  <a routerLink="/blog">← Back to Blog</a>
+</div>
+
+<div class="blog-detail" *ngIf="post">
+  <p class="meta">{{ post.fields.date | date }}</p>
+  <h1>{{ post.fields.title }}</h1>
+  <div class="content" [innerHTML]="post.fields.content"></div>
+</div>

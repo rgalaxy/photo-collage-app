@@ -4,11 +4,15 @@
     <p class="subtitle">A collection of my personal thoughts and experiences</p>
   </div>
 
-  <div class="blog-post" *ngFor="let post of posts">
+  <a
+    [routerLink]="['/blog', post.fields.slug]"
+    class="blog-post"
+    *ngFor="let post of posts"
+  >
     <div>
       <div class="meta">{{ post.fields.publishedAt | date }}</div>
       <h2>{{ post.fields.title }}</h2>
     </div>
     <p class="excerpt">{{ post.fields.excerpt }}</p>
-  </div>
+  </a>
 </div>
