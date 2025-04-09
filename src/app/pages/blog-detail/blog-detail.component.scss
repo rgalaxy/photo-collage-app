@@ -1,27 +1,72 @@
+.blog-detail h1,
+.blog-detail h2,
+.blog-detail h3 {
+  color: var(--text-color);
+  margin: 2rem 0 1rem;
+}
+
+.blog-detail p {
+  margin: 1.25rem 0;
+  color: var(--text-color);
+}
+
+.blog-detail .meta {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--hover-color);
+}
+
+.blog-detail ul,
+.blog-detail ol {
+  margin: 1rem 0 1rem 1.5rem;
+}
+
+.blog-detail blockquote {
+  background-color: var(--accent-bg);
+  border-left: 4px solid var(--link-color);
+  padding: 1rem;
+  margin: 2rem 0;
+  color: var(--muted-text);
+  font-style: italic;
+}
+
+.blog-detail pre {
+  background-color: var(--accent-bg);
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 1rem;
+  }
+
+  .blog-detail h1 {
+    font-size: 1.75rem;
+  }
+
+  .blog-detail h2 {
+    font-size: 1.4rem;
+  }
+}
+
+
 .blog-detail {
   max-width: 700px;
   margin: 0 auto;
   padding: 2rem;
-
-  @media screen and (max-width: 420px) {
-    padding: 1rem;
-  }
-
-  .meta {
-    color: #3a3a3a;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-
-  h1 {
-    font-size: 2rem;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-
-    @media screen and (max-width: 420px) {
-      font-size: 1.5rem;
-    }
-  }
 }
 
 .tags {
@@ -76,7 +121,7 @@
 :host ::ng-deep .content {
   font-size: 1rem;
   line-height: 1.7;
-  color: #333;
+  color: var(--text-color);
 
   h1, h2, h3 {
     margin-top: 1.5rem;
@@ -94,8 +139,9 @@
   }
 
   ul, ol {
-    margin-left: 1.5rem;
+    margin-left: 0.5rem;
     margin-bottom: 1rem;
+    padding-inline-start: 24px;
   }
   
   li> p {
@@ -110,8 +156,8 @@
   }
 
   code {
-    font-family: monospace;
-    background: #eee;
+    font-family: 'Courier New', monospace;
+    background-color: var(--accent-bg);
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
   }

@@ -25,6 +25,5 @@ Promise.all(promises)
     const map = {};
     results.forEach(r => (map[r.file] = r.blurDataUrl));
     fs.writeFileSync(outputJson, JSON.stringify(map, null, 2));
-    console.log('✅ Blur placeholders generated!');
   })
   .catch(err => console.error('Error:', err));

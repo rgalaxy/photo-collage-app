@@ -5,7 +5,7 @@
   gap: 1rem;
   flex-direction: row;
   width: 100%;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid var(--text-color);
   margin-bottom: 1rem;
   padding-bottom: 1rem;
 
@@ -36,7 +36,7 @@
   .subtitle {
     max-width: 220px;
     text-align: right;
-    color: #3f3f3f;
+    color: var(--text-color);
     font-size: 0.825rem;
     font-style: italic;
 
@@ -80,7 +80,7 @@
 
     .excerpt {
       font-size: 0.75rem;
-      color: #333;
+      color: var(--text-color);
       text-align: right;
       margin: 0
     }

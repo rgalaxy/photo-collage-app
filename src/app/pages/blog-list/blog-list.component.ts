@@ -17,7 +17,6 @@ export class BlogListComponent {
 
   ngOnInit(): void {
     this.blogService.getAllPosts().then(posts => {
-      console.log(posts);
       this.posts = posts;
     });
   }
