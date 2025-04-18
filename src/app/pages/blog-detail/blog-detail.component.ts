@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BlogService } from '../../services/blog.service';
 import { CommonModule } from '@angular/common';
-import { documentToHtmlString } from '@contentful/rich-text-html-renderer';
-import { Document } from '@contentful/rich-text-types';
+import { documentToHtmlString, Options } from '@contentful/rich-text-html-renderer';
+import { BLOCKS, Document } from '@contentful/rich-text-types';
 
 
 @Component({
@@ -34,8 +34,21 @@ export class BlogDetailComponent {
           console.error('Post not found');
           return;
         } else {
+          const options: Options = {
+            renderNode: {
+              [BLOCKS.EMBEDDED_ASSET]: (node) => {
+                const url = node.data['target'].fields?.file?.url;
+                const description = node.data['target'].fields?.description || '';
+                if (url) {
+                  return `<img src="https:${url}" alt="${description}">`;
+                }
+                return '';
+              },
+            }
+          };
+          console.log(post)
           this.post = post;
-          this.htmlContent = documentToHtmlString(post.fields['content'] as Document);
+          this.htmlContent = documentToHtmlString(post.fields['content'] as Document, options);
         }
       }).catch(error => {
         console.error('Error fetching post:', error);
