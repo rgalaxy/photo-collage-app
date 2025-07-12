@@ -1,0 +1,239 @@
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <span class="brand-text">Personal</span>
+    </div>
+    <ul class="nav-menu">
+      <li>
+        <a (click)="scrollToSection('home')" class="nav-link active">Home</a>
+      </li>
+      <li><a (click)="scrollToSection('about')" class="nav-link">CV</a></li>
+      <li>
+        <a (click)="scrollToSection('skills')" class="nav-link">Skills</a>
+      </li>
+      <li>
+        <a (click)="scrollToSection('portfolio')" class="nav-link">Portfolio</a>
+      </li>
+      <li>
+        <a (click)="scrollToSection('contact')" class="nav-link">Contact</a>
+      </li>
+    </ul>
+    <button class="contact-btn" (click)="contactMe()">Contact</button>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="home" class="hero">
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          Hello, I'm<br />
+          <span class="name-highlight">Martin Haryanto</span><br />
+          a Software Engineer
+        </h1>
+        <p class="hero-description">
+          I am a passionate software engineer with a decade of experience in
+          building and maintaining web applications. I also love to deliver a
+          high-quality software solutions. My confidence lies in full-stack
+          development, UI/UX design, and agile methodologies.
+        </p>
+      </div>
+    </div>
+
+    <div class="hero-image">
+      <div class="image-container">
+        <img
+          src="assets/photos/me.png"
+          alt="Martin Haryanto"
+          class="profile-image"
+        />
+        <div class="decorative-elements">
+          <div class="yellow-stripes"></div>
+          <div class="orange-circle"></div>
+        </div>
+      </div>
+
+      <div class="hero-stats-horizontal">
+        <div class="stat-item">
+          <div class="stat-number">10</div>
+          <div class="stat-label">Years Of Experience</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Projects Worldwide</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">30+</div>
+          <div class="stat-label">Tools Experienced</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">About Me</h2>
+    </div>
+    <div class="about-content">
+      <div class="about-text">
+        <p>
+          I'm an easy-going person that loves to solve problems and discuss
+          about innovative ideas. I have over 10 years of experience creating
+          digital experiences that users love. I specialize in user interface
+          design and implementation strategies that enhance user experience.
+        </p>
+        <p>
+          Other than my professional work, I also enjoys badminton, learning new
+          things, and building creative projects.
+        </p>
+        <button class="btn-primary" (click)="downloadCV()">Download CV</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skills Section -->
+<section id="skills" class="skills">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">My Skills</h2>
+      <p class="section-subtitle">
+        Here are some of the key areas where I excel
+      </p>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card" *ngFor="let skill of skills">
+        <div class="skill-icon">
+          <ng-icon [name]="skill.icon" size="32"></ng-icon>
+        </div>
+        <h3 class="skill-name">{{ skill.name }}</h3>
+        <p class="skill-description">{{ skill.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Portfolio Section -->
+<section id="portfolio" class="portfolio">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">My Portfolio</h2>
+      <p class="section-subtitle">Some of my recent work and projects</p>
+    </div>
+    <div class="portfolio-grid">
+      <div class="portfolio-item" *ngFor="let project of projects">
+        <div class="portfolio-image">
+          <div class="project-placeholder">
+            <span>Project Image</span>
+          </div>
+        </div>
+        <div class="portfolio-content">
+          <h3 class="project-title">{{ project.title }}</h3>
+          <p class="project-description">{{ project.description }}</p>
+          <div class="project-tech">
+            <span class="tech-tag" *ngFor="let tech of project.tech">{{
+              tech
+            }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="contact">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Let's Connect</h2>
+      <p class="section-subtitle">
+        Find me on social media and let's build something amazing together!
+      </p>
+    </div>
+    <div class="contact-content">
+      <div class="contact-info">
+        <h3 class="contact-title">Get In Touch</h3>
+        <div class="contact-grid">
+          <div class="contact-card">
+            <div class="contact-icon">📧</div>
+            <div class="contact-details">
+              <h4>Email</h4>
+              <p>hollandmakermh&#64;gmail.com</p>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-icon">📱</div>
+            <div class="contact-details">
+              <h4>Phone</h4>
+              <p>+62 815-8669-6610</p>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-icon">📍</div>
+            <div class="contact-details">
+              <h4>Location</h4>
+              <p>Depok, Jawa Barat</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="social-links">
+        <h3 class="social-title">Follow Me</h3>
+        <div class="social-grid">
+          <a
+            href="https://www.linkedin.com/in/martin-haryanto/"
+            target="_blank"
+            class="social-link linkedin"
+          >
+            <div class="social-icon">💼</div>
+            <div class="social-info">
+              <h4>LinkedIn</h4>
+              <p>https://www.linkedin.com/in/martin-haryanto/</p>
+            </div>
+          </a>
+          <a
+            href="https://github.com/rgalaxy"
+            target="_blank"
+            class="social-link github"
+          >
+            <div class="social-icon">👨‍💻</div>
+            <div class="social-info">
+              <h4>GitHub</h4>
+              <p>https://github.com/rgalaxy</p>
+            </div>
+          </a>
+          <a
+            href="https://www.instagram.com/martinharyanto/"
+            target="_blank"
+            class="social-link instagram"
+          >
+            <div class="social-icon">📸</div>
+            <div class="social-info">
+              <h4>Instagram</h4>
+              <p>https://www.instagram.com/martinharyanto/</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="brand-text">Personal</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Martin Haryanto. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

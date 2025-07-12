@@ -24,7 +24,9 @@
     "rxjs": "~7.8.0",
     "sharp": "^0.33.5",
     "tslib": "^2.3.0",
-    "zone.js": "~0.14.0"
+    "zone.js": "~0.14.0",
+    "@ng-icons/core": "^27.5.2",
+    "@ng-icons/radix-icons": "^27.5.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.15",
