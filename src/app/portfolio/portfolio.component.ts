@@ -98,9 +98,4 @@ export class PortfolioComponent implements OnInit {
     link.click();
     document.body.removeChild(link);
   }
-
-  contactMe(): void {
-    // Placeholder for contact functionality
-    console.log('Opening contact...');
-  }
 }
