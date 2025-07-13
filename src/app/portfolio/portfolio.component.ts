@@ -5,14 +5,31 @@ import {
   radixDesktop,
   radixGear,
   radixMobile,
-  radixTable
+  radixTable,
+  radixEnvelopeClosed,
+  radixMobile as radixPhone,
+  radixGlobe,
+  radixLinkedinLogo,
+  radixGithubLogo,
+  radixInstagramLogo
 } from '@ng-icons/radix-icons';
 
 @Component({
   selector: 'app-portfolio',
   standalone: true,
   imports: [CommonModule, NgIcon],
-  providers: [provideIcons({ radixDesktop, radixGear, radixMobile, radixTable })],
+  providers: [provideIcons({ 
+    radixDesktop, 
+    radixGear, 
+    radixMobile, 
+    radixTable,
+    radixEnvelopeClosed,
+    radixPhone,
+    radixGlobe,
+    radixLinkedinLogo,
+    radixGithubLogo,
+    radixInstagramLogo
+  })],
   templateUrl: './portfolio.component.html',
   styleUrls: ['./portfolio.component.scss']
 })
