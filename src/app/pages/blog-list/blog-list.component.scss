@@ -1,96 +1,1082 @@
-.header-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-direction: row;
-  width: 100%;
-  border-bottom: 1px solid var(--text-color);
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
+// VSCode Dark Theme Color Palette
+$bg-primary: #1e1e1e;
+$bg-secondary: #252526;
+$bg-tertiary: #2d2d30;
+$bg-elevated: #383838;
+$border-color: #3e3e42;
+$text-primary: #cccccc;
+$text-secondary: #969696;
+$text-muted: #6a6a6a;
 
-  @media screen and (max-width: 420px) {
-    flex-direction: column;
+// Syntax Highlighting Colors
+$keyword-color: #569cd6;
+$string-color: #ce9178;
+$comment-color: #6a9955;
+$variable-color: #9cdcfe;
+$property-color: #9cdcfe;
+$type-color: #4ec9b0;
+$operator-color: #d4d4d4;
+$punctuation-color: #d4d4d4;
+
+// Accent Colors
+$accent-blue: #007acc;
+$accent-green: #16825d;
+$accent-orange: #ff8c00;
+$accent-purple: #c586c0;
+$accent-red: #f44747;
+
+// Window Controls
+$control-close: #ff5f56;
+$control-minimize: #ffbd2e;
+$control-maximize: #27ca3f;
+
+.code-editor-container {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Courier New', monospace;
+  background: $bg-primary;
+  color: $text-primary;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
+  font-feature-settings: 'liga' 1, 'calt' 1; // Enable ligatures
+
+  * {
+    box-sizing: border-box;
+  }
+
+  // Performance optimizations
+  contain: layout style paint;
+}
+
+.editor-header {
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 35px;
+
+  .sidebar-controls {
+    display: flex;
     align-items: center;
-    gap: 0.5rem;
+
+    .sidebar-toggle {
+      background: none;
+      border: none;
+      color: $text-primary;
+      font-size: 16px;
+      padding: 6px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: $accent-blue;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $accent-blue;
+        outline-offset: 1px;
+      }
+
+      .toggle-icon {
+        font-size: 18px;
+        line-height: 1;
+      }
+    }
+  }
+
+  .editor-title {
+    font-size: 13px;
+    color: $text-primary;
+    font-weight: 400;
+    flex: 1;
+    text-align: center;
+  }
+
+  .editor-actions {
+    .action-button {
+      background: none;
+      border: none;
+      color: $text-secondary;
+      padding: 6px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: $text-primary;
+      }
+
+      &.active {
+        background: $accent-blue;
+        color: white;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $accent-blue;
+        outline-offset: 1px;
+      }
+
+      .action-icon {
+        font-size: 16px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+      }
+
+      &:hover .action-icon,
+      &.active .action-icon {
+        opacity: 1;
+      }
+    }
+
+    .mobile-overlay-toggle {
+      @media (min-width: 769px) {
+        display: none;
+      }
+    }
   }
 }
 
-.blog-list {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 16px;
+.editor-layout {
+  display: flex;
+  height: calc(100vh - 58px); // Account for header and status bar
+  position: relative;
+}
 
-  @media screen and (max-width: 420px) {
-    padding: 8px;
-  }
-
-  h1 {
-    text-align: center;
+// Mobile backdrop overlay
+.sidebar-backdrop {
+  display: none;
   
-    @media screen and (max-width: 420px) {
-      font-size: 1.5rem;
+  @media (max-width: 480px) {
+    display: block;
+    position: fixed;
+    top: 32px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 58px);
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    
+    &.active {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+.sidebar {
+  width: 240px;
+  background: $bg-secondary;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+
+
+  @media (max-width: 768px) {
+    width: 200px;
+  }
+
+  @media (max-width: 480px) {
+    position: fixed;
+    top: 32px;
+    left: 0;
+    height: calc(100vh - 58px);
+    transform: translateX(-100%);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+    
+    &.open {
+      transform: translateX(0);
     }
   }
 
-  .subtitle {
-    max-width: 220px;
-    text-align: right;
-    color: var(--text-color);
-    font-size: 0.825rem;
-    font-style: italic;
+  .file-tree {
+    padding: 16px 0;
+    flex: 1;
+    overflow-y: auto;
 
-    @media screen and (max-width: 420px) {
-      max-width: 100%;
-      text-align: center;
-    }
-  }
-
-  .blog-post {
-    min-width: 320px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border-bottom: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    cursor: pointer;
-    border-radius: 16px;
-    transition: all 0.2s ease-in-out;
-
-    &:hover {
-      background-color: var(--accent-bg);
-      transform: scale(1.01);
-    }
-
-    .meta {
+    .folder-item {
+      padding: 4px 12px;
       display: flex;
       align-items: center;
-      gap: 4px;
-      font-size: 0.5rem;
-      font-weight: 600;
+      gap: 6px;
+      font-size: 13px;
+      color: $text-primary;
+      cursor: pointer;
+
+      &:hover {
+        background: $bg-elevated;
+      }
+
+      .folder-icon {
+        font-size: 16px;
+      }
+
+      .folder-name {
+        font-weight: 500;
+      }
     }
 
-    h2 {
-      font-size: 1.25rem;
-      margin: 0;
+    .file-items {
+      padding-left: 16px;
+      
+      .file-item {
+        padding: 2px 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: $text-secondary;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background: $bg-elevated;
+          color: $text-primary;
+        }
+
+        &.active {
+          background: $accent-blue;
+          color: white;
+        }
+
+        .file-icon {
+          font-size: 14px;
+        }
+
+        .file-name {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: $bg-primary;
+}
+
+.tab-bar {
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  overflow-x: auto;
+
+  .tab {
+    padding: 8px 16px;
+    background: $bg-tertiary;
+    border-right: 1px solid $border-color;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: $text-secondary;
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 140px;
+
+    &.active {
+      background: $bg-primary;
+      color: $text-primary;
+      border-bottom: 2px solid $accent-blue;
     }
 
-    .excerpt {
-      font-size: 0.75rem;
-      color: var(--text-color);
-      text-align: right;
-      margin: 0
+    .tab-icon {
+      font-size: 14px;
+    }
+
+    .tab-text {
+      flex: 1;
+    }
+
+    .tab-close {
+      font-size: 16px;
+      opacity: 0.6;
+      padding: 0 4px;
+      
+      &:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+.code-content {
+  flex: 1;
+  overflow: scroll;
+  background: $bg-primary;
+  font-size: 13px; // Smaller font size for more content
+  
+  &.mobile-overlay-mode {
+    @media (max-width: 768px) {
+      .blog-posts-container {
+        display: none;
+      }
     }
   }
 
-  .updated-at,.created-at {
-    display: inline-flex;
-    gap: 2px;
+  @media (max-width: 480px) {
+    font-size: 12px; // Even smaller on mobile
+  }
+}
+
+.code-area {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: $bg-primary;
+
+  .header-block {
+    margin-bottom: 8px;
+    padding-left: 4px;
+    
+    .code-line {
+      .comment {
+        color: $comment-color;
+        font-style: italic;
+      }
+    }
+  }
+}
+
+.code-line-wrapper {
+  display: flex;
+  align-items: baseline;
+  min-height: 1.4em; // Slightly smaller line height
+  
+  .line-number {
+    display: inline-block;
+    width: 50px;
+    color: $text-muted;
+    font-size: 11px; // Smaller line numbers
+    text-align: right;
+    padding-right: 16px;
+    user-select: none;
+    flex-shrink: 0;
+    
+    @media (max-width: 480px) {
+      width: 40px;
+      padding-right: 12px;
+      font-size: 10px;
+    }
+  }
+
+  .code-line {
+    flex: 1;
+    padding: 1px 0;
+    font-size: inherit; // Use parent font size
+    line-height: 1.4; // Tighter line height
+
+    &.indented {
+      padding-left: 24px; // Smaller indentation
+      
+      @media (max-width: 480px) {
+        padding-left: 16px;
+      }
+    }
+
+    .keyword { color: $keyword-color; font-weight: 600; }
+    .variable { color: $variable-color; }
+    .operator { color: $operator-color; }
+    .type { color: $type-color; font-weight: 500; }
+    .punctuation { color: $punctuation-color; }
+    .property { color: $property-color; }
+    .string { color: $string-color; }
+    .comment { color: $comment-color; font-style: italic; }
+  }
+}
+
+
+.blog-post-code {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  padding: 4px;
+  border: 1px solid transparent;
+  max-width: 600px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: $border-color;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    
+    .hover-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid $accent-blue;
+    outline-offset: 2px;
+  }
+
+  // Reduced motion support for accessibility
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hover-overlay {
+  position: absolute;
+  top: 0;
+  right: -300px;
+  width: 280px;
+  background: $bg-elevated;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 16px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+
+  @media (max-width: 1024px) {
+    right: -240px;
+    width: 220px;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+    position: static;
+    width: 100%;
+    margin-top: 12px;
+    opacity: 1;
+    transform: none;
+    background: $bg-secondary;
+  }
+
+  .hover-content {
+    .hover-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .hover-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: $text-secondary;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+
+      .hover-separator {
+        color: $text-muted;
+      }
+    }
+
+    .hover-excerpt {
+      font-size: 13px;
+      color: $text-secondary;
+      line-height: 1.5;
+      max-height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.status-bar {
+  background: $accent-blue;
+  color: white;
+  padding: 4px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  height: 23px;
+
+  .status-left,
+  .status-right {
+    display: flex;
+    gap: 16px;
     align-items: center;
-    justify-items: start;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 2px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .status-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .status-right {
+      display: none;
+    }
+  }
+}
+
+// Mobile Menu Toggle
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: $text-primary;
+  font-size: 16px;
+  padding: 4px 8px;
+  margin-right: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    display: inline-block;
+  }
+
+  .hamburger-icon {
+    font-size: 18px;
+  }
+}
+
+.sidebar-close {
+  display: none;
+  background: none;
+  border: none;
+  color: $text-secondary;
+  font-size: 20px;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+  margin-left: auto;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $text-primary;
+  }
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+// Loading Animation
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton-loader {
+  background: linear-gradient(90deg, $bg-secondary 25%, $bg-elevated 37%, $bg-secondary 63%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+// Loading Skeleton
+.loading-skeleton {
+  padding: 16px 0;
+
+  .skeleton-post {
+    margin-bottom: 32px;
+    padding: 16px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+
+    .skeleton-line {
+      height: 16px;
+      background: linear-gradient(90deg, $bg-secondary 25%, $bg-elevated 37%, $bg-secondary 63%);
+      background-size: 400px 100%;
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+      margin-bottom: 8px;
+      border-radius: 4px;
+
+      &.skeleton-line-full { width: 100%; }
+      &.skeleton-line-long { width: 85%; }
+      &.skeleton-line-medium { width: 60%; }
+      &.skeleton-line-short { width: 40%; }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Circuit board background pattern
+.code-editor-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.code-editor-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+// Typing animation for the header comment
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 50% { border-right-color: transparent; }
+  51%, 100% { border-right-color: $accent-blue; }
+}
+
+@keyframes removeCursor {
+  to { border-right-color: transparent; }
+}
+
+.typing-animation {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  border-right: 2px solid $accent-blue;
+  animation: 
+    typing 2s steps(40, end) 0.5s both,
+    blink 1s infinite 0.5s,
+    removeCursor 0.1s 3s forwards; // Remove cursor after animation
+}
+
+// Reduced motion override for typing animation
+@media (prefers-reduced-motion: reduce) {
+  .typing-animation {
+    animation: none !important;
+    border-right: none !important;
+    width: auto !important;
+    overflow: visible !important;
+  }
+}
+
+// Glow effect on hover for interactive elements
+.blog-post-code:hover {
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 122, 204, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+// Subtle pulse animation for the status bar
+.status-bar {
+  animation: statusPulse 3s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { background-color: $accent-blue; }
+  50% { background-color: lighten($accent-blue, 5%); }
+}
+
+// File tree animation
+.file-item {
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateX(4px);
+  }
+}
+
+// Code syntax highlighting enhancement
+.keyword {
+  text-shadow: 0 0 8px rgba(86, 156, 214, 0.3);
+}
+
+.string {
+  text-shadow: 0 0 8px rgba(206, 145, 120, 0.3);
+}
+
+.comment {
+  text-shadow: 0 0 8px rgba(106, 153, 85, 0.3);
+}
+
+// Enhanced line number styling
+.line-number {
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: $accent-blue;
+  }
+}
+
+// Smooth entrance animation for blog posts
+.blog-post-code {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideInUp 0.6s ease forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Stagger animation for multiple posts
+.blog-post-code:nth-child(1) { animation-delay: 0.1s; }
+.blog-post-code:nth-child(2) { animation-delay: 0.2s; }
+.blog-post-code:nth-child(3) { animation-delay: 0.3s; }
+.blog-post-code:nth-child(4) { animation-delay: 0.4s; }
+.blog-post-code:nth-child(5) { animation-delay: 0.5s; }
+.blog-post-code:nth-child(n+6) { animation-delay: 0.6s; }
+
+// Improved tab interaction
+.tab {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: $accent-blue;
+    transition: width 0.3s ease;
+  }
+  
+  &:hover::before {
+    width: 100%;
+  }
+  
+  &.active::before {
+    width: 100%;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .code-editor-container {
+    font-size: 13px;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -240px;
+    top: 35px; // Account for header height
+    height: calc(100vh - 58px); // Account for header and status bar
+    transition: left 0.3s ease;
+    z-index: 100;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+
+    &.open {
+      left: 0;
+    }
+  }
+
+  // Sidebar backdrop
+  .editor-layout::before {
+    content: '';
+    position: fixed;
+    top: 35px;
+    left: 0;
+    right: 0;
+    bottom: 23px;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 99;
+  }
+
+  .sidebar.open + .main-content::before {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .main-content {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-header {
+    padding: 6px 12px;
+    
+    .editor-title {
+      font-size: 12px;
+    }
+  }
+
+  .code-area {
+    padding: 12px 8px;
+  }
+
+  .code-block .code-line {
+    font-size: 13px;
+  }
+
+  .tab-bar .tab {
+    min-width: 120px;
+    padding: 6px 12px;
+  }
+}
+
+// Desktop sidebar toggle behavior
+@media (min-width: 769px) {
+  .sidebar {
+    position: relative;
+    left: 0;
+    transition: transform 0.3s ease;
+    transform: translateX(0);
+    
+    &:not(.open) {
+      transform: translateX(-240px);
+    }
+  }
+  
+  .main-content {
+    transition: margin-left 0.3s ease;
+    margin-left: 0;
+  }
+  
+  .sidebar:not(.open) ~ .main-content {
+    margin-left: -240px;
+  }
+}
+
+// Additional smooth interactions
+.blog-post-code {
+  will-change: transform;
+}
+
+.hover-overlay {
+  will-change: opacity, transform;
+}
+
+// Enhanced focus styles for accessibility
+.blog-post-code:focus-visible {
+  outline: 2px solid $accent-blue;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.file-item:focus-visible,
+.sidebar-toggle:focus-visible {
+  outline: 2px solid $accent-blue;
+  outline-offset: 1px;
+}
+
+// Improved status bar responsiveness
+@media (max-width: 640px) {
+  .status-bar {
+    font-size: 11px;
+    padding: 4px 12px;
+
+    .status-left,
+    .status-right {
+      gap: 12px;
+    }
+
+    .status-item {
+      padding: 1px 4px;
+    }
+  }
+}
+
+// Dark scrollbar for webkit browsers
+* {
+  scrollbar-width: thin;
+  scrollbar-color: $border-color $bg-secondary;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .code-editor-container {
+    border: 2px solid $text-primary;
+  }
+  
+  .blog-post-code:hover {
+    border-color: $text-primary;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .sidebar {
+    border-right-color: $text-primary;
+  }
+}
+
+// Print styles
+@media print {
+  .code-editor-container {
+    background: white;
+    color: black;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  
+  .editor-header,
+  .sidebar,
+  .status-bar,
+  .hover-overlay {
+    display: none;
+  }
+  
+  .main-content {
+    width: 100%;
+  }
+  
+  .blog-post-code {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+// Loading state improvements
+.skeleton-line {
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// Mobile Overlay Content
+.mobile-overlay-content {
+  padding: 16px;
+  background: $bg-primary;
+  
+  @media (min-width: 769px) {
+    display: none;
+  }
+
+  .overlay-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .overlay-post {
+    background: $bg-secondary;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid $border-color;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: $accent-blue;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .overlay-post-link {
+    display: block;
+    padding: 16px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .overlay-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .overlay-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: $text-secondary;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+
+    .overlay-separator {
+      color: $text-muted;
+    }
+  }
+
+  .overlay-excerpt {
+    font-size: 14px;
+    color: $text-secondary;
+    line-height: 1.5;
   }
 }
