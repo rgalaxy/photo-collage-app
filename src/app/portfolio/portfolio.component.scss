@@ -1,18 +1,3 @@
-// Color Palette from the provided image
-$primary-teal: #6DE1D2;
-$primary-yellow: #FFD63A;
-$primary-orange: #FFA955;
-$primary-coral: #F75A5A;
-
-// Additional colors
-$dark-bg: #2A2A2A;
-$light-bg: #F8F8F8;
-$white: #FFFFFF;
-$gray-text: #6B7280;
-$dark-text: #1F2937;
-
-// Fonts
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 * {
   margin: 0;
@@ -27,7 +12,7 @@ html {
 body {
   font-family: 'Inter', sans-serif;
   line-height: 1.6;
-  color: $dark-text;
+  color: var(--text-color);
   overflow-x: hidden;
   width: 100%;
 }
@@ -44,7 +29,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-color);
   backdrop-filter: blur(10px);
   z-index: 1000;
   padding: 1rem 0;
@@ -67,7 +52,7 @@ body {
     font-size: 1.5rem;
 
     .brand-icon {
-      color: $primary-yellow;
+      color: var(--primary-yellow);
       font-size: 2rem;
     }
   }
@@ -79,7 +64,7 @@ body {
 
     .nav-link {
       text-decoration: none;
-      color: $dark-text;
+      color: var(--text-color);
       font-weight: 500;
       cursor: pointer;
       transition: color 0.3s ease;
@@ -87,7 +72,7 @@ body {
 
       &:hover,
       &.active {
-        color: $primary-yellow;
+        color: var(--primary-yellow);
       }
 
       &.active::after {
@@ -97,13 +82,13 @@ body {
         left: 0;
         right: 0;
         height: 2px;
-        background: $primary-yellow;
+        background: var(--primary-yellow);
       }
     }
   }
 
   .contact-btn {
-    background: $primary-coral;
+    background: var(--primary-coral);
     color: white;
     border: none;
     padding: 0.3rem 1.5rem;
@@ -113,7 +98,7 @@ body {
     transition: all 0.3s ease;
 
     &:hover {
-      background: $primary-coral;
+      background: var(--primary-coral);
       transform: translateY(-2px);
     }
   }
@@ -127,7 +112,7 @@ body {
     rgba(255, 214, 58, 0.05) 25%, 
     rgba(255, 169, 85, 0.05) 50%, 
     rgba(247, 90, 90, 0.1) 75%, 
-    $light-bg 100%);
+    var(--bg-color) 100%);
   padding: 100px 0 40px;
   position: relative;
   overflow: hidden;
@@ -156,14 +141,14 @@ body {
     animation: slideInUp 1s ease-out;
 
     .name-highlight {
-      color: $primary-yellow;
+      color: var(--primary-yellow);
       position: relative;
     }
   }
 
   .hero-description {
     font-size: 1rem;
-    color: $gray-text;
+    color: var(--gray-text);
     margin-bottom: 1.5rem;
     max-width: 500px;
     animation: slideInUp 1s ease-out 0.2s both;
@@ -176,7 +161,7 @@ body {
     animation: slideInUp 1s ease-out 0.4s both;
 
     .btn-primary {
-      background: $dark-text;
+      background: var(--text-color);
       color: white;
       border: none;
       padding: 0.8rem 1.5rem;
@@ -187,7 +172,7 @@ body {
       transition: all 0.3s ease;
 
       &:hover {
-        background: $primary-coral;
+        background: var(--primary-coral);
         transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(247, 90, 90, 0.3);
       }
@@ -197,7 +182,7 @@ body {
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      background: $primary-yellow;
+      background: var(--primary-yellow);
       border: none;
       display: flex;
       align-items: center;
@@ -231,7 +216,7 @@ body {
       width: 400px;
       height: 400px;
       margin-bottom: 2rem;
-      background: linear-gradient(135deg, $primary-teal, $primary-yellow);
+      background: linear-gradient(135deg, var(--primary-teal), var(--primary-yellow));
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -266,8 +251,8 @@ body {
         height: 80%;
         background: repeating-linear-gradient(
           45deg,
-          $primary-yellow,
-          $primary-yellow 8px,
+          var(--primary-yellow),
+          var(--primary-yellow) 8px,
           transparent 8px,
           transparent 20px
         );
@@ -282,7 +267,7 @@ body {
         right: -15px;
         width: 80px;
         height: 80px;
-        background: $primary-orange;
+        background: var(--primary-orange);
         border-radius: 50%;
         z-index: 1;
         animation: pulse 3s ease-in-out infinite;
@@ -302,13 +287,13 @@ body {
         .stat-number {
           font-size: 1.8rem;
           font-weight: 800;
-          color: $dark-text;
+          color: var(--text-color);
           line-height: 1;
         }
 
         .stat-label {
           font-size: 0.75rem;
-          color: $gray-text;
+          color: var(--gray-text);
           font-weight: 500;
           margin-top: 0.2rem;
         }
@@ -318,14 +303,14 @@ body {
         grid-column: 1 / -1;
         
         .stars {
-          color: $primary-yellow;
+          color: var(--primary-yellow);
           font-size: 1rem;
           margin-bottom: 0.2rem;
         }
 
         .rating-text {
           font-size: 0.7rem;
-          color: $gray-text;
+          color: var(--gray-text);
           font-weight: 500;
         }
       }
@@ -346,12 +331,12 @@ body {
     font-size: 2.2rem;
     font-weight: 800;
     margin-bottom: 0.8rem;
-    color: $dark-text;
+    color: var(--text-color);
   }
 
   .section-subtitle {
     font-size: 1rem;
-    color: $gray-text;
+    color: var(--text-tertiary);
     max-width: 600px;
     margin: 0 auto;
   }
@@ -360,7 +345,7 @@ body {
 // About Section
 .about {
   padding: 60px 0;
-  background: white;
+  background: var(--bg-color);
 
   .about-content {
     max-width: 800px;
@@ -371,12 +356,12 @@ body {
       p {
         font-size: 1rem;
         margin-bottom: 1.2rem;
-        color: $gray-text;
+        color: var(--gray-text);
         line-height: 1.6;
       }
 
       .btn-primary {
-        background: $primary-teal;
+        background: var(--primary-teal);
         color: white;
         border: none;
         padding: 0.8rem 1.5rem;
@@ -388,7 +373,7 @@ body {
         margin-top: 0.8rem;
 
         &:hover {
-          background: darken($primary-teal, 10%);
+          background: hsl(from var(--color-primary) h s calc(l - 10));
           transform: translateY(-3px);
           box-shadow: 0 10px 25px rgba(109, 225, 210, 0.3);
         }
@@ -405,7 +390,7 @@ body {
     rgba(255, 214, 58, 0.05) 25%, 
     rgba(255, 169, 85, 0.05) 50%, 
     rgba(247, 90, 90, 0.08) 75%, 
-    $light-bg 100%);
+    var(--bg-color) 100%);
   position: relative;
   overflow: hidden;
 
@@ -453,7 +438,7 @@ body {
   }
 
   .skill-card {
-    background: white;
+    background: var(--bg-tertiary);
     padding: 1.8rem;
     border-radius: 20px;
     text-align: center;
@@ -465,7 +450,7 @@ body {
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
       
       .skill-icon ng-icon {
-        color: $primary-coral;
+        color: var(--primary-coral);
         transform: scale(1.1);
       }
     }
@@ -476,7 +461,7 @@ body {
       justify-content: center;
       
       ng-icon {
-        color: $primary-teal;
+        color: var(--primary-teal);
         transition: color 0.3s ease;
       }
     }
@@ -485,11 +470,11 @@ body {
       font-size: 1.2rem;
       font-weight: 700;
       margin-bottom: 0.8rem;
-      color: $dark-text;
+      color: var(--text-color);
     }
 
     .skill-description {
-      color: $gray-text;
+      color: var(--gray-text);
       line-height: 1.5;
       font-size: 0.9rem;
     }
@@ -499,7 +484,7 @@ body {
 // Portfolio Section
 .portfolio {
   padding: 60px 0;
-  background: white;
+  background: var(--bg-secondary);
 
   .portfolio-grid {
     display: grid;
@@ -508,7 +493,7 @@ body {
   }
 
   .portfolio-item {
-    background: white;
+    background: var(--bg-elevated);
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
@@ -526,7 +511,7 @@ body {
       .project-placeholder {
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, $primary-teal, $primary-orange);
+        background: linear-gradient(135deg, var(--primary-teal), var(--primary-orange));
         display: flex;
         align-items: center;
         justify-content: center;
@@ -543,11 +528,11 @@ body {
         font-size: 1.2rem;
         font-weight: 700;
         margin-bottom: 0.8rem;
-        color: $dark-text;
+        color: var(--text-color);
       }
 
       .project-description {
-        color: $gray-text;
+        color: var(--text-tertiary);
         margin-bottom: 1rem;
         line-height: 1.5;
         font-size: 0.9rem;
@@ -559,8 +544,8 @@ body {
         gap: 0.4rem;
 
         .tech-tag {
-          background: $light-bg;
-          color: $dark-text;
+          background: var(--bg-color);
+          color: var(--text-color);
           padding: 0.2rem 0.6rem;
           border-radius: 15px;
           font-size: 0.8rem;
@@ -635,7 +620,7 @@ body {
   }
 
   .contact-card {
-    background: $light-bg;
+    background: var(--bg-color);
     padding: 1rem;
     border-radius: 20px;
     text-align: center;
@@ -644,15 +629,15 @@ body {
 
     &:hover {
       transform: translateY(-5px);
-      background: white;
-      border-color: $primary-teal;
+      background: var(--bg-tertiary);
+      border-color: var(--primary-teal);
       box-shadow: 0 10px 30px rgba(109, 225, 210, 0.15);
     }
 
     .contact-icon {
       width: 60px;
       height: 60px;
-      background: $primary-teal;
+      background: var(--primary-teal);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -666,7 +651,7 @@ body {
     }
 
     &:hover .contact-icon {
-      background: $primary-coral;
+      background: var(--primary-coral);
       transform: scale(1.1);
     }
 
@@ -674,12 +659,12 @@ body {
       h4 {
         font-size: 1.1rem;
         font-weight: 600;
-        color: $dark-text;
+        color: var(--text-color);
         margin-bottom: 0.5rem;
       }
 
       p {
-        color: $gray-text;
+        color: var(--gray-text);
         font-size: 0.95rem;
         font-weight: 500;
       }
@@ -692,7 +677,7 @@ body {
     .social-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: $dark-text;
+      color: var(--text-color);
       margin-bottom: 2rem;
     }
 
@@ -708,14 +693,14 @@ body {
       align-items: center;
       gap: 0.75rem;
       padding: 1rem 1.5rem;
-      background: $light-bg;
+      background: var(--bg-color);
       border-radius: 50px;
       text-decoration: none;
-      color: $dark-text;
+      color: var(--text-color);
       font-weight: 500;
       font-size: 0.95rem;
       transition: all 0.2s ease;
-      border: 2px solid $dark-bg;
+      border: 2px solid var(--dark-bg);
 
       ng-icon {
         transition: all 0.2s ease;
@@ -749,7 +734,7 @@ body {
 
 // Footer
 .footer {
-  background: $dark-text;
+  background: var(--bg-elevated);
   color: white;
   padding: 2rem 0 1rem;
 
@@ -767,7 +752,7 @@ body {
       font-size: 1.3rem;
 
       .brand-icon {
-        color: $primary-yellow;
+        color: var(--primary-yellow);
         font-size: 1.5rem;
       }
     }
@@ -783,17 +768,17 @@ body {
         font-size: 0.9rem;
 
         &:hover {
-          color: $primary-yellow;
+          color: var(--primary-yellow);
         }
       }
     }
   }
 
   .footer-bottom {
-    border-top: 1px solid #374151;
+    border-top: 2px solid var(--primary-coral);
     padding-top: 1.5rem;
     text-align: center;
-    color: #9CA3AF;
+    color: var(--text-tertiary);
     font-size: 0.9rem;
   }
 }
