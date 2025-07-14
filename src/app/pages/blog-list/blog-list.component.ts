@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { BlogService } from '../../services/blog.service';
 import { RouterModule } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ThemeService } from '../../services/theme.service';
 import {
   radixExclamationTriangle
 } from '@ng-icons/radix-icons';
@@ -22,12 +23,13 @@ export class BlogListComponent {
   sidebarOpen = true; // Start with sidebar open on desktop
   isLoading = true;
   showMobileOverlay = false; // Toggle for mobile overlay content
+  showDropdown = false; // Toggle for dropdown menu
 
   // Constants
   readonly LINES_PER_POST = 6; // Number of lines per blog post item
   readonly HEADER_LINES = 5; // Number of lines in the header comment
 
-  constructor(private blogService: BlogService) {}
+  constructor(private blogService: BlogService, private themeService: ThemeService) {}
 
   ngOnInit(): void {
     this.loadPosts();
@@ -61,6 +63,24 @@ export class BlogListComponent {
 
   toggleMobileOverlay(): void {
     this.showMobileOverlay = !this.showMobileOverlay;
+    this.closeDropdown(); // Close dropdown after toggle
+  }
+
+  toggleDropdown(): void {
+    this.showDropdown = !this.showDropdown;
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+    this.closeDropdown(); // Close dropdown after theme change
+  }
+
+  get isDarkMode(): boolean {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+
+  closeDropdown(): void {
+    this.showDropdown = false;
   }
 
   scrollToPost(index: number): void {

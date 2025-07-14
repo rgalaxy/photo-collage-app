@@ -52,6 +52,7 @@
 
 
 :root {
+  // Base colors for light mode (default)
   --bg-color: #ffffff;
   --text-color: #1a1a1a;
   --muted-text: #555555;
@@ -59,9 +60,41 @@
   --hover-color: #005f99;
   --border-color: #e0e0e0;
   --accent-bg: #f0f0f0;
+
+  // VSCode Light Theme Color Palette
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --bg-tertiary: #e8e8e8;
+  --bg-elevated: #e8e8e8;
+  --text-primary: #2d2d2d;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+
+  // Light mode syntax highlighting
+  --keyword-color: #0066cc;
+  --string-color: #a31515;
+  --comment-color: #008000;
+  --variable-color: #0070c1;
+  --property-color: #0070c1;
+  --type-color: #267f99;
+  --operator-color: #2d2d2d;
+  --punctuation-color: #2d2d2d;
+
+  // Accent Colors
+  --accent-blue: #007acc;
+  --accent-green: #16825d;
+  --accent-orange: #ff8c00;
+  --accent-purple: #c586c0;
+  --accent-red: #f44747;
+
+  // Window Controls
+  --control-close: #ff5f56;
+  --control-minimize: #ffbd2e;
+  --control-maximize: #27ca3f;
 }
 
 [data-theme="dark"] {
+  // Base colors for dark mode
   --bg-color: #1e1e1e;
   --text-color: #eaeaea;
   --muted-text: #aaaaaa;
@@ -69,6 +102,37 @@
   --hover-color: #70c0ff;
   --border-color: #3c3c3c;
   --accent-bg: #2b2b2b;
+
+  // VSCode Dark Theme Color Palette
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --bg-elevated: #383838;
+  --text-primary: #cccccc;
+  --text-secondary: #969696;
+  --text-muted: #6a6a6a;
+
+  // Dark mode syntax highlighting
+  --keyword-color: #569cd6;
+  --string-color: #ce9178;
+  --comment-color: #6a9955;
+  --variable-color: #9cdcfe;
+  --property-color: #9cdcfe;
+  --type-color: #4ec9b0;
+  --operator-color: #d4d4d4;
+  --punctuation-color: #d4d4d4;
+
+  // Keep accent colors the same but slightly adjusted for dark mode
+  --accent-blue: #007acc;
+  --accent-green: #16825d;
+  --accent-orange: #ff8c00;
+  --accent-purple: #c586c0;
+  --accent-red: #f44747;
+
+  // Window Controls remain the same
+  --control-close: #ff5f56;
+  --control-minimize: #ffbd2e;
+  --control-maximize: #27ca3f;
 }
 
 body {

@@ -12,16 +12,41 @@
     </div>
     <div class="editor-title">blog_posts.ts - Personal Dev Blog</div>
     <div class="editor-actions">
-      <button
-        class="action-button mobile-overlay-toggle"
-        (click)="toggleMobileOverlay()"
-        [class.active]="showMobileOverlay"
-        aria-label="Toggle mobile overlay"
-      >
-        <span class="action-icon">⚙</span>
-      </button>
+      <div class="dropdown-container">
+        <button
+          class="action-button settings-toggle"
+          (click)="toggleDropdown()"
+          [class.active]="showDropdown"
+          aria-label="Settings"
+        >
+          <span class="action-icon">⚙</span>
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- Dropdown Menu (moved outside header) -->
+  <div class="dropdown-menu" [class.show]="showDropdown">
+    <div class="dropdown-item" (click)="toggleTheme()">
+      <span class="dropdown-icon">{{ isDarkMode ? "☀️" : "🌙" }}</span>
+      <span class="dropdown-text">{{
+        isDarkMode ? "Light Mode" : "Dark Mode"
+      }}</span>
+    </div>
+    <div class="dropdown-item" (click)="toggleMobileOverlay()">
+      <span class="dropdown-icon">📱</span>
+      <span class="dropdown-text"
+        >{{ showMobileOverlay ? "Hide" : "Show" }} Mobile View</span
+      >
+    </div>
+  </div>
+
+  <!-- Dropdown backdrop -->
+  <div
+    class="dropdown-backdrop"
+    [class.active]="showDropdown"
+    (click)="closeDropdown()"
+  ></div>
 
   <!-- File Explorer Sidebar -->
   <div class="editor-layout">
