@@ -460,7 +460,7 @@ export class MiniGameBlacksmithComponent implements OnInit {
     
     setTimeout(() => {
       this.removeToast(toast.id);
-    }, 20000);
+    }, 2400);
   }
 
   removeToast(id: number) {
