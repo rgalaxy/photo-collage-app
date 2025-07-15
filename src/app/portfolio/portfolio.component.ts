@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { 
   radixDesktop,
@@ -63,13 +64,15 @@ export class PortfolioComponent implements OnInit {
       title: 'Web Automation Bot',
       description: 'A bot for automating web tasks for a expedition application',
       tech: ['Python', ' Selenium'],
-      imageUrl: ''
+      imageUrl: '',
     },
-    // {
-    //   title: 'Task Management App',
-    //   description: 'Collaborative project management tool',
-    //   tech: ['React', 'Express', 'PostgreSQL']
-    // },
+    {
+      title: 'Blacksmith Mini Game',
+      description: 'A fun and interactive blacksmith simulation game',
+      tech: ['Angular', 'Node.js', 'Supabase'],
+      imageUrl:'',
+      redirectionUrl: '/mini-game-blacksmith'
+    },
     // {
     //   title: 'Photo Gallery',
     //   description: 'Beautiful photo sharing application',
@@ -77,7 +80,7 @@ export class PortfolioComponent implements OnInit {
     // }
   ];
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -97,5 +100,11 @@ export class PortfolioComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  navigateToProject(project: any): void {
+    if (project.redirectionUrl) {
+      this.router.navigate([project.redirectionUrl]);
+    }
   }
 }

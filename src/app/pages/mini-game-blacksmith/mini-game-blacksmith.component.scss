@@ -1,0 +1,905 @@
+// SCSS Color Palette Variables - Updated to new vibrant palette
+$primary-color: #FFB200;      // Bright orange/yellow
+$primary-light: #ffc533;      // Lighter orange
+$primary-dark: #e6a000;       // Darker orange
+
+$accent-color: #EB5B00;       // Red-orange accent
+$accent-hover: #ff6a1a;       // Lighter red-orange
+$accent-dark: #d14900;        // Darker red-orange
+
+$success-color: #FFB200;      // Use primary for success
+$danger-color: #D91656;       // Bright pink/red for danger
+$warning-color: #EB5B00;      // Red-orange for warnings
+
+$bg-dark: #640D5F;            // Deep purple background
+$bg-medium: #7a1b6b;          // Medium purple
+$bg-light: #f8f0ff;           // Light purple/white background
+$bg-overlay: rgba(100, 13, 95, 0.9);
+
+$text-primary: #f8f0ff;       // Light text
+$text-secondary: #d4c4ff;     // Light purple text
+$text-accent: #FFB200;        // Orange accent text
+$text-danger: #ff4080;        // Light danger text
+$text-dark: #2A2A2A;          // Dark text for contrast
+
+$border-primary: #EB5B00;     // Red-orange borders
+$border-light: rgba(235, 91, 0, 0.3);
+
+$glass-bg: rgba(255, 178, 0, 0.1);
+$glass-border: rgba(255, 178, 0, 0.2);
+
+.blacksmith-game {
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, $bg-light 0%, $bg-medium 50%, $bg-dark 100%);
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(255, 178, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(235, 91, 0, 0.1) 0%, transparent 50%);
+  color: $text-primary;
+  font-family: 'Arial', sans-serif;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* High Scores Toggle (Fixed position) */
+.high-scores-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+}
+
+.toggle-btn {
+  background: linear-gradient(45deg, $primary-color, $primary-light);
+  color: $text-primary;
+  border: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  width: 36px;
+  height: 36px;
+}
+
+.toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* High Scores Panel (Sliding) - Now Horizontal */
+.high-scores-panel {
+  position: fixed;
+  top: 0;
+  right: -460px;
+  width: 380px;
+  height: 100vh;
+  background: linear-gradient(135deg, $bg-overlay, rgba(100, 13, 95, 0.95));
+  border-left: 3px solid $border-primary;
+  padding: 20px;
+  z-index: 50;
+  transition: right 0.3s ease;
+  backdrop-filter: blur(15px);
+  overflow-y: auto;
+  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.high-scores-panel.show {
+  right: 0;
+}
+
+.high-scores-panel h3 {
+  color: $text-accent;
+  margin: 10px 0 25px 0;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.high-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; // Reduced from 12px
+}
+
+.high-score-item {
+  background: linear-gradient(135deg, $glass-bg, rgba(255, 178, 0, 0.05));
+  border: 2px solid $glass-border;
+  border-radius: 8px; // Reduced from 12px
+  padding: 6px; // Reduced from 15px
+  display: flex;
+  align-items: center;
+  gap: 8px; // Reduced from 12px
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.high-score-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 178, 0, 0.2);
+}
+
+/* Special styling for top 3 rankings */
+.high-score-item:nth-child(1) {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 178, 0, 0.1));
+  border-color: #FFD700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.high-score-item:nth-child(2) {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(255, 178, 0, 0.1));
+  border-color: #C0C0C0;
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.3);
+}
+
+.high-score-item:nth-child(3) {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(255, 178, 0, 0.1));
+  border-color: #CD7F32;
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.3);
+}
+
+.rank-badge {
+  width: 32px; // Reduced from 40px
+  height: 32px; // Reduced from 40px
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem; // Reduced from 1.1rem
+  color: $bg-dark;
+  flex-shrink: 0;
+}
+
+.high-score-item:nth-child(1) .rank-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  border: 2px solid #FFD700;
+}
+
+.high-score-item:nth-child(2) .rank-badge {
+  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+  color: #000;
+  border: 2px solid #C0C0C0;
+}
+
+.high-score-item:nth-child(3) .rank-badge {
+  background: linear-gradient(135deg, #CD7F32, #B8731A);
+  color: #FFF;
+  border: 2px solid #CD7F32;
+}
+
+.high-score-item:nth-child(n+4) .rank-badge {
+  background: transparent;
+  color: $text-primary;
+  border: 2px solid $accent-color;
+}
+
+.score-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px; // Reduced from 4px
+}
+
+.player-name {
+  color: $text-primary;
+  font-weight: 600;
+  font-size: 0.95rem; // Reduced from 1.1rem
+  margin: 0;
+}
+
+.score-value {
+  color: $text-accent;
+  font-weight: bold;
+  font-size: 1.1rem; // Reduced from 1.3rem
+  margin: 0;
+}
+
+.item-name {
+  font-size: 0.75rem; // Reduced from 0.85rem
+  color: $text-secondary;
+  font-style: italic;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.no-scores {
+  text-align: center;
+  color: $text-secondary;
+  font-style: italic;
+  padding: 20px;
+  width: 100%;
+}
+
+/* Game Over Modal */
+.game-over-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 300;
+  backdrop-filter: blur(5px);
+}
+
+.game-over-content {
+  background: linear-gradient(135deg, $bg-light, $bg-medium);
+  border: 3px solid $border-primary;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.game-over-content h2 {
+  color: $text-accent;
+  font-size: 2.5rem;
+  margin: 0 0 20px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-over-reason {
+  color: $text-primary;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.final-score {
+  background: $glass-bg;
+  border: 2px solid $border-primary;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.final-score .score-label {
+  color: $text-secondary;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.final-score .score-value {
+  color: $text-accent;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.final-item {
+  color: $text-primary;
+  font-size: 1.1rem;
+  margin: 15px 0;
+  font-weight: 600;
+}
+
+.game-over-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.game-over-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.new-game-btn {
+  background: linear-gradient(45deg, $primary-color, $primary-light);
+  color: $text-primary;
+}
+
+.new-game-btn:hover {
+  background: linear-gradient(45deg, $primary-light, $primary-color);
+  transform: translateY(-2px);
+}
+
+.close-btn {
+  background: linear-gradient(45deg, $accent-dark, $accent-color);
+  color: $text-primary;
+}
+
+.close-btn:hover {
+  background: linear-gradient(45deg, $accent-color, $accent-dark);
+  transform: translateY(-2px);
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.toast {
+  padding: 4px 12px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateX(100%);
+  animation: slideInToast 0.3s ease forwards;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.toast.success {
+  background: linear-gradient(135deg, $success-color, lighten($success-color, 10%));
+  border-left: 4px solid lighten($success-color, 20%);
+}
+
+.toast.error {
+  background: linear-gradient(135deg, $danger-color, lighten($danger-color, 10%));
+  border-left: 4px solid lighten($danger-color, 20%);
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideInToast {
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Header (Compact) */
+.game-header {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  border: 2px solid $border-primary;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.game-title {
+  font-size: 1.8rem;
+  margin: 0;
+  color: $text-accent;
+  font-weight: bold;
+}
+
+.game-stats {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: rgba(139, 69, 19, 0.3);
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid $border-primary;
+  font-size: 0.9rem;
+}
+
+.stat-label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.stat-value {
+  color: $text-accent;
+  font-weight: bold;
+}
+
+.finish-btn {
+  background: linear-gradient(45deg, $success-color, darken($success-color, 10%));
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.finish-btn:hover {
+  background: linear-gradient(45deg, darken($success-color, 10%), $success-color);
+  transform: translateY(-2px);
+}
+
+/* Game Setup (Compact) */
+.game-setup {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.setup-panel {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid $border-primary;
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  max-width: 400px; // Reduced back to original size
+}
+
+.setup-panel h2 {
+  color: $text-accent;
+  margin-bottom: 20px;
+}
+
+.setup-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.how-to-play-btn {
+  background: linear-gradient(45deg, $accent-color, $accent-hover);
+  color: $text-primary;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.how-to-play-btn:hover {
+  background: linear-gradient(45deg, $accent-hover, $accent-color);
+  transform: translateY(-2px);
+}
+
+/* How to Play Modal */
+.how-to-play-modal {
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.how-to-play-content {
+  text-align: left;
+  margin: 20px 0;
+}
+
+.how-to-play-content ul {
+  margin: 0;
+  padding-left: 20px;
+  color: $text-primary;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.how-to-play-content li {
+  margin-bottom: 10px;
+}
+
+.how-to-play-content strong {
+  color: $text-accent;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  padding: 12px;
+  border: 2px solid $border-primary;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  color: $text-primary;
+  font-size: 1rem;
+  width: 200px;
+  text-align: center;
+}
+
+.start-btn {
+  background: linear-gradient(45deg, $warning-color, lighten($warning-color, 10%));
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.start-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Game Interface (Compact) */
+.game-interface {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Weapon Selection (Compact) */
+.weapon-selection {
+  text-align: center;
+}
+
+.weapon-selection h3 {
+  color: $text-accent;
+  margin-bottom: 15px;
+}
+
+.weapon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.weapon-btn {
+  background: linear-gradient(45deg, $primary-color, $primary-light);
+  color: $text-dark;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.weapon-btn:hover {
+  background: linear-gradient(45deg, $primary-light, $primary-color);
+  transform: translateY(-2px);
+}
+
+/* Forging Interface (Compact) */
+.forging-interface {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Current Weapon (Compact) */
+.current-weapon {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid $border-primary;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.weapon-display {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.weapon-name {
+  color: $text-accent;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  text-transform: capitalize;
+}
+
+.weapon-stats {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.stat-compact {
+  background: rgba(139, 69, 19, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid $border-primary;
+  font-size: 0.85rem;
+  color: $text-accent;
+}
+
+/* Action Result (Compact) */
+.action-result {
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.action-result.success {
+  background: rgba(0, 128, 0, 0.3);
+  border: 2px solid $success-color;
+  color: lighten($success-color, 30%);
+}
+
+.action-result.failure {
+  background: rgba(128, 0, 0, 0.3);
+  border: 2px solid $danger-color;
+  color: lighten($danger-color, 30%);
+}
+
+/* Forging Actions (Compact Grid) */
+.forging-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.action-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid $border-primary;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+}
+
+.action-card h4 {
+  color: $text-accent;
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+}
+
+.action-card p {
+  margin: 5px 0;
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.success-rate {
+  color: lighten($success-color, 30%) !important;
+  font-weight: bold;
+}
+
+.warning {
+  color: lighten($danger-color, 30%) !important;
+  font-weight: bold;
+}
+
+.requirement {
+  color: lighten($warning-color, 10%) !important;
+  font-style: italic;
+}
+
+.action-btn {
+  background: linear-gradient(45deg, $primary-color, $primary-light);
+  color: $text-primary;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.action-btn:disabled {
+  background: rgba(100, 100, 100, 0.3);
+  color: $text-secondary;
+  cursor: not-allowed;
+}
+
+.refine-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, $warning-color, lighten($warning-color, 10%));
+}
+
+.quality-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, $accent-color, $accent-hover);
+  color: $bg-dark;
+}
+
+.element-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, $primary-color, $primary-light);
+}
+
+/* Element Selection (Compact) */
+.element-selection {
+  margin-top: 8px;
+}
+
+.element-dropdown {
+  padding: 6px;
+  border: 2px solid $border-primary;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  color: $text-primary;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.modal-content {
+  background: rgba(20, 20, 20, 0.95);
+  border: 2px solid $border-primary;
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  max-width: 400px;
+  backdrop-filter: blur(10px);
+}
+
+.modal-content h3 {
+  color: $text-accent;
+  margin-top: 0;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background: linear-gradient(45deg, #666, #888);
+  color: white;
+}
+
+.confirm-btn {
+  background: linear-gradient(45deg, $success-color, darken($success-color, 10%));
+  color: white;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .blacksmith-game {
+    padding: 5px;
+    overflow-y: auto; // Make the main container scrollable
+    height: 100vh; // Ensure full height
+  }
+  
+  .main-content {
+    overflow-y: auto; // Make main content scrollable
+    flex: 1;
+  }
+  
+  .game-interface {
+    overflow-y: auto; // Make game interface scrollable
+  }
+  
+  .game-header {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .game-stats {
+    justify-content: center;
+  }
+  
+  .weapon-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .forging-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .game-title {
+    font-size: 1.5rem;
+  }
+  
+  .high-scores-panel {
+    width: 320px;
+    right: -320px;
+  }
+  
+  .modal-content {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .game-setup {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  // Move toasts to top-left on mobile
+  .toast-container {
+    top: 20px;
+    left: 20px;
+    right: auto;
+    bottom: auto;
+    max-width: calc(100vw - 40px);
+  }
+
+  .toast-message {
+    font-size: 0.75rem;
+    line-height: 1.1;
+  }
+}

@@ -128,7 +128,12 @@
       <p class="section-subtitle">Some of my recent work and projects</p>
     </div>
     <div class="portfolio-grid">
-      <div class="portfolio-item" *ngFor="let project of projects">
+      <div
+        class="portfolio-item"
+        *ngFor="let project of projects"
+        [class.clickable]="project.redirectionUrl"
+        (click)="navigateToProject(project)"
+      >
         <div class="portfolio-image">
           <div class="project-placeholder">
             <span>Project Image</span>
@@ -141,6 +146,9 @@
             <span class="tech-tag" *ngFor="let tech of project.tech">{{
               tech
             }}</span>
+          </div>
+          <div class="project-actions" *ngIf="project.redirectionUrl">
+            <span class="view-project">Click to view project →</span>
           </div>
         </div>
       </div>

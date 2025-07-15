@@ -1,0 +1,312 @@
+<div class="blacksmith-game">
+  <!-- Toast Container -->
+  <div class="toast-container">
+    <div
+      *ngFor="let toast of toasts"
+      class="toast"
+      [class.success]="toast.success"
+      [class.error]="!toast.success"
+    >
+      <div class="toast-message">{{ toast.message }}</div>
+      <button class="toast-close" (click)="removeToast(toast.id)">×</button>
+    </div>
+  </div>
+
+  <!-- High Scores Toggle (Fixed position) -->
+  <div class="high-scores-toggle">
+    <button class="toggle-btn" (click)="toggleHighScores()">
+      {{ showHighScores ? "❌" : "🏆" }}
+    </button>
+  </div>
+
+  <!-- High Scores Panel (Sliding from right) -->
+  <div class="high-scores-panel" [class.show]="showHighScores">
+    <h3>🏆 Top Blacksmiths</h3>
+    <div class="high-score-list">
+      <div
+        class="high-score-item"
+        *ngFor="let score of highScores; let i = index"
+      >
+        <div class="rank-badge">{{ i + 1 }}</div>
+        <div class="score-details">
+          <div class="player-name">{{ score.screen_name }}</div>
+          <div class="score-value">{{ score.score }}</div>
+          <div class="item-name" *ngIf="score.item_name">
+            {{ score.item_name }}
+          </div>
+        </div>
+      </div>
+      <div *ngIf="highScores.length === 0" class="no-scores">
+        No high scores yet. Be the first!
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Game Content -->
+  <div class="main-content">
+    <!-- Game Header (Compact) -->
+    <div class="game-header">
+      <h1 class="game-title">Mini Game - Yanto's Blacksmith</h1>
+      <div class="game-stats" *ngIf="gameActive">
+        <div class="stat">
+          <span class="stat-label">Score:</span>
+          <span class="stat-value">{{ score }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Time:</span>
+          <span class="stat-value">{{ timeRemaining }}s</span>
+        </div>
+        <button
+          class="finish-btn"
+          (click)="finishForging()"
+          [disabled]="gameOver"
+        >
+          ✅ Finish
+        </button>
+      </div>
+    </div>
+
+    <!-- Game Setup (when not playing) -->
+    <div class="game-setup" *ngIf="!gameActive">
+      <div class="setup-panel">
+        <h2>Ready to Forge?</h2>
+
+        <div class="input-group">
+          <input
+            id="playerName"
+            type="text"
+            [(ngModel)]="playerName"
+            placeholder="Enter your name"
+            maxlength="20"
+            autocomplete="off"
+          />
+        </div>
+        <div class="setup-buttons">
+          <button class="start-btn" (click)="startGame()">
+            Start Forging! ⚒️
+          </button>
+          <button class="how-to-play-btn" (click)="openHowToPlayModal()">
+            How To Play
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Interface (when playing) -->
+    <div class="game-interface" *ngIf="gameActive">
+      <!-- Weapon Selection (Compact) -->
+      <div class="weapon-selection" *ngIf="!currentWeapon">
+        <h3>🗡️ Select Weapon</h3>
+        <div class="weapon-grid">
+          <button
+            class="weapon-btn"
+            *ngFor="let weapon of weapons"
+            (click)="selectedWeaponId = weapon.id; selectWeapon()"
+          >
+            {{ weapon.name }} ({{ weapon.baseScore }})
+          </button>
+        </div>
+      </div>
+
+      <!-- Forging Interface (Compact) -->
+      <div class="forging-interface" *ngIf="currentWeapon">
+        <!-- Current Weapon Display (Compact) -->
+        <div class="current-weapon">
+          <div class="weapon-display">
+            <h3 class="weapon-name">
+              {{
+                getWeaponDisplayName() ||
+                  "basic " + currentWeapon.weapon.name.toLowerCase()
+              }}
+            </h3>
+            <div class="weapon-stats">
+              <span class="stat-compact"
+                >+{{ currentWeapon.refinement }}/15</span
+              >
+              <span class="stat-compact">{{ currentWeapon.quality }}</span>
+              <span class="stat-compact"
+                >{{ currentWeapon.elements.length }}/4 elements</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Forging Actions (Compact Grid) -->
+        <div class="forging-actions">
+          <!-- Refine Action -->
+          <div class="action-card">
+            <h4>⚡ Refine</h4>
+            <p class="success-rate">{{ getRefinementSuccessRate() }}%</p>
+            <p class="warning" *ngIf="currentWeapon.refinement > 5">
+              ⚠️ Break risk!
+            </p>
+            <button
+              class="action-btn refine-btn"
+              [disabled]="!canRefine()"
+              (click)="refineWeapon()"
+            >
+              Hit
+            </button>
+          </div>
+
+          <!-- Quality Action -->
+          <div class="action-card">
+            <h4>✨ Quality</h4>
+            <p
+              class="success-rate"
+              *ngIf="canImproveQuality() && !isQualityOnCooldown()"
+            >
+              {{ getQualitySuccessRate() }}%
+            </p>
+            <p class="cooldown" *ngIf="isQualityOnCooldown()">
+              Cooldown: {{ getCeilQualityCooldown() }}s
+            </p>
+            <button
+              class="action-btn quality-btn"
+              [disabled]="!canImproveQuality() || isQualityOnCooldown()"
+              (click)="improveQuality()"
+            >
+              Improve
+            </button>
+          </div>
+
+          <!-- Element Action -->
+          <div class="action-card">
+            <h4>🌟 Element</h4>
+            <p class="requirement" *ngIf="currentWeapon.refinement < 5">
+              Need +5
+            </p>
+            <div
+              class="element-selection"
+              *ngIf="currentWeapon.refinement >= 5"
+            >
+              <select [(ngModel)]="selectedElement" class="element-dropdown">
+                <option value="">Select</option>
+                <option
+                  *ngFor="let element of getAvailableElements()"
+                  [value]="element"
+                >
+                  {{ element | titlecase }}
+                </option>
+              </select>
+              <p
+                class="success-rate"
+                *ngIf="selectedElement && !isElementOnCooldown(selectedElement)"
+              >
+                {{ getElementSuccessRate() }}%
+              </p>
+              <p
+                class="cooldown"
+                *ngIf="selectedElement && isElementOnCooldown(selectedElement)"
+              >
+                Cooldown: {{ getCeilElementCooldown(selectedElement) }}s
+              </p>
+              <button
+                class="action-btn element-btn"
+                [disabled]="
+                  !canAddElement() ||
+                  (selectedElement && isElementOnCooldown(selectedElement))
+                "
+                (click)="addElement()"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finish Confirmation Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showFinishConfirmation"
+    (click)="cancelFinishForging()"
+  >
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Finish Forging?</h3>
+      <p>Are you sure you want to finish forging and submit your score?</p>
+      <p>
+        <strong>Current Score: {{ score }}</strong>
+      </p>
+      <p *ngIf="currentWeapon">
+        <strong>Item: {{ getWeaponDisplayName() }}</strong>
+      </p>
+      <div class="modal-buttons">
+        <button class="modal-btn cancel-btn" (click)="cancelFinishForging()">
+          Cancel
+        </button>
+        <button class="modal-btn confirm-btn" (click)="confirmFinishForging()">
+          Finish
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div class="game-over-modal" *ngIf="showGameOverModal">
+    <div class="game-over-content">
+      <h2>🎯 Game Over!</h2>
+      <div class="game-over-reason">{{ gameOverReason }}</div>
+
+      <div class="final-score">
+        <div class="score-label">Final Score</div>
+        <div class="score-value">{{ score }}</div>
+      </div>
+
+      <div class="final-item" *ngIf="currentWeapon">
+        Final Item: {{ getWeaponDisplayName() }}
+      </div>
+
+      <div class="game-over-actions">
+        <button class="game-over-btn new-game-btn" (click)="startNewGame()">
+          🔄 New Game
+        </button>
+        <button class="game-over-btn close-btn" (click)="closeGameOverModal()">
+          📋 View Scores
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- How To Play Modal -->
+  <div class="modal-overlay" *ngIf="showHowToPlayModal">
+    <div class="modal-content how-to-play-modal">
+      <h3>⚒️ How To Play</h3>
+      <div class="how-to-play-content">
+        <ul>
+          <li><strong>Choose a weapon</strong> to start forging</li>
+          <li>
+            <strong>Refine (+)</strong> to increase weapon level (higher risk at
+            higher levels)
+          </li>
+          <li>
+            <strong>Improve Quality</strong> to boost weapon grade (cooldown:
+            30s)
+          </li>
+          <li>
+            <strong>Add Element</strong> for bonus points (cooldown: 10s per
+            element)
+          </li>
+          <li>
+            <strong>Finish early</strong> to secure your score, or let time run
+            out
+          </li>
+          <li>
+            You have <strong>60 seconds</strong> to forge the best weapon!
+          </li>
+          <li>
+            <strong>Note:</strong> Only 75% of your score is submitted to
+            leaderboard when your item breaks
+          </li>
+        </ul>
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-btn confirm-btn" (click)="closeHowToPlayModal()">
+          Got it!
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

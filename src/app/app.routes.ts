@@ -16,5 +16,10 @@ export const routes: Routes = [
     path: 'blog/:slug',
     loadComponent: () =>
       import('./pages/blog-detail/blog-detail.component').then(m => m.BlogDetailComponent),
+  },
+  {
+    path: 'mini-game-blacksmith',
+    loadComponent: () =>
+      import('./pages/mini-game-blacksmith/mini-game-blacksmith.component').then(m => m.MiniGameBlacksmithComponent),
   }
 ];
