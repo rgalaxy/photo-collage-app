@@ -73,6 +73,13 @@ export class PortfolioComponent implements OnInit {
       imageUrl:'',
       redirectionUrl: '/mini-game-blacksmith'
     },
+    {
+      title: 'Click The Target Game',
+      description: 'Fast-paced target clicking game with combo system',
+      tech: ['Angular', 'RxJS', 'Animations'],
+      imageUrl:'',
+      redirectionUrl: '/click-the-target-game'
+    },
     // {
     //   title: 'Photo Gallery',
     //   description: 'Beautiful photo sharing application',

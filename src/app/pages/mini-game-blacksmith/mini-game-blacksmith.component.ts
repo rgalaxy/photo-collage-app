@@ -28,8 +28,8 @@ export class MiniGameBlacksmithComponent implements OnInit {
   score = 0;
   playerName = '';
   gameActive = false;
-  gameTime = 60; // 1 minute for weapon forging
-  timeRemaining = 60;
+  gameTime = 90;
+  timeRemaining = 90;
   showFinishConfirmation = false;
   
   // Game over state
@@ -43,6 +43,7 @@ export class MiniGameBlacksmithComponent implements OnInit {
   // Cooldown timers
   qualityImproveLastUsed = 0;
   elementAddLastUsed: { [key: string]: number } = {};
+  refinementLastUsed = 0;
   
   // Available weapons
   weapons: Weapon[] = [
@@ -68,7 +69,8 @@ export class MiniGameBlacksmithComponent implements OnInit {
   config = {
     refinement: {
       // Exponential decay formula: high chances 1-10, big punishment 11+
-      scoreMultiplier: 10 // Score per refinement level
+      scoreMultiplier: 10, // Score per refinement level
+      safeRefinementCooldown: 3 // 3 seconds cooldown for safe zone (levels 1-8)
     },
     quality: {
       successRates: {
@@ -132,12 +134,21 @@ export class MiniGameBlacksmithComponent implements OnInit {
     this.timeRemaining = this.gameTime;
     this.currentWeapon = null;
     this.selectedWeaponId = '';
+    this.selectedElement = '';
     this.lastActionResult = null;
     this.toasts = []; // Clear all toasts
+    this.gameOver = false; // Reset game over state
+    this.showFinishConfirmation = false; // Reset finish confirmation
     
-    // Reset cooldowns
+    // Reset all cooldowns to ensure no disabled states
     this.qualityImproveLastUsed = 0;
     this.elementAddLastUsed = {};
+    this.refinementLastUsed = 0;
+    
+    // Clear any existing timer
+    if (this.gameTimer) {
+      clearInterval(this.gameTimer);
+    }
     
     this.gameTimer = setInterval(() => {
       this.timeRemaining--;
@@ -147,7 +158,7 @@ export class MiniGameBlacksmithComponent implements OnInit {
     }, 1000);
   }
 
-  async endGame(reason: string = 'Time up!') {
+  async endGame(reason: string = 'Time up!', penaltyForBreaking: boolean = false) {
     this.gameActive = false;
     this.gameOver = true;
     this.gameOverReason = reason;
@@ -155,8 +166,8 @@ export class MiniGameBlacksmithComponent implements OnInit {
     
     if (this.score > 0) {
       const itemName = this.currentWeapon ? this.getWeaponDisplayName() : 'No item forged';
-      // Submit only 75% of the score to high scores
-      const submittedScore = Math.floor(this.score * 0.75);
+      // Apply penalty only when weapon breaks during refinement
+      const submittedScore = penaltyForBreaking ? Math.floor(this.score * 0.75) : this.score;
       await this.supabaseService.insertHighScore(this.playerName, submittedScore, itemName);
       await this.loadHighScores();
     }
@@ -167,11 +178,14 @@ export class MiniGameBlacksmithComponent implements OnInit {
 
   closeGameOverModal() {
     this.showGameOverModal = false;
+    // Reset game active state when closing modal to return to setup screen
+    this.gameActive = false;
   }
 
   startNewGame() {
     this.showGameOverModal = false;
     this.gameOver = false;
+    this.gameActive = false; // Will be set to true in startGame()
     this.gameOverReason = '';
     this.score = 0;
     this.currentWeapon = null;
@@ -179,9 +193,17 @@ export class MiniGameBlacksmithComponent implements OnInit {
     this.selectedElement = '';
     this.lastActionResult = null;
     this.timeRemaining = this.gameTime;
+    this.showFinishConfirmation = false;
     this.qualityImproveLastUsed = 0;
     this.elementAddLastUsed = {};
+    this.refinementLastUsed = 0;
     this.toasts = []; // Clear all toasts
+    
+    // Clear any existing timer
+    if (this.gameTimer) {
+      clearInterval(this.gameTimer);
+    }
+    
     this.startGame();
   }
 
@@ -228,6 +250,15 @@ export class MiniGameBlacksmithComponent implements OnInit {
   refineWeapon() {
     if (!this.currentWeapon || this.currentWeapon.refinement >= 15) return;
 
+    // Check if refinement is on cooldown (for safe refinement levels 1-8)
+    const now = Date.now();
+    const timeSinceLastUse = (now - this.refinementLastUsed) / 1000;
+    if (this.currentWeapon.refinement <= 8 && timeSinceLastUse < this.config.refinement.safeRefinementCooldown) {
+      const remainingTime = Math.ceil(this.config.refinement.safeRefinementCooldown - timeSinceLastUse);
+      this.showToast(`Refinement on cooldown! Wait ${remainingTime} seconds.`, false);
+      return;
+    }
+
     // Exponential decay formula: high chances 1-10, big punishment 11+
     let successRate: number;
     if (this.currentWeapon.refinement <= 10) {
@@ -247,13 +278,19 @@ export class MiniGameBlacksmithComponent implements OnInit {
       this.score += scoreGained;
       this.showToast(`Success! Weapon refined to +${this.currentWeapon.refinement}! (+${scoreGained} points)`, true);
     } else {
-      // On failure, weapon breaks and ends the game immediately
-      this.showToast('Failed! Weapon broke! Game ended!', false);
-      
-      // End game immediately when weapon breaks
-      setTimeout(() => {
-        this.endGame('Weapon broke during refinement!');
-      }); // Give 2 seconds to show the failure message
+      // Special handling for refinement levels 1-8: weapon cannot break, but goes on cooldown
+      if (this.currentWeapon.refinement <= 8) {
+        this.showToast(`Failed! Safe refinement (${this.currentWeapon.refinement}/8) - weapon did not break! 3s cooldown applied.`, false);
+        this.refinementLastUsed = now;
+      } else {
+        // At +9 and above, weapon can break and end the game
+        this.showToast('Failed! Weapon broke! Game ended!', false);
+        
+        // End game immediately when weapon breaks with penalty
+        setTimeout(() => {
+          this.endGame('Weapon broke during refinement!', true);
+        }); // Give time to show the failure message
+      }
     }
   }
 
@@ -401,7 +438,16 @@ export class MiniGameBlacksmithComponent implements OnInit {
   }
 
   canRefine(): boolean {
-    return !this.gameOver && this.currentWeapon !== null && this.currentWeapon.refinement < 15;
+    if (!this.currentWeapon || this.gameOver || this.currentWeapon.refinement >= 15) return false;
+    
+    // Check if refinement is on cooldown (for safe refinement levels 1-8)
+    if (this.currentWeapon.refinement <= 8) {
+      const now = Date.now();
+      const timeSinceLastUse = (now - this.refinementLastUsed) / 1000;
+      return timeSinceLastUse >= this.config.refinement.safeRefinementCooldown;
+    }
+    
+    return true;
   }
 
   canImproveQuality(): boolean {
@@ -420,6 +466,12 @@ export class MiniGameBlacksmithComponent implements OnInit {
   }
 
   // Cooldown helper methods
+  getRefinementCooldownRemaining(): number {
+    const now = Date.now();
+    const timeSinceLastUse = (now - this.refinementLastUsed) / 1000;
+    return Math.max(0, this.config.refinement.safeRefinementCooldown - timeSinceLastUse);
+  }
+
   getQualityCooldownRemaining(): number {
     const now = Date.now();
     const timeSinceLastUse = (now - this.qualityImproveLastUsed) / 1000;
@@ -433,6 +485,10 @@ export class MiniGameBlacksmithComponent implements OnInit {
     return Math.max(0, this.config.element.cooldownSeconds - timeSinceLastUse);
   }
 
+  isRefinementOnCooldown(): boolean {
+    return this.getRefinementCooldownRemaining() > 0;
+  }
+
   isQualityOnCooldown(): boolean {
     return this.getQualityCooldownRemaining() > 0;
   }
@@ -442,6 +498,10 @@ export class MiniGameBlacksmithComponent implements OnInit {
   }
 
   // Helper methods for template
+  getCeilRefinementCooldown(): number {
+    return Math.ceil(this.getRefinementCooldownRemaining());
+  }
+
   getCeilQualityCooldown(): number {
     return Math.ceil(this.getQualityCooldownRemaining());
   }

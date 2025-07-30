@@ -46,7 +46,7 @@
   <div class="main-content">
     <!-- Game Header (Compact) -->
     <div class="game-header">
-      <h1 class="game-title">Mini Game - Yanto's Blacksmith</h1>
+      <h1 class="game-title">Yanto's Blacksmith v1.1</h1>
       <div class="game-stats" *ngIf="gameActive">
         <div class="stat">
           <span class="stat-label">Score:</span>
@@ -137,8 +137,20 @@
           <div class="action-card">
             <h4>⚡ Refine</h4>
             <p class="success-rate">{{ getRefinementSuccessRate() }}%</p>
-            <p class="warning" *ngIf="currentWeapon.refinement > 5">
-              ⚠️ Break risk!
+            <p
+              class="warning"
+              *ngIf="currentWeapon.refinement <= 8 && !isRefinementOnCooldown()"
+            >
+              🛡️ Safe zone (1-8)!
+            </p>
+            <p
+              class="cooldown"
+              *ngIf="currentWeapon.refinement <= 8 && isRefinementOnCooldown()"
+            >
+              Cooldown: {{ getCeilRefinementCooldown() }}s
+            </p>
+            <p class="warning" *ngIf="currentWeapon.refinement >= 9">
+              💀 Danger zone!
             </p>
             <button
               class="action-btn refine-btn"
@@ -282,6 +294,15 @@
             higher levels)
           </li>
           <li>
+            <strong>Safe Zone (1-8):</strong> Weapons cannot break during
+            refinements +1 to +8, but failed attempts trigger a 3-second
+            cooldown
+          </li>
+          <li>
+            <strong>Danger Zone (9+):</strong> At +9 and above, weapons can
+            break and end the game immediately
+          </li>
+          <li>
             <strong>Improve Quality</strong> to boost weapon grade (cooldown:
             30s)
           </li>
@@ -298,7 +319,7 @@
           </li>
           <li>
             <strong>Note:</strong> Only 75% of your score is submitted to
-            leaderboard when your item breaks
+            leaderboard when your weapon breaks during refinement
           </li>
         </ul>
       </div>

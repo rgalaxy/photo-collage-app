@@ -41,4 +41,57 @@ export class SupabaseService {
     }
     return data;
   }
+
+  // Click The Target Game Methods
+  // Insert a click the target game score
+  async insertClickTargetScore(playerName: string, scores: number, accuracy: number, maxCombo: number) {
+    const { data, error } = await this.supabase
+      .from('click_the_target')
+      .insert([
+        { 
+          player_name: playerName, 
+          scores: scores, 
+          accuracy: accuracy,
+          max_combo: maxCombo,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+    if (error) {
+      console.error('Insert click target score error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Get top click the target scores
+  async getClickTargetHighScores(limit: number = 10) {
+    const { data, error } = await this.supabase
+      .from('click_the_target')
+      .select('*')
+      .order('scores', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Fetch click target scores error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Get player's best score
+  async getPlayerBestClickTargetScore(playerName: string) {
+    const { data, error } = await this.supabase
+      .from('click_the_target')
+      .select('*')
+      .eq('player_name', playerName)
+      .order('scores', { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error('Fetch player best score error:', error);
+      throw error;
+    }
+    return data && data.length > 0 ? data[0] : null;
+  }
 }

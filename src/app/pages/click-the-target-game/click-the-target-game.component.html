@@ -1,0 +1,306 @@
+<div class="game-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-flex">
+        <h1 class="title">🎯 Click The Target</h1>
+        <div class="button-group">
+          <button (click)="toggleHowToPlay()" class="btn btn-blue">
+            How to Play
+          </button>
+          <button (click)="toggleHighScores()" class="btn btn-green">
+            High Scores
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Setup Screen -->
+  <div *ngIf="!gameActive && !gameOver" class="setup-screen">
+    <div class="setup-card">
+      <h2 class="setup-title">Ready to Play?</h2>
+
+      <!-- Player Name Input -->
+      <div class="input-group">
+        <label class="input-label">Your Name</label>
+        <input
+          [(ngModel)]="playerName"
+          type="text"
+          placeholder="Enter your name"
+          class="text-input"
+        />
+      </div>
+
+      <!-- Difficulty Selection -->
+      <div class="input-group">
+        <label class="input-label">Difficulty</label>
+        <div class="dropdown">
+          <button
+            (click)="showDifficultySelector = !showDifficultySelector"
+            class="dropdown-button"
+          >
+            <span [class]="getDifficultyColor(difficulty)">{{
+              difficulty | titlecase
+            }}</span>
+            <span class="difficulty-desc">{{
+              getDifficultyDescription(difficulty)
+            }}</span>
+          </button>
+
+          <div *ngIf="showDifficultySelector" class="dropdown-menu">
+            <button
+              *ngFor="let diff of getDifficultyLevels()"
+              (click)="selectDifficulty(diff)"
+              class="dropdown-item"
+            >
+              <span [class]="getDifficultyColor(diff)">{{
+                diff | titlecase
+              }}</span>
+              <span class="difficulty-desc">{{
+                getDifficultyDescription(diff)
+              }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start Game Button -->
+      <button (click)="startGame()" class="btn btn-start">🚀 Start Game</button>
+    </div>
+  </div>
+
+  <!-- Game Area -->
+  <div *ngIf="gameActive" class="game-section">
+    <!-- Game Stats Header -->
+    <div class="stats-header">
+      <div class="stats-content">
+        <div class="stats-flex">
+          <div class="stats-left">
+            <span class="stat-item"
+              >Score: <span class="score-highlight">{{ score }}</span></span
+            >
+            <span class="stat-item">Hits: {{ hits }}</span>
+            <span class="stat-item">Misses: {{ misses }}</span>
+            <span class="stat-item">Accuracy: {{ getAccuracy() }}%</span>
+          </div>
+          <div class="stats-right">
+            <div *ngIf="combo > 0" class="combo-display">
+              <span class="combo-text">Combo: {{ combo }}</span>
+              <span class="combo-multiplier"
+                >x{{ comboMultiplier.toFixed(1) }}</span
+              >
+            </div>
+            <span class="stat-item"
+              >Time:
+              <span class="time-highlight">{{
+                formatTime(timeRemaining)
+              }}</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-area" (click)="clickGameArea($event)">
+      <!-- Targets -->
+      <div
+        *ngFor="let target of targets; trackBy: trackByTargetId"
+        class="target"
+        [style.left.%]="target.x"
+        [style.top.%]="target.y"
+        [style.width.px]="target.size"
+        [style.height.px]="target.size"
+        [class.target-clicked]="target.isClicked"
+        (click)="clickTarget(target, $event)"
+        [@targetClick]="target.isClicked ? 'clicked' : 'normal'"
+      >
+        <span class="target-emoji">🎯</span>
+
+        <!-- Countdown ring -->
+        <div
+          class="countdown-ring"
+          [style.opacity]="
+            target.timeLeft / difficultyConfigs[difficulty].targetLifetime
+          "
+        ></div>
+      </div>
+
+      <!-- Floating Score Texts -->
+      <div
+        *ngFor="let scoreText of floatingScores; trackBy: trackByScoreId"
+        class="floating-score"
+        [style.left.%]="scoreText.x"
+        [style.top.%]="scoreText.y"
+        [@floatingScore]="'show'"
+      >
+        +{{ scoreText.points }}
+      </div>
+
+      <!-- Center message when no targets -->
+      <div *ngIf="targets.length === 0" class="no-targets-message">
+        <div class="no-targets-content">
+          <div class="no-targets-emoji">👀</div>
+          <div class="no-targets-text">Stay alert! Targets will appear...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finish Game Button -->
+    <div class="end-game-button">
+      <button (click)="endGame()" class="btn btn-danger">End Game</button>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container">
+    <div
+      *ngFor="let toast of toasts"
+      @fadeInOut
+      class="toast"
+      [ngClass]="getToastClass(toast.type)"
+    >
+      {{ toast.message }}
+    </div>
+  </div>
+
+  <!-- How to Play Modal -->
+  <div *ngIf="showHowToPlay" class="modal-overlay">
+    <div class="modal-content" @fadeInOut>
+      <div class="modal-header">
+        <h3 class="modal-title">How to Play</h3>
+        <button (click)="toggleHowToPlay()" class="modal-close">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="how-to-objective">
+          🎯 <strong>Objective:</strong> Click on as many targets as you can
+          before time runs out!
+        </p>
+
+        <div class="how-to-section">
+          <p><strong>Gameplay:</strong></p>
+          <ul class="how-to-list">
+            <li>Targets appear randomly on screen</li>
+            <li>Each target has a limited lifetime</li>
+            <li>Click targets to score points</li>
+            <li>Missing targets counts as a miss</li>
+          </ul>
+        </div>
+
+        <div class="how-to-section">
+          <p><strong>Combo System:</strong></p>
+          <ul class="how-to-list">
+            <li>Hit targets consecutively to build combo</li>
+            <li>Every 5 combo hits increases score multiplier</li>
+            <li>Missing targets or waiting too long resets combo</li>
+          </ul>
+        </div>
+
+        <div class="how-to-section">
+          <p><strong>Difficulty Levels:</strong></p>
+          <ul class="how-to-list">
+            <li>
+              <span class="difficulty-easy">Easy:</span> 45s, slower targets,
+              bigger size
+            </li>
+            <li>
+              <span class="difficulty-medium">Medium:</span> 30s, medium speed &
+              size
+            </li>
+            <li>
+              <span class="difficulty-hard">Hard:</span> 20s, fast targets,
+              smaller size
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- High Scores Modal -->
+  <div *ngIf="showHighScores" class="modal-overlay">
+    <div class="modal-content modal-wide" @fadeInOut>
+      <div class="modal-header">
+        <h3 class="modal-title">🏆 High Scores</h3>
+        <button (click)="toggleHighScores()" class="modal-close">×</button>
+      </div>
+
+      <div class="scores-container">
+        <div *ngIf="highScores.length === 0" class="no-scores">
+          No high scores yet. Be the first!
+        </div>
+
+        <div *ngFor="let score of highScores; let i = index" class="score-item">
+          <div class="score-left">
+            <span class="score-medal">
+              {{ i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅" }}
+            </span>
+            <div class="score-info">
+              <div class="score-name">
+                {{ score.player_name || "Anonymous" }}
+              </div>
+              <div class="score-details">
+                <span>Accuracy: {{ score.accuracy }}%</span>
+                <span>Combo: {{ score.max_combo }}</span>
+              </div>
+              <div class="score-date">
+                {{ score.created_at | date : "short" }}
+              </div>
+            </div>
+          </div>
+          <div class="score-right">
+            <div class="score-points">
+              {{ score.scores }}
+            </div>
+            <div class="score-label">points</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div *ngIf="showGameOverModal" class="modal-overlay">
+    <div class="modal-content" @fadeInOut>
+      <div class="game-over-content">
+        <div class="game-over-emoji">🎉</div>
+        <h3 class="game-over-title">Game Over!</h3>
+
+        <div class="game-over-stats">
+          <div class="final-score">{{ score }} Points</div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Hits</div>
+              <div class="stat-value stat-hits">{{ hits }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Misses</div>
+              <div class="stat-value stat-misses">{{ misses }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Accuracy</div>
+              <div class="stat-value">{{ getAccuracy() }}%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Max Combo</div>
+              <div class="stat-value stat-combo">
+                {{ maxCombo }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-over-buttons">
+          <button (click)="startNewGame()" class="btn btn-start">
+            Play Again
+          </button>
+          <button (click)="closeGameOverModal()" class="btn btn-secondary">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

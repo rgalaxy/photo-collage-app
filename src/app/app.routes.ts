@@ -21,5 +21,10 @@ export const routes: Routes = [
     path: 'mini-game-blacksmith',
     loadComponent: () =>
       import('./pages/mini-game-blacksmith/mini-game-blacksmith.component').then(m => m.MiniGameBlacksmithComponent),
+  },
+  {
+    path: 'click-the-target-game',
+    loadComponent: () =>
+      import('./pages/click-the-target-game/click-the-target-game.component').then(m => m.ClickTheTargetGameComponent),
   }
 ];
