@@ -29,9 +29,39 @@ export class BlogListComponent {
   readonly LINES_PER_POST = 6; // Number of lines per blog post item
   readonly HEADER_LINES = 5; // Number of lines in the header comment
 
-  constructor(private blogService: BlogService, private themeService: ThemeService) {}
+  constructor(
+    private blogService: BlogService,
+    private themeService: ThemeService,
+    private meta: import('@angular/platform-browser').Meta,
+    private title: import('@angular/platform-browser').Title
+  ) {}
 
   ngOnInit(): void {
+    this.title.setTitle('Blog | Martin Haryanto');
+    this.meta.updateTag({ name: 'description', content: 'Read blog posts by Martin Haryanto, Frontend Engineer. Web development, portfolio, and more.' });
+    this.meta.updateTag({ property: 'og:title', content: 'Blog | Martin Haryanto' });
+    this.meta.updateTag({ property: 'og:description', content: 'Read blog posts by Martin Haryanto, Frontend Engineer. Web development, portfolio, and more.' });
+    this.meta.updateTag({ property: 'og:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+    this.meta.updateTag({ property: 'og:url', content: 'https://martinharyanto.netlify.app/blog' });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: 'Blog | Martin Haryanto' });
+    this.meta.updateTag({ name: 'twitter:description', content: 'Read blog posts by Martin Haryanto, Frontend Engineer. Web development, portfolio, and more.' });
+    this.meta.updateTag({ name: 'twitter:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    this.meta.updateTag({ name: 'canonical', content: 'https://martinharyanto.netlify.app/blog' });
+    // Add JSON-LD WebPage schema
+    const webPage = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      'name': 'Blog',
+      'url': 'https://martinharyanto.netlify.app/blog',
+      'description': 'Read blog posts by Martin Haryanto, Frontend Engineer. Web development, portfolio, and more.'
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(webPage);
+    document.head.appendChild(script);
     this.loadPosts();
   }
 

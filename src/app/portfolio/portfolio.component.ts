@@ -87,7 +87,11 @@ export class PortfolioComponent implements OnInit {
     // }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private meta: import('@angular/platform-browser').Meta,
+    private title: import('@angular/platform-browser').Title
+  ) {}
 
   ngOnInit(): void {
   }
@@ -96,7 +100,31 @@ export class PortfolioComponent implements OnInit {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-    }
+      this.title.setTitle('Portfolio | Martin Haryanto');
+      this.meta.updateTag({ name: 'description', content: 'Portfolio of Martin Haryanto, Frontend Engineer. Explore web development projects, skills, and experience.' });
+      this.meta.updateTag({ property: 'og:title', content: 'Portfolio | Martin Haryanto' });
+      this.meta.updateTag({ property: 'og:description', content: 'Portfolio of Martin Haryanto, Frontend Engineer. Explore web development projects, skills, and experience.' });
+      this.meta.updateTag({ property: 'og:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+      this.meta.updateTag({ property: 'og:url', content: 'https://martinharyanto.netlify.app/portfolio' });
+      this.meta.updateTag({ property: 'og:type', content: 'website' });
+      this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+      this.meta.updateTag({ name: 'twitter:title', content: 'Portfolio | Martin Haryanto' });
+      this.meta.updateTag({ name: 'twitter:description', content: 'Portfolio of Martin Haryanto, Frontend Engineer. Explore web development projects, skills, and experience.' });
+      this.meta.updateTag({ name: 'twitter:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+      this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+      this.meta.updateTag({ name: 'canonical', content: 'https://martinharyanto.netlify.app/portfolio' });
+      // Add JSON-LD WebPage schema
+      const webPage = {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        'name': 'Portfolio',
+        'url': 'https://martinharyanto.netlify.app/portfolio',
+        'description': 'Portfolio of Martin Haryanto, Frontend Engineer. Explore web development projects, skills, and experience.'
+      };
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify(webPage);
+      document.head.appendChild(script);
   }
 
   downloadCV(): void {

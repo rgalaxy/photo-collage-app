@@ -111,9 +111,38 @@ export class MiniGameBlacksmithComponent implements OnInit {
   toasts: { id: number; message: string; success: boolean }[] = [];
   private toastIdCounter = 0;
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private meta: import('@angular/platform-browser').Meta,
+    private title: import('@angular/platform-browser').Title
+  ) {}
 
   ngOnInit() {
+    this.title.setTitle('Mini Game: Blacksmith | Martin Haryanto');
+    this.meta.updateTag({ name: 'description', content: 'Play the Blacksmith mini game by Martin Haryanto. Forge weapons, improve skills, and challenge yourself.' });
+    this.meta.updateTag({ property: 'og:title', content: 'Mini Game: Blacksmith | Martin Haryanto' });
+    this.meta.updateTag({ property: 'og:description', content: 'Play the Blacksmith mini game by Martin Haryanto. Forge weapons, improve skills, and challenge yourself.' });
+    this.meta.updateTag({ property: 'og:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+    this.meta.updateTag({ property: 'og:url', content: 'https://martinharyanto.netlify.app/mini-game-blacksmith' });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: 'Mini Game: Blacksmith | Martin Haryanto' });
+    this.meta.updateTag({ name: 'twitter:description', content: 'Play the Blacksmith mini game by Martin Haryanto. Forge weapons, improve skills, and challenge yourself.' });
+    this.meta.updateTag({ name: 'twitter:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    this.meta.updateTag({ name: 'canonical', content: 'https://martinharyanto.netlify.app/mini-game-blacksmith' });
+    // Add JSON-LD WebPage schema
+    const webPage = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      'name': 'Mini Game: Blacksmith',
+      'url': 'https://martinharyanto.netlify.app/mini-game-blacksmith',
+      'description': 'Play the Blacksmith mini game by Martin Haryanto. Forge weapons, improve skills, and challenge yourself.'
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(webPage);
+    document.head.appendChild(script);
     this.loadHighScores();
   }
 
