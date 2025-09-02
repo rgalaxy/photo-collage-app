@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -14,6 +14,7 @@ import {
   radixGithubLogo,
   radixInstagramLogo
 } from '@ng-icons/radix-icons';
+import { SeoService } from '../services/seo.service';
 
 @Component({
   selector: 'app-portfolio',
@@ -35,6 +36,8 @@ import {
   styleUrls: ['./portfolio.component.scss']
 })
 export class PortfolioComponent implements OnInit {
+  private seoService = inject(SeoService);
+  private router = inject(Router);
   
   skills = [
     {
@@ -87,9 +90,11 @@ export class PortfolioComponent implements OnInit {
     // }
   ];
 
-  constructor(private router: Router) { }
+  constructor() { }
 
   ngOnInit(): void {
+    // Set SEO data for home page
+    this.seoService.updateSEO(this.seoService.getHomePageSEO());
   }
 
   scrollToSection(sectionId: string): void {

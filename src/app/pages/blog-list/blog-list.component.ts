@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { BlogService } from '../../services/blog.service';
 import { RouterModule } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { ThemeService } from '../../services/theme.service';
+import { SeoService } from '../../services/seo.service';
 import {
   radixExclamationTriangle
 } from '@ng-icons/radix-icons';
@@ -19,6 +20,10 @@ import {
   styleUrl: './blog-list.component.scss'
 })
 export class BlogListComponent {
+  private blogService = inject(BlogService);
+  private themeService = inject(ThemeService);
+  private seoService = inject(SeoService);
+
   posts: any[] = [];
   sidebarOpen = true; // Start with sidebar open on desktop
   isLoading = true;
@@ -29,9 +34,11 @@ export class BlogListComponent {
   readonly LINES_PER_POST = 6; // Number of lines per blog post item
   readonly HEADER_LINES = 5; // Number of lines in the header comment
 
-  constructor(private blogService: BlogService, private themeService: ThemeService) {}
+  constructor() {}
 
   ngOnInit(): void {
+    // Set SEO data for blog list page
+    this.seoService.updateSEO(this.seoService.getBlogListSEO());
     this.loadPosts();
   }
 
