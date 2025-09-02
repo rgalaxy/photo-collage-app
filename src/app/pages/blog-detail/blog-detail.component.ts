@@ -4,6 +4,7 @@ import { BlogService } from '../../services/blog.service';
 import { CommonModule } from '@angular/common';
 import { documentToHtmlString, Options } from '@contentful/rich-text-html-renderer';
 import { BLOCKS, Document } from '@contentful/rich-text-types';
+import { Meta, Title } from '@angular/platform-browser';
 
 
 @Component({
@@ -23,8 +24,8 @@ export class BlogDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private blogService: BlogService,
-    private meta: import('@angular/platform-browser').Meta,
-    private title: import('@angular/platform-browser').Title
+    private meta: Meta,
+    private title: Title
   ) {}
 
   ngOnInit(): void {
@@ -50,9 +51,10 @@ export class BlogDetailComponent {
           };
           this.post = post;
           // Set SEO meta tags
-          const title = post.fields.title + ' | Martin Haryanto Blog';
-          const description = post.fields.summary || post.fields.title;
-          const image = post.fields.coverImage?.fields?.file?.url ? `https:${post.fields.coverImage.fields.file.url}` : 'https://martinharyanto.netlify.app/assets/photos/me.png';
+          const title = (post.fields as any)['title'] + ' | Martin Haryanto Blog';
+          const description = (post.fields as any)['summary'] || (post.fields as any)['title'];
+          const coverImage = (post.fields as any)['coverImage'];
+          const image = coverImage?.fields?.file?.url ? `https:${coverImage.fields.file.url}` : 'https://martinharyanto.netlify.app/assets/photos/me.png';
           const url = `https://martinharyanto.netlify.app/blog/${slug}`;
           this.title.setTitle(title);
           this.meta.updateTag({ name: 'description', content: description });
@@ -71,7 +73,7 @@ export class BlogDetailComponent {
           const blogPosting = {
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
-            'headline': post.fields.title,
+            'headline': (post.fields as any)['title'],
             'image': [image],
             'author': {
               '@type': 'Person',

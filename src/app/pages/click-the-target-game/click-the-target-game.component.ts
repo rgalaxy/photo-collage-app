@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { trigger, state, style, transition, animate, keyframes } from '@angular/animations';
 import { interval, Subscription, timer } from 'rxjs';
 import { SupabaseService } from '../../services/supabase.service';
+import { Meta, Title } from '@angular/platform-browser';
 
 interface Target {
   id: number;
@@ -144,10 +145,13 @@ export class ClickTheTargetGameComponent implements OnInit, OnDestroy {
   
   // Game configuration
   difficulty: DifficultyLevel = 'medium';
-    constructor(
-      private meta: import('@angular/platform-browser').Meta,
-      private title: import('@angular/platform-browser').Title
-    ) {}
+  
+  constructor(
+    private supabaseService: SupabaseService,
+    private meta: Meta,
+    private title: Title
+  ) {}
+
   difficultyConfigs: Record<DifficultyLevel, DifficultyConfig> = {
     easy: {
       gameTime: 45,
@@ -175,32 +179,6 @@ export class ClickTheTargetGameComponent implements OnInit, OnDestroy {
   // Targets
   targets: Target[] = [];
   private targetIdCounter = 0;
-  
-      this.title.setTitle('Mini Game: Click the Target | Martin Haryanto');
-      this.meta.updateTag({ name: 'description', content: 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!' });
-      this.meta.updateTag({ property: 'og:title', content: 'Mini Game: Click the Target | Martin Haryanto' });
-      this.meta.updateTag({ property: 'og:description', content: 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!' });
-      this.meta.updateTag({ property: 'og:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
-      this.meta.updateTag({ property: 'og:url', content: 'https://martinharyanto.netlify.app/click-the-target-game' });
-      this.meta.updateTag({ property: 'og:type', content: 'website' });
-      this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-      this.meta.updateTag({ name: 'twitter:title', content: 'Mini Game: Click the Target | Martin Haryanto' });
-      this.meta.updateTag({ name: 'twitter:description', content: 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!' });
-      this.meta.updateTag({ name: 'twitter:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
-      this.meta.updateTag({ name: 'robots', content: 'index, follow' });
-      this.meta.updateTag({ name: 'canonical', content: 'https://martinharyanto.netlify.app/click-the-target-game' });
-      // Add JSON-LD WebPage schema
-      const webPage = {
-        '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        'name': 'Mini Game: Click the Target',
-        'url': 'https://martinharyanto.netlify.app/click-the-target-game',
-        'description': 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!'
-      };
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify(webPage);
-      document.head.appendChild(script);
   floatingScores: FloatingScore[] = [];
   private scoreIdCounter = 0;
   
@@ -227,11 +205,37 @@ export class ClickTheTargetGameComponent implements OnInit, OnDestroy {
   toasts: { id: number; message: string; type: 'success' | 'error' | 'info' }[] = [];
   private toastIdCounter = 0;
 
-  constructor(private supabaseService: SupabaseService) {}
-
   ngOnInit() {
     this.loadHighScores();
     this.resetGameState();
+    
+    // Set SEO meta tags
+    this.title.setTitle('Mini Game: Click the Target | Martin Haryanto');
+    this.meta.updateTag({ name: 'description', content: 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!' });
+    this.meta.updateTag({ property: 'og:title', content: 'Mini Game: Click the Target | Martin Haryanto' });
+    this.meta.updateTag({ property: 'og:description', content: 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!' });
+    this.meta.updateTag({ property: 'og:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+    this.meta.updateTag({ property: 'og:url', content: 'https://martinharyanto.netlify.app/click-the-target-game' });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: 'Mini Game: Click the Target | Martin Haryanto' });
+    this.meta.updateTag({ name: 'twitter:description', content: 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!' });
+    this.meta.updateTag({ name: 'twitter:image', content: 'https://martinharyanto.netlify.app/assets/photos/me.png' });
+    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    this.meta.updateTag({ name: 'canonical', content: 'https://martinharyanto.netlify.app/click-the-target-game' });
+    
+    // Add JSON-LD WebPage schema
+    const webPage = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      'name': 'Mini Game: Click the Target',
+      'url': 'https://martinharyanto.netlify.app/click-the-target-game',
+      'description': 'Play the Click the Target mini game by Martin Haryanto. Test your reflexes and aim for a high score!'
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(webPage);
+    document.head.appendChild(script);
   }
 
   ngOnDestroy() {

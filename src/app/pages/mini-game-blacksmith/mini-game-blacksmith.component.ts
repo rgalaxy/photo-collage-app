@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
+import { Meta, Title } from '@angular/platform-browser';
 
 interface Weapon {
   id: string;
@@ -113,8 +114,8 @@ export class MiniGameBlacksmithComponent implements OnInit {
 
   constructor(
     private supabaseService: SupabaseService,
-    private meta: import('@angular/platform-browser').Meta,
-    private title: import('@angular/platform-browser').Title
+    private meta: Meta,
+    private title: Title
   ) {}
 
   ngOnInit() {

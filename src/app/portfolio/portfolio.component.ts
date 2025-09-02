@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { 
   radixDesktop,
@@ -89,8 +90,8 @@ export class PortfolioComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private meta: import('@angular/platform-browser').Meta,
-    private title: import('@angular/platform-browser').Title
+    private meta: Meta,
+    private title: Title
   ) {}
 
   ngOnInit(): void {

@@ -4,6 +4,7 @@ import { BlogService } from '../../services/blog.service';
 import { RouterModule } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { ThemeService } from '../../services/theme.service';
+import { Meta, Title } from '@angular/platform-browser';
 import {
   radixExclamationTriangle
 } from '@ng-icons/radix-icons';
@@ -32,8 +33,8 @@ export class BlogListComponent {
   constructor(
     private blogService: BlogService,
     private themeService: ThemeService,
-    private meta: import('@angular/platform-browser').Meta,
-    private title: import('@angular/platform-browser').Title
+    private meta: Meta,
+    private title: Title
   ) {}
 
   ngOnInit(): void {
