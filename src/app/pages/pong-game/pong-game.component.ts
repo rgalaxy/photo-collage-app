@@ -226,7 +226,7 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private gameLoop() {
-    if (this.gameState !== 'playing') return;
+    if (this.gameState !== 'playing' || !this.ctx || !this.canvas) return;
 
     this.update();
     this.render();
