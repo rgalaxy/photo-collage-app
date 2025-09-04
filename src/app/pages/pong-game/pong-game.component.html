@@ -1,0 +1,276 @@
+<div class="game-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-flex">
+        <h1 class="title">🏓 2-Player Pong</h1>
+        <div class="button-group">
+          <button (click)="toggleHowToPlay()" class="btn btn-blue">
+            How to Play
+          </button>
+          <button (click)="toggleHighScores()" class="btn btn-green">
+            High Scores
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Setup Screen -->
+  <div *ngIf="gameState === 'setup'" class="setup-screen">
+    <div class="setup-card">
+      <h2 class="setup-title">Ready for Pong?</h2>
+
+      <!-- Player Names Input -->
+      <div class="players-input">
+        <div class="input-group">
+          <label class="input-label">Player 1 Name</label>
+          <input
+            [(ngModel)]="player1Name"
+            type="text"
+            placeholder="Enter Player 1 name"
+            class="text-input"
+          />
+          <span class="control-hint">Controls: W/S keys</span>
+        </div>
+
+        <div class="vs-divider">VS</div>
+
+        <div class="input-group">
+          <label class="input-label">Player 2 Name</label>
+          <input
+            [(ngModel)]="player2Name"
+            type="text"
+            placeholder="Enter Player 2 name"
+            class="text-input"
+          />
+          <span class="control-hint">Controls: Arrow Up/Down</span>
+        </div>
+      </div>
+
+      <!-- Game Settings -->
+      <div class="game-settings">
+        <div class="setting-group">
+          <label class="setting-label">First to</label>
+          <select [(ngModel)]="maxScore" class="setting-select">
+            <option value="3">3 points</option>
+            <option value="5">5 points</option>
+            <option value="7">7 points</option>
+            <option value="10">10 points</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Start Game Button -->
+      <button (click)="startGame()" class="btn btn-start">🚀 Start Game</button>
+    </div>
+  </div>
+
+  <!-- Game Area -->
+  <div *ngIf="gameState === 'playing' || gameState === 'paused'" class="game-section">
+    <!-- Game Stats Header -->
+    <div class="stats-header">
+      <div class="stats-content">
+        <div class="stats-flex">
+          <div class="player-stats">
+            <span class="player-name">{{ player1Name }}</span>
+            <span class="player-score">{{ player1Score }}</span>
+          </div>
+          <div class="center-stats">
+            <div class="game-info">
+              <span class="time-display">{{ getGameDuration() }}</span>
+              <span class="max-score-display">First to {{ maxScore }}</span>
+            </div>
+            <div class="game-controls">
+              <button 
+                (click)="pauseGame()" 
+                class="btn btn-small"
+                [class.btn-warning]="gameState === 'playing'"
+                [class.btn-success]="gameState === 'paused'"
+              >
+                {{ gameState === 'playing' ? '⏸️ Pause' : '▶️ Resume' }}
+              </button>
+              <button (click)="resetGame()" class="btn btn-small btn-danger">
+                🔄 Reset
+              </button>
+            </div>
+          </div>
+          <div class="player-stats">
+            <span class="player-name">{{ player2Name }}</span>
+            <span class="player-score">{{ player2Score }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <div class="canvas-container">
+      <canvas 
+        #gameCanvas 
+        class="game-canvas"
+        [class.paused]="gameState === 'paused'"
+      ></canvas>
+      
+      <!-- Pause Overlay -->
+      <div *ngIf="gameState === 'paused'" class="pause-overlay" @fadeInOut>
+        <div class="pause-content">
+          <h3>⏸️ Game Paused</h3>
+          <p>Press Resume to continue</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Info -->
+    <div class="controls-info">
+      <div class="control-group">
+        <span class="control-player">{{ player1Name }}</span>
+        <span class="control-keys">W/S Keys</span>
+      </div>
+      <div class="control-group">
+        <span class="control-player">{{ player2Name }}</span>
+        <span class="control-keys">↑/↓ Arrow Keys</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container">
+    <div
+      *ngFor="let toast of toasts"
+      @fadeInOut
+      class="toast"
+      [ngClass]="getToastClass(toast.type)"
+    >
+      {{ toast.message }}
+    </div>
+  </div>
+
+  <!-- How to Play Modal -->
+  <div *ngIf="showHowToPlay" class="modal-overlay">
+    <div class="modal-content" @fadeInOut>
+      <div class="modal-header">
+        <h3 class="modal-title">How to Play Pong</h3>
+        <button (click)="toggleHowToPlay()" class="modal-close">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="how-to-objective">
+          🏓 <strong>Objective:</strong> Use your paddle to hit the ball past your opponent and score points!
+        </p>
+
+        <div class="how-to-section">
+          <p><strong>Controls:</strong></p>
+          <ul class="how-to-list">
+            <li><strong>Player 1:</strong> W key (up) / S key (down)</li>
+            <li><strong>Player 2:</strong> Arrow Up (up) / Arrow Down (down)</li>
+            <li><strong>Pause:</strong> Use the pause button to take a break</li>
+          </ul>
+        </div>
+
+        <div class="how-to-section">
+          <p><strong>Gameplay:</strong></p>
+          <ul class="how-to-list">
+            <li>Move your paddle up and down to hit the ball</li>
+            <li>The ball speeds up slightly each time it hits a paddle</li>
+            <li>Score points when the ball passes your opponent's paddle</li>
+            <li>First player to reach the target score wins!</li>
+          </ul>
+        </div>
+
+        <div class="how-to-section">
+          <p><strong>Strategy Tips:</strong></p>
+          <ul class="how-to-list">
+            <li>Hit the ball with different parts of your paddle to change its angle</li>
+            <li>Try to predict where the ball will be, not where it is</li>
+            <li>Use the center line as a reference point</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- High Scores Modal -->
+  <div *ngIf="showHighScores" class="modal-overlay">
+    <div class="modal-content modal-wide" @fadeInOut>
+      <div class="modal-header">
+        <h3 class="modal-title">🏆 High Scores</h3>
+        <button (click)="toggleHighScores()" class="modal-close">×</button>
+      </div>
+
+      <div class="scores-container">
+        <div *ngIf="highScores.length === 0" class="no-scores">
+          No high scores yet. Play a game to set the first record!
+        </div>
+
+        <div *ngFor="let score of highScores; let i = index" class="score-item">
+          <div class="score-left">
+            <span class="score-medal">
+              {{ i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅" }}
+            </span>
+            <div class="score-info">
+              <div class="game-result">
+                <span class="winner-name">{{ score.winner }}</span>
+                <span class="vs-text">defeated</span>
+                <span class="loser-name">
+                  {{ score.winner === score.player1_name ? score.player2_name : score.player1_name }}
+                </span>
+              </div>
+              <div class="score-details">
+                <span>{{ score.player1_score }} - {{ score.player2_score }}</span>
+                <span>Duration: {{ score.game_duration }}s</span>
+              </div>
+              <div class="score-date">
+                {{ score.created_at | date : "short" }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div *ngIf="showGameOverModal" class="modal-overlay">
+    <div class="modal-content" @fadeInOut>
+      <div class="game-over-content">
+        <div class="game-over-emoji">🎉</div>
+        <h3 class="game-over-title">{{ winner }} Wins!</h3>
+
+        <div class="game-over-stats">
+          <div class="final-score-display">
+            <div class="final-score">
+              <span class="winner-score">{{ winner === player1Name ? player1Score : player2Score }}</span>
+              <span class="score-separator">-</span>
+              <span class="loser-score">{{ winner === player1Name ? player2Score : player1Score }}</span>
+            </div>
+            <div class="score-label">Final Score</div>
+          </div>
+          
+          <div class="game-summary">
+            <div class="summary-item">
+              <span class="summary-label">Game Duration:</span>
+              <span class="summary-value">{{ getGameDuration() }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Winner:</span>
+              <span class="summary-value">{{ winner }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Runner-up:</span>
+              <span class="summary-value">{{ winner === player1Name ? player2Name : player1Name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-over-buttons">
+          <button (click)="startNewGame()" class="btn btn-start">
+            Play Again
+          </button>
+          <button (click)="closeGameOverModal()" class="btn btn-secondary">
+            New Players
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
