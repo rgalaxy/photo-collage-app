@@ -1,0 +1,35 @@
+<div 
+  class="game-card" 
+  [tabindex]="tabindex"
+  (click)="onCardClick()"
+  role="listitem"
+>
+  <div class="game-image">
+    <img 
+      [src]="game.imageUrl" 
+      [alt]="game.title + ' preview'"
+      [title]="game.title"
+      loading="lazy"
+      width="640"
+      height="360"
+    />
+  </div>
+  
+  <div class="game-content">
+    <h3 class="game-title" [title]="game.title">{{ game.title }}</h3>
+    
+    <div class="game-tags">
+      <span 
+        class="game-tag" 
+        *ngFor="let tag of game.tags"
+        [title]="tag"
+      >
+        {{ tag }}
+      </span>
+    </div>
+    
+    <p class="game-description" [title]="game.description">
+      {{ game.description }}
+    </p>
+  </div>
+</div>

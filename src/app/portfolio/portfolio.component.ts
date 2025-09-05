@@ -119,4 +119,8 @@ export class PortfolioComponent implements OnInit {
       this.router.navigate([project.redirectionUrl]);
     }
   }
+
+  navigateToMyGames(): void {
+    this.router.navigate(['/my-games']);
+  }
 }
