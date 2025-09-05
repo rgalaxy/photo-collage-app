@@ -191,12 +191,12 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   async loadHighScores() {
     try {
-      // For now, we'll use a simple table structure
-      // In a real implementation, you'd create a pong_scores table
-      this.highScores = [];
-      // TODO: Implement when Supabase table is created
+      this.highScores = await this.supabaseService.getPongHighScores(10);
+      console.log('High scores loaded:', this.highScores);
     } catch (error) {
       console.error('Error loading high scores:', error);
+      this.highScores = [];
+      this.showToast('Failed to load high scores', 'error');
     }
   }
 
@@ -410,7 +410,7 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private endGame() {
+  private async endGame() {
     this.stopGame();
     this.gameState = 'gameOver';
     this.winner = this.player1Score >= this.maxScore ? this.player1Name : this.player2Name;
@@ -418,7 +418,21 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
     // Calculate game duration
     const gameDuration = Math.floor((Date.now() - this.gameStartTime) / 1000);
     
-    // TODO: Save score to database when table is created
+    // Save score to database
+    try {
+      await this.supabaseService.insertPongScore(
+        this.player1Name,
+        this.player2Name,
+        this.player1Score,
+        this.player2Score,
+        this.winner,
+        gameDuration
+      );
+      console.log('Game score saved successfully');
+    } catch (error) {
+      console.error('Error saving game score:', error);
+      this.showToast('Failed to save game score', 'error');
+    }
     
     this.showGameOverModal = true;
     this.showToast(`${this.winner} wins!`, 'success');
