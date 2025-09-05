@@ -1323,3 +1323,210 @@ body {
     }
   }
 }
+
+// My Games Section
+.my-games {
+  padding: 5rem 0;
+  background: var(--bg-color);
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .my-games-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .my-games-text {
+    h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .games-features {
+      list-style: none;
+      margin-bottom: 2rem;
+      
+      li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-secondary);
+        
+        &::before {
+          content: '✓';
+          position: absolute;
+          left: 0;
+          color: var(--primary-yellow);
+          font-weight: bold;
+        }
+      }
+    }
+
+    .btn-primary {
+      background: var(--primary-yellow);
+      color: #1f2937;
+      padding: 0.875rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+
+      &:hover {
+        background: #fbbf24;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
+      }
+    }
+  }
+
+  .my-games-screenshots {
+    position: relative;
+    height: 400px;
+  }
+
+  .screenshot-stack {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .screenshot {
+    position: absolute;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &.screenshot-1 {
+      width: 280px;
+      height: 180px;
+      top: 0;
+      left: 0;
+      z-index: 3;
+      transform: rotate(-8deg);
+    }
+
+    &.screenshot-2 {
+      width: 260px;
+      height: 160px;
+      top: 80px;
+      right: 0;
+      z-index: 2;
+      transform: rotate(12deg);
+    }
+
+    &.screenshot-3 {
+      width: 240px;
+      height: 150px;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) rotate(-5deg);
+      z-index: 1;
+    }
+  }
+
+  .my-games-screenshots:hover {
+    .screenshot-1 {
+      transform: rotate(-5deg) scale(1.05);
+    }
+
+    .screenshot-2 {
+      transform: rotate(8deg) scale(1.05);
+    }
+
+    .screenshot-3 {
+      transform: translateX(-50%) rotate(-2deg) scale(1.05);
+    }
+  }
+}
+
+// Responsive styles for My Games section
+@media (max-width: 1024px) {
+  .my-games {
+    .my-games-content {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .my-games-screenshots {
+      height: 300px;
+      
+      .screenshot {
+        &.screenshot-1 {
+          width: 240px;
+          height: 150px;
+        }
+
+        &.screenshot-2 {
+          width: 220px;
+          height: 140px;
+        }
+
+        &.screenshot-3 {
+          width: 200px;
+          height: 125px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .my-games {
+    padding: 3rem 0;
+
+    .my-games-text {
+      h3 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+
+    .my-games-screenshots {
+      height: 250px;
+      
+      .screenshot {
+        &.screenshot-1 {
+          width: 200px;
+          height: 125px;
+        }
+
+        &.screenshot-2 {
+          width: 180px;
+          height: 115px;
+        }
+
+        &.screenshot-3 {
+          width: 160px;
+          height: 100px;
+        }
+      }
+    }
+  }
+}

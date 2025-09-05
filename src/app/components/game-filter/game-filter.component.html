@@ -1,0 +1,26 @@
+<div class="filter-container">
+  <label for="gameFilter" class="filter-label">
+    Search Games
+  </label>
+  <div class="filter-input-wrapper">
+    <input
+      id="gameFilter"
+      type="text"
+      class="filter-input"
+      placeholder="Type to search games..."
+      [value]="filterValue"
+      (input)="onFilterInput($event)"
+      aria-label="Filter games by name"
+      autocomplete="off"
+    />
+    <button
+      *ngIf="filterValue"
+      class="clear-button"
+      (click)="clearFilter()"
+      aria-label="Clear search"
+      type="button"
+    >
+      ×
+    </button>
+  </div>
+</div>

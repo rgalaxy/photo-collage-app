@@ -16,6 +16,9 @@
         <a (click)="scrollToSection('portfolio')" class="nav-link">Portfolio</a>
       </li>
       <li>
+        <a (click)="scrollToSection('my-games')" class="nav-link">Games</a>
+      </li>
+      <li>
         <a (click)="scrollToSection('contact')" class="nav-link">Contact</a>
       </li>
     </ul>
@@ -152,6 +155,64 @@
           </div>
           <div class="project-actions" *ngIf="project.redirectionUrl">
             <span class="view-project">Click to view project →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- My Games Section -->
+<section id="my-games" class="my-games">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">My Games</h2>
+      <p class="section-subtitle">
+        Play interactive games and challenge yourself with fun experiences
+      </p>
+    </div>
+    
+    <div class="my-games-content">
+      <div class="my-games-text">
+        <h3>Discover Fun Interactive Games</h3>
+        <p>
+          Explore our collection of engaging games ranging from classic arcade 
+          experiences to modern interactive simulations. Each game is designed 
+          to provide hours of entertainment and challenge your skills.
+        </p>
+        <ul class="games-features">
+          <li>Single-player and multiplayer games</li>
+          <li>Various difficulty levels</li>
+          <li>Responsive design for all devices</li>
+          <li>High score tracking</li>
+        </ul>
+        <button class="btn-primary" (click)="navigateToMyGames()">
+          Explore All Games
+        </button>
+      </div>
+      
+      <div class="my-games-screenshots">
+        <div class="screenshot-stack">
+          <div class="screenshot screenshot-1">
+            <img 
+              src="https://via.placeholder.com/320x200?text=Blacksmith+Game" 
+              alt="Blacksmith Game Screenshot"
+              loading="lazy"
+            />
+          </div>
+          <div class="screenshot screenshot-2">
+            <img 
+              src="https://via.placeholder.com/320x200?text=Pong+Game" 
+              alt="Pong Game Screenshot"
+              loading="lazy"
+            />
+          </div>
+          <div class="screenshot screenshot-3">
+            <img 
+              src="https://via.placeholder.com/320x200?text=Target+Game" 
+              alt="Click Target Game Screenshot"
+              loading="lazy"
+            />
           </div>
         </div>
       </div>

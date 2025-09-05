@@ -1,0 +1,57 @@
+<main class="my-games-page">
+  <div class="container">
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-title">My Games</h1>
+      <p class="page-description">
+        Discover and play our collection of interactive games. From strategy to action, 
+        find your next favorite game right here.
+      </p>
+    </header>
+
+    <!-- Filter Section -->
+    <section class="filter-section" aria-label="Game filtering">
+      <app-game-filter 
+        (filterChange)="onFilterChange($event)"
+      ></app-game-filter>
+    </section>
+
+    <!-- Games Grid -->
+    <section class="games-section" aria-label="Games collection">
+      <div 
+        class="games-grid" 
+        role="list"
+        [@listAnimation]="filteredGames().length"
+      >
+        <app-game-card
+          *ngFor="let game of filteredGames(); let i = index; trackBy: trackByGameId"
+          [game]="game"
+          [tabindex]="getCardTabIndex(i)"
+          (cardClick)="onGameSelect($event)"
+          (cardKeydown)="onCardKeydown($event)"
+          [@cardAnimation]
+        ></app-game-card>
+      </div>
+
+      <!-- Empty State -->
+      <div 
+        *ngIf="filteredGames().length === 0" 
+        class="empty-state"
+        [@cardAnimation]
+      >
+        <div class="empty-content">
+          <h3>No games found</h3>
+          <p>Try adjusting your search to find more games.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Region for Screen Readers -->
+    <div 
+      id="games-live-region"
+      class="sr-only" 
+      aria-live="polite" 
+      aria-atomic="true"
+    ></div>
+  </div>
+</main>
