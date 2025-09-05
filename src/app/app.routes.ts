@@ -26,5 +26,10 @@ export const routes: Routes = [
     path: 'click-the-target-game',
     loadComponent: () =>
       import('./pages/click-the-target-game/click-the-target-game.component').then(m => m.ClickTheTargetGameComponent),
+  },
+  {
+    path: 'pong-game',
+    loadComponent: () =>
+      import('./pages/pong-game/pong-game.component').then(m => m.PongGameComponent),
   }
 ];

@@ -94,4 +94,43 @@ export class SupabaseService {
     }
     return data && data.length > 0 ? data[0] : null;
   }
+
+  // Pong Game Methods
+  // Insert a pong game score
+  async insertPongScore(player1Name: string, player2Name: string, player1Score: number, player2Score: number, winner: string, gameDuration: number) {
+    const { data, error } = await this.supabase
+      .from('pong_scores')
+      .insert([
+        { 
+          player1_name: player1Name, 
+          player2_name: player2Name, 
+          player1_score: player1Score,
+          player2_score: player2Score,
+          winner: winner,
+          game_duration: gameDuration,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+    if (error) {
+      console.error('Insert pong score error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Get top pong game scores
+  async getPongHighScores(limit: number = 10) {
+    const { data, error } = await this.supabase
+      .from('pong_scores')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Fetch pong scores error:', error);
+      throw error;
+    }
+    return data;
+  }
 }
