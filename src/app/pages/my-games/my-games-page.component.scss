@@ -1,7 +1,6 @@
 .my-games-page {
   min-height: 100vh;
   padding: 2rem 0;
-  background: var(--page-background, #f8fafc);
 }
 
 .container {
@@ -19,14 +18,13 @@
   font-size: 2.5rem;
   font-weight: 900;
   font-family: 'Arial Black', 'Helvetica', 'Impact', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, #EDDD53 0%, #764ba2 70%, #f093fb 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   color: var(--text-primary, #0f172a); /* Fallback for browsers that don't support background-clip: text */
   margin: 0 0 0.75rem 0;
   line-height: 1.2;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -104,7 +102,7 @@
   
   .page-title {
     /* Enhanced gradient for dark mode */
-    background: linear-gradient(135deg, #9333ea 0%, #c084fc 50%, #f0abfc 100%);
+    background: linear-gradient(135deg, #b988e7 0%, #c084fc 50%, #f0abfc 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
