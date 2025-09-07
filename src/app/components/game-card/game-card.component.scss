@@ -56,7 +56,7 @@
 .game-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary, #111827);
   margin: 0 0 0.75rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -77,8 +77,8 @@
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.25rem 0.75rem;
-  background: var(--tag-background, #f1f5f9);
-  color: var(--tag-text, #475569);
+  background: var(--tag-background, #e2e8f0);
+  color: var(--tag-text, #1e293b);
   border-radius: 20px;
   text-transform: capitalize;
   white-space: nowrap;
@@ -86,7 +86,7 @@
 
 .game-description {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary, #374151);
   line-height: 1.5;
   margin: 0;
   flex: 1;
@@ -156,9 +156,9 @@
     --primary-color: #60a5fa;
     --focus-color: #60a5fa;
     --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
+    --text-secondary: #d1d5db;
     --tag-background: #334155;
-    --tag-text: #cbd5e1;
+    --tag-text: #f1f5f9;
     --image-background: #334155;
     --coming-soon-bg: #d97706;
     --coming-soon-text: #ffffff;

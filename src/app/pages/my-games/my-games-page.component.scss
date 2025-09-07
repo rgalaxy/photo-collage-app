@@ -17,10 +17,18 @@
 
 .page-title {
   font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-primary, #0f172a);
+  font-weight: 900;
+  font-family: 'Arial Black', 'Helvetica', 'Impact', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--text-primary, #0f172a); /* Fallback for browsers that don't support background-clip: text */
   margin: 0 0 0.75rem 0;
   line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .page-description {
@@ -92,6 +100,15 @@
     --page-background: #0f172a;
     --text-primary: #f8fafc;
     --text-secondary: #d1d5db;
+  }
+  
+  .page-title {
+    /* Enhanced gradient for dark mode */
+    background: linear-gradient(135deg, #9333ea 0%, #c084fc 50%, #f0abfc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 6px rgba(147, 51, 234, 0.4);
   }
 }
 
