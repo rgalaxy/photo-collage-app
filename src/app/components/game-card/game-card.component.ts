@@ -16,15 +16,17 @@ export class GameCardComponent {
   @Output() cardKeydown = new EventEmitter<{game: GameItem, event: KeyboardEvent}>();
 
   onCardClick(): void {
-    this.cardClick.emit(this.game);
+    if (!this.game.isComingSoon) {
+      this.cardClick.emit(this.game);
+    }
   }
 
   @HostListener('keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (!this.game.isComingSoon && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
       this.cardClick.emit(this.game);
-    } else {
+    } else if (!this.game.isComingSoon) {
       this.cardKeydown.emit({ game: this.game, event });
     }
   }

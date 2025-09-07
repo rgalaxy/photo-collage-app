@@ -7,6 +7,7 @@ export interface GameItem {
   tags: GameTag[];
   imageUrl: string;
   route: string;
+  isComingSoon?: boolean;
 }
 
 export const GAMES: GameItem[] = [
@@ -40,7 +41,8 @@ export const GAMES: GameItem[] = [
     description: 'Test your memory with this classic card matching game. Multiple difficulty levels.',
     tags: ['single-player', 'strategy'],
     imageUrl: 'https://via.placeholder.com/640x360?text=Memory+Match',
-    route: '/memory-match'
+    route: '/memory-match',
+    isComingSoon: true
   },
   {
     id: 'snake-game',
@@ -48,7 +50,8 @@ export const GAMES: GameItem[] = [
     description: 'The timeless snake game with smooth controls and increasing difficulty.',
     tags: ['single-player', 'arcade'],
     imageUrl: 'https://via.placeholder.com/640x360?text=Snake+Game',
-    route: '/snake-game'
+    route: '/snake-game',
+    isComingSoon: true
   },
   {
     id: 'tetris-blocks',
@@ -56,6 +59,7 @@ export const GAMES: GameItem[] = [
     description: 'Classic block puzzle game. Clear lines and achieve high scores.',
     tags: ['single-player', 'strategy', 'arcade'],
     imageUrl: 'https://via.placeholder.com/640x360?text=Tetris+Blocks',
-    route: '/tetris-blocks'
+    route: '/tetris-blocks',
+    isComingSoon: true
   }
 ];

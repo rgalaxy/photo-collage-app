@@ -1,8 +1,10 @@
 <div 
   class="game-card" 
-  [tabindex]="tabindex"
+  [class.coming-soon]="game.isComingSoon"
+  [tabindex]="game.isComingSoon ? -1 : tabindex"
   (click)="onCardClick()"
   role="listitem"
+  [attr.aria-label]="game.isComingSoon ? game.title + ' - Coming Soon' : game.title"
 >
   <div class="game-image">
     <img 
@@ -13,10 +15,16 @@
       width="640"
       height="360"
     />
+    <div *ngIf="game.isComingSoon" class="coming-soon-overlay">
+      <span class="coming-soon-text">Coming Soon</span>
+    </div>
   </div>
   
   <div class="game-content">
-    <h3 class="game-title" [title]="game.title">{{ game.title }}</h3>
+    <h3 class="game-title" [title]="game.title">
+      {{ game.title }}
+      <span *ngIf="game.isComingSoon" class="coming-soon-badge">Coming Soon</span>
+    </h3>
     
     <div class="game-tags">
       <span 

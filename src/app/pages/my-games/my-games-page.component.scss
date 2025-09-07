@@ -12,20 +12,20 @@
 
 .page-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .page-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
-  margin: 0 0 1rem 0;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 0.75rem 0;
   line-height: 1.2;
 }
 
 .page-description {
   font-size: 1.125rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary, #374151);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -34,7 +34,7 @@
 .filter-section {
   display: flex;
   justify-content: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .games-section {
@@ -64,7 +64,7 @@
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0 0 0.5rem 0;
-    color: var(--text-primary, #1e293b);
+    color: var(--text-primary, #0f172a);
   }
 
   p {
@@ -91,7 +91,7 @@
   .my-games-page {
     --page-background: #0f172a;
     --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
+    --text-secondary: #d1d5db;
   }
 }
 

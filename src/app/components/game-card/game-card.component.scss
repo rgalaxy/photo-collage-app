@@ -47,7 +47,7 @@
 }
 
 .game-content {
-  padding: 1.5rem;
+  padding: 1rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -97,6 +97,57 @@
   -webkit-box-orient: vertical;
 }
 
+/* Coming Soon Styles */
+.game-card.coming-soon {
+  opacity: 0.7;
+  cursor: not-allowed;
+  
+  &:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-color: var(--border-color, #e2e8f0);
+  }
+}
+
+.coming-soon-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.coming-soon-text {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.125rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.coming-soon-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  background: var(--coming-soon-bg, #f59e0b);
+  color: var(--coming-soon-text, #ffffff);
+  border-radius: 12px;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.game-card.coming-soon .game-image img {
+  filter: grayscale(50%);
+}
+
+.game-card.coming-soon:hover .game-image img {
+  transform: none;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .game-card {
@@ -109,6 +160,8 @@
     --tag-background: #334155;
     --tag-text: #cbd5e1;
     --image-background: #334155;
+    --coming-soon-bg: #d97706;
+    --coming-soon-text: #ffffff;
   }
 }
 
