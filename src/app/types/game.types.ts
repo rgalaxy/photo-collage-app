@@ -15,7 +15,7 @@ export const GAMES: GameItem[] = [
     title: 'Blacksmith Mini Game',
     description: 'A fun and interactive blacksmith simulation game where you craft weapons and armor.',
     tags: ['single-player', 'simulation'],
-    imageUrl: 'https://via.placeholder.com/640x360?text=Blacksmith+Game',
+    imageUrl: '/assets/photos/landingpage/blacksmith.png',
     route: '/mini-game-blacksmith'
   },
   {
@@ -23,7 +23,7 @@ export const GAMES: GameItem[] = [
     title: 'Click The Target Game',
     description: 'Fast-paced target clicking game with combo system. Test your reflexes and accuracy.',
     tags: ['single-player', 'arcade', 'action'],
-    imageUrl: 'https://via.placeholder.com/640x360?text=Click+Target+Game',
+    imageUrl: '/assets/photos/landingpage/clickthetarget.png',
     route: '/click-the-target-game'
   },
   {
@@ -31,7 +31,7 @@ export const GAMES: GameItem[] = [
     title: 'Pong Game',
     description: 'Classic pong game with modern graphics. Play against a friend or AI opponent.',
     tags: ['two-player', 'arcade'],
-    imageUrl: 'https://via.placeholder.com/640x360?text=Pong+Game',
+    imageUrl: '/assets/photos/landingpage/pong.png',
     route: '/pong-game'
   },
   {
