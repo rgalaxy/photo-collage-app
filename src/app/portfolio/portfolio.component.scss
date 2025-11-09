@@ -7,6 +7,7 @@
 
 html {
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -15,6 +16,27 @@ body {
   color: var(--text-color);
   overflow-x: hidden;
   width: 100%;
+}
+
+// Scroll Progress Indicator
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-teal), var(--primary-yellow), var(--primary-orange), var(--primary-coral));
+  z-index: 9999;
+  transform-origin: left;
+  animation: progressBar 1s linear infinite;
+}
+
+@keyframes progressBar {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 .container {
@@ -106,7 +128,7 @@ body {
 
 // Hero Section
 .hero {
-  min-height: 85vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, 
     rgba(109, 225, 210, 0.1) 0%, 
     rgba(255, 214, 58, 0.05) 25%, 
@@ -116,6 +138,8 @@ body {
   padding: 100px 0 40px;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 
   .hero-container {
     max-width: 1200px;
@@ -320,6 +344,57 @@ body {
   .hero-stats {
     display: none; // Hide the original stats positioning
   }
+  
+  // Scroll Down Indicator
+  .scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: bounce 2s ease-in-out infinite;
+    cursor: pointer;
+    
+    .scroll-mouse {
+      width: 26px;
+      height: 40px;
+      border: 2px solid var(--text-color);
+      border-radius: 13px;
+      display: flex;
+      justify-content: center;
+      padding-top: 8px;
+      
+      .scroll-wheel {
+        width: 4px;
+        height: 8px;
+        background: var(--primary-yellow);
+        border-radius: 2px;
+        animation: scroll 1.5s ease-in-out infinite;
+      }
+    }
+    
+    .scroll-text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
 }
 
 // Section Styles
@@ -344,8 +419,11 @@ body {
 
 // About Section
 .about {
-  padding: 60px 0;
+  min-height: 100vh;
+  padding: 100px 0;
   background: var(--bg-color);
+  display: flex;
+  align-items: center;
 
   .about-content {
     max-width: 800px;
@@ -384,7 +462,8 @@ body {
 
 // Skills Section
 .skills {
-  padding: 60px 0;
+  min-height: 100vh;
+  padding: 100px 0;
   background: linear-gradient(135deg, 
     rgba(109, 225, 210, 0.1) 0%, 
     rgba(255, 214, 58, 0.05) 25%, 
@@ -393,6 +472,8 @@ body {
     var(--bg-color) 100%);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 
   // Top wave
   &::before {
@@ -483,8 +564,11 @@ body {
 
 // Portfolio Section
 .portfolio {
-  padding: 60px 0;
+  min-height: 100vh;
+  padding: 100px 0;
   background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
 
   .portfolio-grid {
     display: grid;
@@ -590,7 +674,8 @@ body {
 
 // Contact Section
 .contact {
-  padding: 80px 0;
+  min-height: 100vh;
+  padding: 100px 0;
   background: linear-gradient(135deg, 
     rgba(109, 225, 210, 0.08) 0%, 
     rgba(255, 214, 58, 0.05) 25%, 
@@ -599,6 +684,8 @@ body {
     white 100%);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 
   // Top decorative wave
   &::before {
@@ -1326,8 +1413,11 @@ body {
 
 // My Games Section
 .my-games {
-  padding: 5rem 0;
+  min-height: 100vh;
+  padding: 100px 0;
   background: var(--bg-color);
+  display: flex;
+  align-items: center;
 
   .section-header {
     text-align: center;
