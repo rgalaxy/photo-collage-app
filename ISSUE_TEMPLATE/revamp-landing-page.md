@@ -1,11 +1,3 @@
----
-name: "🚀 Revamp Landing Page UI/UX (Angular)"
-about: "Revamp martinharyanto.netlify.app landing page inspired by nickvelten.nl"
-title: "🚀 Revamp Landing Page UI/UX (Angular)"
-labels: ["enhancement", "UI/UX", "landing-page"]
-assignees: []
----
-
 ## 📝 Summary
 Revamp the **landing page** of the existing website [martinharyanto.netlify.app](https://martinharyanto.netlify.app/) to match the **UI/UX and scroll behavior** of [nickvelten.nl](https://www.nickvelten.nl/).
 
