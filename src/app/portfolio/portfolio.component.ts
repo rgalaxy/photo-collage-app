@@ -189,14 +189,28 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
   }
 
   private initParallaxEffects(): void {
-    // Parallax effect on hero section
-    const heroContent = document.querySelector('.hero-content');
-    const heroImage = document.querySelector('.hero-image');
+    // Parallax effect on hero section name elements
+    const heroNameLeft = document.querySelector('.hero-name-left');
+    const heroNameRight = document.querySelector('.hero-name-right');
+    const heroImage = document.querySelector('.hero-center');
 
-    if (heroContent) {
-      gsap.to(heroContent, {
-        y: 100,
-        opacity: 0.5,
+    if (heroNameLeft) {
+      gsap.to(heroNameLeft, {
+        y: 80,
+        opacity: 0.3,
+        scrollTrigger: {
+          trigger: '.hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+    }
+
+    if (heroNameRight) {
+      gsap.to(heroNameRight, {
+        y: 80,
+        opacity: 0.3,
         scrollTrigger: {
           trigger: '.hero',
           start: 'top top',
@@ -208,8 +222,9 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
 
     if (heroImage) {
       gsap.to(heroImage, {
-        y: 150,
-        opacity: 0.3,
+        y: 120,
+        scale: 0.8,
+        opacity: 0.2,
         scrollTrigger: {
           trigger: '.hero',
           start: 'top top',
@@ -218,15 +233,6 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
         },
       });
     }
-
-    // Add floating animation to decorative elements
-    gsap.to('.orange-circle', {
-      y: -20,
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: 'power1.inOut',
-    });
   }
 
   scrollToSection(sectionId: string): void {
