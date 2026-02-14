@@ -21,32 +21,32 @@
         class="games-grid"
         role="list"
         [@listAnimation]="filteredGames().length"
-      >
-        <app-game-card
-          *ngFor="
-            let game of filteredGames();
-            let i = index;
-            trackBy: trackByGameId
-          "
-          [game]="game"
-          [tabindex]="getCardTabIndex(i)"
-          (cardClick)="onGameSelect($event)"
-          (cardKeydown)="onCardKeydown($event)"
-          [@cardAnimation]
-        ></app-game-card>
+        >
+        @for (
+          game of filteredGames(); track trackByGameId(i,
+          game); let i = $index) {
+          <app-game-card
+            [game]="game"
+            [tabindex]="getCardTabIndex(i)"
+            (cardClick)="onGameSelect($event)"
+            (cardKeydown)="onCardKeydown($event)"
+            [@cardAnimation]
+          ></app-game-card>
+        }
       </div>
 
       <!-- Empty State -->
-      <div
-        *ngIf="filteredGames().length === 0"
-        class="empty-state"
-        [@cardAnimation]
-      >
-        <div class="empty-content">
-          <h3>No games found</h3>
-          <p>Try adjusting your search to find more games.</p>
+      @if (filteredGames().length === 0) {
+        <div
+          class="empty-state"
+          [@cardAnimation]
+          >
+          <div class="empty-content">
+            <h3>No games found</h3>
+            <p>Try adjusting your search to find more games.</p>
+          </div>
         </div>
-      </div>
+      }
     </section>
 
     <!-- Live Region for Screen Readers -->

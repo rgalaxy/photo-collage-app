@@ -18,15 +18,16 @@
       (input)="onFilterInput($event)"
       aria-label="Filter games by name"
       autocomplete="off"
-    />
-    <button
-      *ngIf="filterValue"
-      class="clear-button"
-      (click)="clearFilter()"
-      aria-label="Clear search"
-      type="button"
-    >
-      ×
-    </button>
+      />
+    @if (filterValue) {
+      <button
+        class="clear-button"
+        (click)="clearFilter()"
+        aria-label="Clear search"
+        type="button"
+        >
+        ×
+      </button>
+    }
   </div>
 </div>

@@ -1,6 +1,6 @@
 {
-  "name": "photo-collage-app",
-  "version": "0.1.0",
+  "name": "personal-website",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -10,14 +10,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "17.3.0",
-    "@angular/common": "17.3.0",
-    "@angular/compiler": "17.3.0",
-    "@angular/core": "17.3.0",
-    "@angular/forms": "17.3.0",
-    "@angular/platform-browser": "17.3.0",
-    "@angular/platform-browser-dynamic": "17.3.0",
-    "@angular/router": "17.3.0",
+    "@angular/animations": "21.1.4",
+    "@angular/common": "21.1.4",
+    "@angular/compiler": "21.1.4",
+    "@angular/core": "21.1.4",
+    "@angular/forms": "21.1.4",
+    "@angular/platform-browser": "21.1.4",
+    "@angular/platform-browser-dynamic": "21.1.4",
+    "@angular/router": "21.1.4",
     "@contentful/rich-text-html-renderer": "^17.0.0",
     "@ng-icons/core": "^27.5.2",
     "@ng-icons/radix-icons": "^27.5.2",
@@ -28,12 +28,12 @@
     "rxjs": "~7.8.0",
     "sharp": "^0.33.5",
     "tslib": "^2.3.0",
-    "zone.js": "~0.14.0"
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.3.15",
-    "@angular/cli": "17.3.0",
-    "@angular/compiler-cli": "17.3.0",
+    "@angular-devkit/build-angular": "^21.1.4",
+    "@angular/cli": "21.1.4",
+    "@angular/compiler-cli": "21.1.4",
     "@contentful/rich-text-types": "^17.0.0",
     "@types/express": "^4.17.17",
     "@types/jasmine": "~5.1.0",
@@ -44,6 +44,6 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.4"
+    "typescript": "~5.9.3"
   }
 }

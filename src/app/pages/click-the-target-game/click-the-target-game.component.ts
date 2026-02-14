@@ -49,88 +49,87 @@ interface DifficultyConfig {
 }
 
 @Component({
-  selector: 'app-click-the-target-game',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './click-the-target-game.component.html',
-  styleUrl: './click-the-target-game.component.scss',
-  animations: [
-    trigger('targetAnimation', [
-      state('appear', style({
-        transform: 'scale(1)',
-        opacity: 1
-      })),
-      state('disappear', style({
-        transform: 'scale(0)',
-        opacity: 0
-      })),
-      transition('void => appear', [
-        style({ transform: 'scale(0)', opacity: 0 }),
-        animate('200ms ease-out', style({ transform: 'scale(1.2)', opacity: 1 })),
-        animate('100ms ease-in', style({ transform: 'scale(1)' }))
-      ]),
-      transition('appear => disappear', [
-        animate('150ms ease-in', style({ transform: 'scale(0)', opacity: 0 }))
-      ]),
-      transition('* => clicked', [
-        animate('200ms ease-out', keyframes([
-          style({ transform: 'scale(1.3)', background: '#10b981', offset: 0.5 }),
-          style({ transform: 'scale(0)', opacity: 0, offset: 1.0 })
-        ]))
-      ])
-    ]),
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ]),
-      transition(':leave', [
-        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
-      ])
-    ]),
-    trigger('targetClick', [
-      state('normal', style({
-        transform: 'translate(-50%, -50%) scale(1)',
-        opacity: 1
-      })),
-      state('clicked', style({
-        transform: 'translate(-50%, -50%) scale(0)',
-        opacity: 0
-      })),
-      transition('normal => clicked', [
-        animate('300ms ease-out', keyframes([
-          style({ transform: 'translate(-50%, -50%) scale(1.5)', background: '#10b981', offset: 0.3 }),
-          style({ transform: 'translate(-50%, -50%) scale(1.8)', opacity: 0.8, offset: 0.6 }),
-          style({ transform: 'translate(-50%, -50%) scale(0)', opacity: 0, offset: 1.0 })
-        ]))
-      ])
-    ]),
-    trigger('floatingScore', [
-      transition(':enter', [
-        style({ 
-          transform: 'translate(-50%, -50%) scale(0.8)', 
-          opacity: 1 
-        }),
-        animate('1000ms ease-out', keyframes([
-          style({ 
-            transform: 'translate(-50%, -50%) scale(1.2)', 
-            opacity: 1, 
-            offset: 0.2 
-          }),
-          style({ 
-            transform: 'translate(-50%, -100px) scale(1)', 
-            opacity: 0.8, 
-            offset: 0.7 
-          }),
-          style({ 
-            transform: 'translate(-50%, -150px) scale(0.8)', 
-            opacity: 0, 
-            offset: 1.0 
-          })
-        ]))
-      ])
-    ])
-  ]
+    selector: 'app-click-the-target-game',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './click-the-target-game.component.html',
+    styleUrl: './click-the-target-game.component.scss',
+    animations: [
+        trigger('targetAnimation', [
+            state('appear', style({
+                transform: 'scale(1)',
+                opacity: 1
+            })),
+            state('disappear', style({
+                transform: 'scale(0)',
+                opacity: 0
+            })),
+            transition('void => appear', [
+                style({ transform: 'scale(0)', opacity: 0 }),
+                animate('200ms ease-out', style({ transform: 'scale(1.2)', opacity: 1 })),
+                animate('100ms ease-in', style({ transform: 'scale(1)' }))
+            ]),
+            transition('appear => disappear', [
+                animate('150ms ease-in', style({ transform: 'scale(0)', opacity: 0 }))
+            ]),
+            transition('* => clicked', [
+                animate('200ms ease-out', keyframes([
+                    style({ transform: 'scale(1.3)', background: '#10b981', offset: 0.5 }),
+                    style({ transform: 'scale(0)', opacity: 0, offset: 1.0 })
+                ]))
+            ])
+        ]),
+        trigger('fadeInOut', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(-10px)' }),
+                animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+            ])
+        ]),
+        trigger('targetClick', [
+            state('normal', style({
+                transform: 'translate(-50%, -50%) scale(1)',
+                opacity: 1
+            })),
+            state('clicked', style({
+                transform: 'translate(-50%, -50%) scale(0)',
+                opacity: 0
+            })),
+            transition('normal => clicked', [
+                animate('300ms ease-out', keyframes([
+                    style({ transform: 'translate(-50%, -50%) scale(1.5)', background: '#10b981', offset: 0.3 }),
+                    style({ transform: 'translate(-50%, -50%) scale(1.8)', opacity: 0.8, offset: 0.6 }),
+                    style({ transform: 'translate(-50%, -50%) scale(0)', opacity: 0, offset: 1.0 })
+                ]))
+            ])
+        ]),
+        trigger('floatingScore', [
+            transition(':enter', [
+                style({
+                    transform: 'translate(-50%, -50%) scale(0.8)',
+                    opacity: 1
+                }),
+                animate('1000ms ease-out', keyframes([
+                    style({
+                        transform: 'translate(-50%, -50%) scale(1.2)',
+                        opacity: 1,
+                        offset: 0.2
+                    }),
+                    style({
+                        transform: 'translate(-50%, -100px) scale(1)',
+                        opacity: 0.8,
+                        offset: 0.7
+                    }),
+                    style({
+                        transform: 'translate(-50%, -150px) scale(0.8)',
+                        opacity: 0,
+                        offset: 1.0
+                    })
+                ]))
+            ])
+        ])
+    ]
 })
 export class ClickTheTargetGameComponent implements OnInit, OnDestroy {
   // Game state

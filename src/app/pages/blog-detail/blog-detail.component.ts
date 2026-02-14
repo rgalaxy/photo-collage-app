@@ -8,11 +8,10 @@ import { BLOCKS, Document } from '@contentful/rich-text-types';
 
 
 @Component({
-  selector: 'app-blog-detail',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './blog-detail.component.html',
-  styleUrl: './blog-detail.component.scss'
+    selector: 'app-blog-detail',
+    imports: [CommonModule, RouterModule],
+    templateUrl: './blog-detail.component.html',
+    styleUrl: './blog-detail.component.scss'
 })
 export class BlogDetailComponent {
   private route = inject(ActivatedRoute);

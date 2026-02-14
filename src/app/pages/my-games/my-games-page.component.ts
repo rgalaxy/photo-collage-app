@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, HostListener, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { GameCardComponent } from '../../components/game-card/game-card.component';
@@ -8,32 +8,31 @@ import { GameItem, GAMES } from '../../types/game.types';
 import { SeoService } from '../../services/seo.service';
 
 @Component({
-  selector: 'app-my-games-page',
-  standalone: true,
-  imports: [CommonModule, GameCardComponent, GameFilterComponent],
-  templateUrl: './my-games-page.component.html',
-  styleUrls: ['./my-games-page.component.scss'],
-  animations: [
-    trigger('listAnimation', [
-      transition('* => *', [
-        query(':enter', [
-          style({ opacity: 0, transform: 'scale(0.8) translateY(20px)' }),
-          stagger(50, [
-            animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1) translateY(0)' }))
-          ])
-        ], { optional: true })
-      ])
-    ]),
-    trigger('cardAnimation', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'scale(0.8) translateY(20px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1) translateY(0)' }))
-      ]),
-      transition(':leave', [
-        animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.8) translateY(-20px)' }))
-      ])
-    ])
-  ]
+    selector: 'app-my-games-page',
+    imports: [GameCardComponent, GameFilterComponent],
+    templateUrl: './my-games-page.component.html',
+    styleUrls: ['./my-games-page.component.scss'],
+    animations: [
+        trigger('listAnimation', [
+            transition('* => *', [
+                query(':enter', [
+                    style({ opacity: 0, transform: 'scale(0.8) translateY(20px)' }),
+                    stagger(50, [
+                        animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1) translateY(0)' }))
+                    ])
+                ], { optional: true })
+            ])
+        ]),
+        trigger('cardAnimation', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'scale(0.8) translateY(20px)' }),
+                animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1) translateY(0)' }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.8) translateY(-20px)' }))
+            ])
+        ])
+    ]
 })
 export class MyGamesPageComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -108,7 +107,7 @@ export class MyGamesPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize(): void {
     // Trigger recomputation of grid columns
     this.gridColumns();

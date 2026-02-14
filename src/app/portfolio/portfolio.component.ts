@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { 
@@ -19,23 +19,22 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 @Component({
-  selector: 'app-portfolio',
-  standalone: true,
-  imports: [CommonModule, NgIcon],
-  providers: [provideIcons({ 
-    radixDesktop, 
-    radixGear, 
-    radixMobile, 
-    radixTable,
-    radixEnvelopeClosed,
-    radixPhone,
-    radixGlobe,
-    radixLinkedinLogo,
-    radixGithubLogo,
-    radixInstagramLogo
-  })],
-  templateUrl: './portfolio.component.html',
-  styleUrls: ['./portfolio.component.scss']
+    selector: 'app-portfolio',
+    imports: [NgIcon],
+    providers: [provideIcons({
+            radixDesktop,
+            radixGear,
+            radixMobile,
+            radixTable,
+            radixEnvelopeClosed,
+            radixPhone,
+            radixGlobe,
+            radixLinkedinLogo,
+            radixGithubLogo,
+            radixInstagramLogo
+        })],
+    templateUrl: './portfolio.component.html',
+    styleUrls: ['./portfolio.component.scss']
 })
 export class PortfolioComponent implements OnInit, AfterViewInit {
   private seoService = inject(SeoService);

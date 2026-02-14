@@ -17,11 +17,10 @@ interface WeaponInstance {
 }
 
 @Component({
-  selector: 'app-mini-game-blacksmith',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './mini-game-blacksmith.component.html',
-  styleUrl: './mini-game-blacksmith.component.scss'
+    selector: 'app-mini-game-blacksmith',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './mini-game-blacksmith.component.html',
+    styleUrl: './mini-game-blacksmith.component.scss'
 })
 export class MiniGameBlacksmithComponent implements OnInit {
   // Game state

@@ -1,14 +1,13 @@
 import { Component, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-game-filter',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './game-filter.component.html',
-  styleUrls: ['./game-filter.component.scss']
+    selector: 'app-game-filter',
+    imports: [FormsModule],
+    templateUrl: './game-filter.component.html',
+    styleUrls: ['./game-filter.component.scss']
 })
 export class GameFilterComponent implements OnDestroy {
   @Output() filterChange = new EventEmitter<string>();

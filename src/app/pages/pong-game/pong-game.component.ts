@@ -46,28 +46,27 @@ interface Particle {
 type GameState = 'setup' | 'playing' | 'paused' | 'gameOver';
 
 @Component({
-  selector: 'app-pong-game',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './pong-game.component.html',
-  styleUrl: './pong-game.component.scss',
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ]),
-      transition(':leave', [
-        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
-      ])
-    ]),
-    trigger('slideIn', [
-      transition(':enter', [
-        style({ transform: 'translateX(-100%)' }),
-        animate('400ms ease-out', style({ transform: 'translateX(0)' }))
-      ])
-    ])
-  ]
+    selector: 'app-pong-game',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './pong-game.component.html',
+    styleUrl: './pong-game.component.scss',
+    animations: [
+        trigger('fadeInOut', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(-10px)' }),
+                animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+            ])
+        ]),
+        trigger('slideIn', [
+            transition(':enter', [
+                style({ transform: 'translateX(-100%)' }),
+                animate('400ms ease-out', style({ transform: 'translateX(0)' }))
+            ])
+        ])
+    ]
 })
 export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('gameCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;

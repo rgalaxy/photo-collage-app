@@ -10,14 +10,13 @@ import {
 } from '@ng-icons/radix-icons';
 
 @Component({
-  selector: 'app-blog-list',
-  standalone: true,
-  imports: [CommonModule, RouterModule, NgIcon],
-  providers: [provideIcons({ 
-    radixExclamationTriangle
-  })],
-  templateUrl: './blog-list.component.html',
-  styleUrl: './blog-list.component.scss'
+    selector: 'app-blog-list',
+    imports: [CommonModule, RouterModule, NgIcon],
+    providers: [provideIcons({
+            radixExclamationTriangle
+        })],
+    templateUrl: './blog-list.component.html',
+    styleUrl: './blog-list.component.scss'
 })
 export class BlogListComponent {
   private blogService = inject(BlogService);

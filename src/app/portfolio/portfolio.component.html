@@ -37,7 +37,7 @@
     <div class="hero-name-left">
       <h1 class="hero-name-part">MARTIN</h1>
     </div>
-    
+
     <div class="hero-center">
       <div class="hero-image-wrapper">
         <img
@@ -45,10 +45,10 @@
           alt="Martin Haryanto - Software Engineer and Frontend Developer"
           class="profile-image"
           loading="lazy"
-        />
+          />
       </div>
     </div>
-    
+
     <div class="hero-name-right">
       <h1 class="hero-name-part">HARYANTO</h1>
       <p class="hero-subtitle">
@@ -57,7 +57,7 @@
       </p>
     </div>
   </div>
-  
+
   <div class="hero-stats-bottom">
     <div class="stat-item">
       <div class="stat-number">10</div>
@@ -72,7 +72,7 @@
       <div class="stat-label">Tools Experienced</div>
     </div>
   </div>
-  
+
   <!-- Scroll Down Indicator -->
   <div class="scroll-indicator">
     <div class="scroll-mouse">
@@ -116,13 +116,15 @@
       </p>
     </div>
     <div class="skills-grid">
-      <div class="skill-card" *ngFor="let skill of skills">
-        <div class="skill-icon">
-          <ng-icon [name]="skill.icon" size="32"></ng-icon>
+      @for (skill of skills; track skill) {
+        <div class="skill-card">
+          <div class="skill-icon">
+            <ng-icon [name]="skill.icon" size="32"></ng-icon>
+          </div>
+          <h3 class="skill-name">{{ skill.name }}</h3>
+          <p class="skill-description">{{ skill.description }}</p>
         </div>
-        <h3 class="skill-name">{{ skill.name }}</h3>
-        <p class="skill-description">{{ skill.description }}</p>
-      </div>
+      }
     </div>
   </div>
 </section>
@@ -135,30 +137,35 @@
       <p class="section-subtitle">Some of my recent work and projects</p>
     </div>
     <div class="portfolio-grid">
-      <div
-        class="portfolio-item"
-        *ngFor="let project of projects"
-        [class.clickable]="project.redirectionUrl"
-        (click)="navigateToProject(project)"
-      >
-        <div class="portfolio-image">
-          <div class="project-placeholder">
-            <span>Project Image</span>
+      @for (project of projects; track project) {
+        <div
+          class="portfolio-item"
+          [class.clickable]="project.redirectionUrl"
+          (click)="navigateToProject(project)"
+          >
+          <div class="portfolio-image">
+            <div class="project-placeholder">
+              <span>Project Image</span>
+            </div>
+          </div>
+          <div class="portfolio-content">
+            <h3 class="project-title">{{ project.title }}</h3>
+            <p class="project-description">{{ project.description }}</p>
+            <div class="project-tech">
+              @for (tech of project.tech; track tech) {
+                <span class="tech-tag">{{
+                  tech
+                }}</span>
+              }
+            </div>
+            @if (project.redirectionUrl) {
+              <div class="project-actions">
+                <span class="view-project">Click to view project →</span>
+              </div>
+            }
           </div>
         </div>
-        <div class="portfolio-content">
-          <h3 class="project-title">{{ project.title }}</h3>
-          <p class="project-description">{{ project.description }}</p>
-          <div class="project-tech">
-            <span class="tech-tag" *ngFor="let tech of project.tech">{{
-              tech
-            }}</span>
-          </div>
-          <div class="project-actions" *ngIf="project.redirectionUrl">
-            <span class="view-project">Click to view project →</span>
-          </div>
-        </div>
-      </div>
+      }
     </div>
   </div>
 </section>
@@ -199,21 +206,21 @@
               src="/assets/photos/landingpage/blacksmith.png"
               alt="Blacksmith Game Screenshot"
               loading="lazy"
-            />
+              />
           </div>
           <div class="screenshot screenshot-2">
             <img
               src="/assets/photos/landingpage/pong.png"
               alt="Pong Game Screenshot"
               loading="lazy"
-            />
+              />
           </div>
           <div class="screenshot screenshot-3">
             <img
               src="/assets/photos/landingpage/clickthetarget.png"
               alt="Click Target Game Screenshot"
               loading="lazy"
-            />
+              />
           </div>
         </div>
       </div>
@@ -275,7 +282,7 @@
             target="_blank"
             class="social-link linkedin"
             aria-label="LinkedIn Profile"
-          >
+            >
             <ng-icon name="radixLinkedinLogo" size="20"></ng-icon>
             <span>LinkedIn</span>
           </a>
@@ -285,7 +292,7 @@
             target="_blank"
             class="social-link github"
             aria-label="GitHub Profile"
-          >
+            >
             <ng-icon name="radixGithubLogo" size="20"></ng-icon>
             <span>GitHub</span>
           </a>
@@ -295,7 +302,7 @@
             target="_blank"
             class="social-link instagram"
             aria-label="Instagram Profile"
-          >
+            >
             <ng-icon name="radixInstagramLogo" size="20"></ng-icon>
             <span>Instagram</span>
           </a>
