@@ -1,10 +1,12 @@
 import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 
 import { GameItem } from '../../types/game.types';
+import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-game-card',
-    imports: [],
+    selector: 'app-game-card',   
+    standalone: true,
+    imports: [CommonModule],
     templateUrl: './game-card.component.html',
     styleUrls: ['./game-card.component.scss']
 })

@@ -10,6 +10,7 @@ import { SeoService } from '../../services/seo.service';
 @Component({
     selector: 'app-my-games-page',
     imports: [GameCardComponent, GameFilterComponent],
+    standalone: true,
     templateUrl: './my-games-page.component.html',
     styleUrls: ['./my-games-page.component.scss'],
     animations: [

@@ -12,6 +12,7 @@ import {
 @Component({
     selector: 'app-blog-list',
     imports: [CommonModule, RouterModule, NgIcon],
+    standalone: true,
     providers: [provideIcons({
             radixExclamationTriangle
         })],

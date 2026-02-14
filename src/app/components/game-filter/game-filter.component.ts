@@ -6,6 +6,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 @Component({
     selector: 'app-game-filter',
     imports: [FormsModule],
+    standalone: true,
     templateUrl: './game-filter.component.html',
     styleUrls: ['./game-filter.component.scss']
 })

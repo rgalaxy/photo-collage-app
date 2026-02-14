@@ -1,0 +1,210 @@
+<div class="home-container">
+  <!-- Theme Toggle -->
+  <button
+    class="theme-toggle"
+    (click)="toggleTheme()"
+    aria-label="Toggle theme"
+  >
+    <ng-icon [name]="isDarkMode() ? 'radixSun' : 'radixMoon'" size="20" />
+  </button>
+
+  <!-- Right Side Navigation -->
+  <nav class="side-nav">
+    @for (item of navItems; track item.id) {
+      <button
+        class="nav-item"
+        [class.active]="activeSection() === item.id"
+        (click)="navigateTo(item.id)"
+        [attr.aria-label]="item.label"
+      >
+        <ng-icon [name]="item.icon" size="18" />
+        <span class="nav-label">{{ item.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <!-- Sections Container -->
+  <main class="sections-wrapper">
+    <!-- HOME Section -->
+    <section
+      id="section-home"
+      class="section active"
+      [class.active]="activeSection() === 'home'"
+    >
+      <div class="hero-grid">
+        <!-- Left: Hero Image -->
+        <div class="hero-image-container">
+          <div class="image-frame">
+            <img
+              src="assets/photos/landingpage/hero-portrait.jpg"
+              alt="Martin Haryanto"
+              class="hero-image"
+              onerror="
+                this.src =
+                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop'
+              "
+            />
+            <!-- Decorative Particles -->
+            <div class="particle particle-1"></div>
+            <div class="particle particle-2"></div>
+            <div class="particle particle-3"></div>
+            <div class="particle particle-4"></div>
+          </div>
+          <!-- Accent Corner -->
+          <div class="accent-corner"></div>
+        </div>
+
+        <!-- Right: Hero Content -->
+        <div class="hero-content">
+          <div class="hero-text">
+            <h1 class="hero-title">
+              <span class="dash">—</span>
+              <span class="name">I'M MARTIN HARYANTO.</span>
+            </h1>
+            <h2 class="hero-subtitle">SOFTWARE DEVELOPER</h2>
+            <p class="hero-description">
+              I'm a software developer focused on crafting clean & user-friendly
+              experiences. I am passionate about building excellent software
+              that improves the lives of those around me.
+            </p>
+            <button class="hero-cta" (click)="openAboutModal()">
+              <span>MORE ABOUT ME</span>
+              <div class="cta-icon">
+                <ng-icon name="radixArrowRight" size="18" />
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT Section -->
+    <section
+      id="section-about"
+      class="section"
+      [class.active]="activeSection() === 'about'"
+    >
+      <div class="section-content about-section">
+        <h2 class="section-title"><span class="dash">—</span> ABOUT ME</h2>
+        <div class="about-grid">
+          <div class="about-text">
+            <p>
+              I'm a passionate software developer with experience in building
+              web and mobile applications. I love creating elegant solutions to
+              complex problems and am constantly learning new technologies to
+              stay at the forefront of the industry.
+            </p>
+          </div>
+          <div class="skills-grid">
+            @for (skill of skills; track skill.name) {
+              <div class="skill-card">
+                <ng-icon [name]="skill.icon" size="32" class="skill-icon" />
+                <h3>{{ skill.name }}</h3>
+                <p>{{ skill.description }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PORTFOLIO Section -->
+    <section
+      id="section-portfolio"
+      class="section"
+      [class.active]="activeSection() === 'portfolio'"
+    >
+      <div class="section-content">
+        <h2 class="section-title"><span class="dash">—</span> PORTFOLIO</h2>
+        <p class="section-subtitle">
+          My recent projects and work showcasing various technologies and
+          solutions.
+        </p>
+        <div class="portfolio-placeholder">
+          <p>Portfolio projects coming soon...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAMES Section -->
+    <section
+      id="section-games"
+      class="section"
+      [class.active]="activeSection() === 'games'"
+    >
+      <div class="section-content">
+        <h2 class="section-title"><span class="dash">—</span> GAMES</h2>
+        <p class="section-subtitle">
+          Check out my mini games collection - interactive experiences built
+          with Angular.
+        </p>
+        <div class="games-links">
+          <a href="/my-games" class="action-link">
+            <span>View All Games</span>
+            <ng-icon name="radixArrowRight" size="18" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOG Section -->
+    <section
+      id="section-blog"
+      class="section"
+      [class.active]="activeSection() === 'blog'"
+    >
+      <div class="section-content">
+        <h2 class="section-title"><span class="dash">—</span> BLOG</h2>
+        <p class="section-subtitle">
+          Read my latest articles about software development, technology, and
+          more.
+        </p>
+        <div class="blog-links">
+          <a href="/blog" class="action-link">
+            <span>View All Posts</span>
+            <ng-icon name="radixArrowRight" size="18" />
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- About Modal -->
+  @if (showAboutModal()) {
+    <div class="modal-overlay" (click)="onModalBackdropClick($event)">
+      <div class="modal-content">
+        <button class="modal-close" (click)="closeAboutModal()">
+          <ng-icon name="radixCross2" size="24" />
+        </button>
+        <h2>About Me</h2>
+        <div class="modal-body">
+          <p>
+            Hi! I'm Martin Haryanto, a software developer with a passion for
+            creating intuitive and efficient applications. I thrive on turning
+            complex problems into simple, beautiful solutions.
+          </p>
+          <p>
+            I specialize in frontend development with Angular, React, and Vue,
+            and have strong backend experience with Node.js and Python. I'm
+            always eager to learn new technologies and take on challenging
+            projects.
+          </p>
+          <h3>Connect with me</h3>
+          <div class="social-links">
+            @for (link of socialLinks; track link.label) {
+              <a
+                [href]="link.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-link"
+              >
+                <ng-icon [name]="link.icon" size="24" />
+                <span>{{ link.label }}</span>
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

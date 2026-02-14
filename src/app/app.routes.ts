@@ -1,10 +1,15 @@
 import { Routes } from '@angular/router';
-import { PortfolioComponent } from './portfolio/portfolio.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: PortfolioComponent,
+    loadComponent: () =>
+      import('./pages/home-new/home-new.component').then(m => m.HomeNewComponent),
+  },
+  {
+    path: 'old-portfolio',
+    loadComponent: () =>
+      import('./portfolio/portfolio.component').then(m => m.PortfolioComponent),
   },
   { path: 'blog', loadComponent: () => import('./pages/blog-list/blog-list.component').then(m => m.BlogListComponent) },
   {

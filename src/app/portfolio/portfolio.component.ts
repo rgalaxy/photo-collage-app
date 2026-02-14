@@ -21,6 +21,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 @Component({
     selector: 'app-portfolio',
     imports: [NgIcon],
+    standalone: true,
     providers: [provideIcons({
             radixDesktop,
             radixGear,

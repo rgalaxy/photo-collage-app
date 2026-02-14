@@ -19,6 +19,7 @@ interface WeaponInstance {
 @Component({
     selector: 'app-mini-game-blacksmith',
     imports: [CommonModule, FormsModule],
+    standalone : true,
     templateUrl: './mini-game-blacksmith.component.html',
     styleUrl: './mini-game-blacksmith.component.scss'
 })

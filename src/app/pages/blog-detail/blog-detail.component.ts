@@ -10,6 +10,7 @@ import { BLOCKS, Document } from '@contentful/rich-text-types';
 @Component({
     selector: 'app-blog-detail',
     imports: [CommonModule, RouterModule],
+    standalone: true,
     templateUrl: './blog-detail.component.html',
     styleUrl: './blog-detail.component.scss'
 })

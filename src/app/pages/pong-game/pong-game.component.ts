@@ -48,6 +48,7 @@ type GameState = 'setup' | 'playing' | 'paused' | 'gameOver';
 @Component({
     selector: 'app-pong-game',
     imports: [CommonModule, FormsModule],
+    standalone: true,
     templateUrl: './pong-game.component.html',
     styleUrl: './pong-game.component.scss',
     animations: [

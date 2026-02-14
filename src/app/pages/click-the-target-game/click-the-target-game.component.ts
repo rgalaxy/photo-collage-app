@@ -50,6 +50,7 @@ interface DifficultyConfig {
 
 @Component({
     selector: 'app-click-the-target-game',
+    standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './click-the-target-game.component.html',
     styleUrl: './click-the-target-game.component.scss',
