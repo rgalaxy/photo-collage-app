@@ -258,7 +258,4 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
     }
   }
 
-  navigateToMyGames(): void {
-    this.router.navigate(['/my-games']);
-  }
 }

@@ -22,7 +22,16 @@
   z-index: 2;
   color: var(--text-placeholder, #9ca3af);
   pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   transition: color 0.2s ease;
+
+  ng-icon {
+    display: block;
+  }
 }
 
 .filter-input {
@@ -46,9 +55,10 @@
     transform: translateY(-2px);
   }
 
-  &:focus + .search-icon {
-    color: var(--primary-color, #667eea);
-  }
+}
+
+.filter-input-wrapper:focus-within .search-icon {
+  color: var(--primary-color, #667eea);
 
   &::placeholder {
     color: var(--text-placeholder, #9ca3af);

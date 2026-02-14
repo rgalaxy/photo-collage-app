@@ -18,11 +18,6 @@ export const routes: Routes = [
       import('./pages/blog-detail/blog-detail.component').then(m => m.BlogDetailComponent),
   },
   {
-    path: 'my-games',
-    loadComponent: () =>
-      import('./pages/my-games/my-games-page.component').then(m => m.MyGamesPageComponent),
-  },
-  {
     path: 'mini-game-blacksmith',
     loadComponent: () =>
       import('./pages/mini-game-blacksmith/mini-game-blacksmith.component').then(m => m.MiniGameBlacksmithComponent),

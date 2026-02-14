@@ -135,11 +135,41 @@
           Check out my mini games collection - interactive experiences built
           with Angular.
         </p>
-        <div class="games-links">
-          <a href="/my-games" class="action-link">
-            <span>View All Games</span>
-            <ng-icon name="radixArrowRight" size="18" />
-          </a>
+        <div class="home-games">
+          <div class="home-games__toolbar">
+            <app-game-filter
+              (filterChange)="onFilterChange($event)"
+            ></app-game-filter>
+          </div>
+
+          <div class="home-games__grid" role="list">
+            @for (
+              game of filteredGames();
+              track trackByGameId(i, game);
+              let i = $index
+            ) {
+              <app-home-game-card
+                [game]="game"
+                [tabindex]="getCardTabIndex(i)"
+                (cardClick)="onGameSelect($event)"
+                (cardKeydown)="onCardKeydown($event)"
+              ></app-home-game-card>
+            }
+          </div>
+
+          @if (filteredGames().length === 0) {
+            <div class="home-games__empty">
+              <h3>No games found</h3>
+              <p>Try adjusting your search to find more games.</p>
+            </div>
+          }
+
+          <div
+            id="home-games-live-region"
+            class="sr-only"
+            aria-live="polite"
+            aria-atomic="true"
+          ></div>
         </div>
       </div>
     </section>

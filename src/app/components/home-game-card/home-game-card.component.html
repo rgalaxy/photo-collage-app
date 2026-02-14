@@ -1,0 +1,39 @@
+<article
+  class="home-game-card"
+  [class.is-coming-soon]="game.isComingSoon"
+  role="button"
+  [attr.tabindex]="tabindex"
+  [attr.aria-disabled]="game.isComingSoon ? 'true' : 'false'"
+  (click)="onCardClick()"
+>
+  <div class="card-media">
+    @if (!game.isComingSoon) {
+      <img [src]="game.imageUrl" [alt]="game.title" loading="lazy" />
+    }
+    @if (game.isComingSoon) {
+      <div class="media-placeholder" aria-hidden="true">
+        <span>Coming Soon</span>
+      </div>
+    }
+    <div class="media-glow" aria-hidden="true"></div>
+    @if (game.isComingSoon) {
+      <div class="coming-soon">Coming soon</div>
+    }
+  </div>
+
+  <div class="card-body">
+    <h3 class="card-title">{{ game.title }}</h3>
+    <div class="card-tags">
+      @for (tag of game.tags; track tag) {
+        <span class="tag">{{ tag }}</span>
+      }
+    </div>
+    <p class="card-description">{{ game.description }}</p>
+    <div class="card-footer">
+      <span class="card-action">
+        <span>{{ game.isComingSoon ? "Preview" : "Play now" }}</span>
+        <ng-icon name="radixArrowRight" size="14" />
+      </span>
+    </div>
+  </div>
+</article>

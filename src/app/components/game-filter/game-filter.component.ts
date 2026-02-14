@@ -1,12 +1,14 @@
 import { Component, Output, EventEmitter, OnDestroy } from '@angular/core';
-
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { radixMagnifyingGlass } from '@ng-icons/radix-icons';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-game-filter',
-    imports: [FormsModule],
+    imports: [FormsModule, NgIconComponent],
     standalone: true,
+    providers: [provideIcons({ radixMagnifyingGlass })],
     templateUrl: './game-filter.component.html',
     styleUrls: ['./game-filter.component.scss']
 })

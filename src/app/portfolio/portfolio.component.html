@@ -45,7 +45,7 @@
           alt="Martin Haryanto - Software Engineer and Frontend Developer"
           class="profile-image"
           loading="lazy"
-          />
+        />
       </div>
     </div>
 
@@ -142,7 +142,7 @@
           class="portfolio-item"
           [class.clickable]="project.redirectionUrl"
           (click)="navigateToProject(project)"
-          >
+        >
           <div class="portfolio-image">
             <div class="project-placeholder">
               <span>Project Image</span>
@@ -153,9 +153,7 @@
             <p class="project-description">{{ project.description }}</p>
             <div class="project-tech">
               @for (tech of project.tech; track tech) {
-                <span class="tech-tag">{{
-                  tech
-                }}</span>
+                <span class="tech-tag">{{ tech }}</span>
               }
             </div>
             @if (project.redirectionUrl) {
@@ -194,9 +192,6 @@
           <li>Responsive design for all devices</li>
           <li>High score tracking</li>
         </ul>
-        <button class="btn-primary" (click)="navigateToMyGames()">
-          Explore All Games
-        </button>
       </div>
 
       <div class="my-games-screenshots">
@@ -206,21 +201,21 @@
               src="/assets/photos/landingpage/blacksmith.png"
               alt="Blacksmith Game Screenshot"
               loading="lazy"
-              />
+            />
           </div>
           <div class="screenshot screenshot-2">
             <img
               src="/assets/photos/landingpage/pong.png"
               alt="Pong Game Screenshot"
               loading="lazy"
-              />
+            />
           </div>
           <div class="screenshot screenshot-3">
             <img
               src="/assets/photos/landingpage/clickthetarget.png"
               alt="Click Target Game Screenshot"
               loading="lazy"
-              />
+            />
           </div>
         </div>
       </div>
@@ -282,7 +277,7 @@
             target="_blank"
             class="social-link linkedin"
             aria-label="LinkedIn Profile"
-            >
+          >
             <ng-icon name="radixLinkedinLogo" size="20"></ng-icon>
             <span>LinkedIn</span>
           </a>
@@ -292,7 +287,7 @@
             target="_blank"
             class="social-link github"
             aria-label="GitHub Profile"
-            >
+          >
             <ng-icon name="radixGithubLogo" size="20"></ng-icon>
             <span>GitHub</span>
           </a>
@@ -302,7 +297,7 @@
             target="_blank"
             class="social-link instagram"
             aria-label="Instagram Profile"
-            >
+          >
             <ng-icon name="radixInstagramLogo" size="20"></ng-icon>
             <span>Instagram</span>
           </a>

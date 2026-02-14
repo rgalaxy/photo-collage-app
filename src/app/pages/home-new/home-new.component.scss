@@ -167,6 +167,12 @@ $transition: 0.3s ease;
   }
 }
 
+#section-games {
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 64px;
+}
+
 // Hero Grid
 .hero-grid {
   display: grid;
@@ -369,6 +375,72 @@ $transition: 0.3s ease;
   margin-bottom: 32px;
 }
 
+.home-games {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.home-games__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  app-game-filter {
+    flex: 1 1 360px;
+    max-width: 560px;
+  }
+}
+
+.home-games__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.home-games__empty {
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 16px;
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+}
+
+.home-games app-game-filter {
+  --primary-color: #4169E1;
+  --focus-color: #4169E1;
+  --border-color: rgba(65, 105, 225, 0.35);
+  --input-background: rgba(12, 12, 12, 0.85);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5f5;
+  --text-placeholder: rgba(248, 250, 252, 0.55);
+  --clear-button-bg: rgba(255, 255, 255, 0.08);
+  --clear-button-hover: #ef4444;
+}
+
+:host-context([data-theme="light"]) .home-games app-game-filter {
+  --border-color: rgba(65, 105, 225, 0.2);
+  --input-background: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-placeholder: rgba(75, 85, 99, 0.6);
+  --clear-button-bg: #f3f4f6;
+  --clear-button-hover: #ef4444;
+}
+
 // About Section
 .about-grid {
   margin-top: 40px;
@@ -448,6 +520,18 @@ $transition: 0.3s ease;
 
 .games-links, .blog-links {
   margin-top: 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .portfolio-placeholder {
@@ -644,6 +728,10 @@ $transition: 0.3s ease;
     top: -15px;
     left: -15px;
   }
+
+  .home-games__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -769,6 +857,19 @@ $transition: 0.3s ease;
     .about-text {
       margin-bottom: 32px;
     }
+  }
+
+  .home-games__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .action-link {
+      width: fit-content;
+    }
+  }
+
+  .home-games__grid {
+    grid-template-columns: 1fr;
   }
 }
 
