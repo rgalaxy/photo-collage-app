@@ -106,9 +106,9 @@ export class HomeNewComponent implements OnInit, OnDestroy {
   ];
 
   socialLinks = [
-    { icon: 'radixGithubLogo', url: 'https://github.com/niconicolii', label: 'GitHub' },
-    { icon: 'radixLinkedinLogo', url: 'https://linkedin.com/in/niconicolii', label: 'LinkedIn' },
-    { icon: 'radixEnvelopeClosed', url: 'mailto:niconicolii0@gmail.com', label: 'Email' }
+    { icon: 'radixGithubLogo', url: 'https://github.com/rgalaxy', label: 'GitHub' },
+    { icon: 'radixLinkedinLogo', url: 'https://linkedin.com/in/martin-haryanto', label: 'LinkedIn' },
+    { icon: 'radixEnvelopeClosed', url: 'mailto:hollandmakermh@gmail.com', label: 'Email' }
   ];
 
   ngOnInit(): void {
