@@ -1,0 +1,106 @@
+// Variables - Royal Blue / Electric Blue theme
+$accent-color: #4169E1;
+$accent-hover: #5A7FE6;
+$transition: 0.3s ease;
+
+// CSS Custom Properties for Theme Switching
+:host {
+  // Dark theme (default)
+  --bg-primary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+// Light theme
+:host-context(:not([data-theme])),
+:host-context([data-theme="light"]) {
+  --bg-primary: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --border-subtle: rgba(0, 0, 0, 0.1);
+}
+
+// Dark theme explicit
+:host-context([data-theme="dark"]) {
+  --bg-primary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+.blog-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+// Section Content
+.section-content {
+  max-width: 1200px;
+  width: 100%;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  .dash {
+    color: $accent-color;
+    font-weight: 300;
+  }
+}
+
+.section-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 600px;
+  margin-bottom: 32px;
+}
+
+// Action Links
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  background: $accent-color;
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  transition: all $transition;
+
+  &:hover {
+    background: $accent-hover;
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba($accent-color, 0.3);
+  }
+}
+
+.blog-links {
+  margin-top: 16px;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .blog-section {
+    padding: 40px 24px;
+    padding-right: 80px;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    gap: 12px;
+  }
+}

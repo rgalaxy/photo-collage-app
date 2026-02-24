@@ -1,0 +1,271 @@
+// Variables - Royal Blue / Electric Blue theme
+$accent-color: #4169E1;
+$accent-hover: #5A7FE6;
+$accent-light: rgba(65, 105, 225, 0.2);
+$transition: 0.3s ease;
+
+// CSS Custom Properties for Theme Switching
+:host {
+  // Dark theme (default)
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #121212;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --nav-bg: rgba(255, 255, 255, 0.05);
+  --nav-bg-mobile: rgba(18, 18, 18, 0.95);
+  --modal-bg: #121212;
+}
+
+// Light theme
+:host-context(:not([data-theme])),
+:host-context([data-theme="light"]) {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-card: rgba(0, 0, 0, 0.03);
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --border-subtle: rgba(0, 0, 0, 0.1);
+  --nav-bg: rgba(0, 0, 0, 0.05);
+  --nav-bg-mobile: rgba(255, 255, 255, 0.95);
+  --modal-bg: #ffffff;
+}
+
+// Dark theme explicit
+:host-context([data-theme="dark"]) {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #121212;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --nav-bg: rgba(255, 255, 255, 0.05);
+  --nav-bg-mobile: rgba(18, 18, 18, 0.95);
+  --modal-bg: #121212;
+}
+
+.hero-section {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Hero Grid
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  max-width: 1400px;
+  width: 100%;
+  align-items: center;
+}
+
+// Hero Image
+.hero-image-container {
+  position: relative;
+  max-width: 480px;
+  margin-left: auto;
+}
+
+.image-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      $accent-light 0%,
+      transparent 50%
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(20%);
+  transition: filter $transition;
+
+  &:hover {
+    filter: grayscale(0%);
+  }
+}
+
+.accent-corner {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 100px;
+  height: 100px;
+  background: $accent-color;
+  z-index: -1;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+// Particles
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: $accent-color;
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 0 10px rgba($accent-color, 0.5);
+
+  &-1 { top: 12%; left: 18%; }
+  &-2 { top: 78%; left: 8%; width: 8px; height: 8px; }
+  &-3 { top: 22%; right: 8%; opacity: 0.7; width: 6px; height: 6px; }
+  &-4 { bottom: 35%; right: 12%; opacity: 0.8; }
+  &-5 { bottom: 8%; right: 50%; opacity: 0.7; }
+}
+
+// Hero Content
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-text {
+  max-width: 760px;
+}
+
+.hero-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  line-height: 1.2;
+
+  .dash {
+    color: $accent-color;
+    font-weight: 300;
+    font-size: 2.5rem;
+  }
+
+  .name {
+    color: $accent-color;
+  }
+}
+
+.hero-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 36px;
+  color: var(--text-primary);
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+  max-width: 480px;
+}
+
+// CTA Button
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 24px;
+  background: transparent;
+  border: 2px solid $accent-color;
+  border-radius: 50px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all $transition;
+
+  .cta-icon {
+    width: 44px;
+    height: 44px;
+    margin-left: 20px;
+    margin-right: -16px;
+    background: $accent-color;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all $transition;
+    color: #fff;
+  }
+
+  &:hover {
+    background: $accent-color;
+    color: #fff;
+    box-shadow: 0 4px 25px rgba($accent-color, 0.4);
+
+    .cta-icon {
+      transform: translateX(4px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 24px;
+    padding-right: 80px;
+  }
+
+  .hero-grid {
+    gap: 32px;
+  }
+
+  .hero-image-container {
+    max-width: 280px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    gap: 16px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    margin-bottom: 32px;
+  }
+}

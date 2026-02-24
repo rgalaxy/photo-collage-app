@@ -1,0 +1,16 @@
+<div class="about-section">
+  <div class="section-content">
+    <h2 class="section-title"><span class="dash">—</span> ABOUT ME</h2>
+    <div class="about-grid">
+      <div class="skills-grid">
+        @for (skill of skills; track skill.name) {
+          <div class="skill-card">
+            <ng-icon [name]="skill.icon" size="32" class="skill-icon" />
+            <h3>{{ skill.name }}</h3>
+            <p>{{ skill.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

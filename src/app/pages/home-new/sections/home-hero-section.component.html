@@ -1,0 +1,44 @@
+<div class="hero-section">
+  <div class="hero-grid">
+    <!-- Left: Hero Image -->
+    <div class="hero-image-container">
+      <div class="image-frame">
+        <img
+          src="assets/photos/landingpage/hero-portrait.jpg"
+          alt="Martin Haryanto"
+          class="hero-image"
+          onerror="this.src = '../assets/photos/MeandChloe.jpeg'"
+        />
+        <!-- Decorative Particles -->
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="particle particle-4"></div>
+        <div class="particle particle-5"></div>
+      </div>
+      <!-- Accent Corner -->
+      <div class="accent-corner"></div>
+    </div>
+
+    <!-- Right: Hero Content -->
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          <span class="name">I'M MARTIN HARYANTO.</span>
+        </h1>
+        <h2 class="hero-subtitle">SOFTWARE DEVELOPER</h2>
+        <p class="hero-description">
+          I'm a software developer intrigued on crafting clean & user-friendly
+          experiences. I am passionate about building excellent software that
+          improves people lives.
+        </p>
+        <button class="hero-cta" (click)="openAboutModal()">
+          <span>MORE ABOUT ME</span>
+          <div class="cta-icon">
+            <ng-icon name="radixArrowRight" size="18" />
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -31,48 +31,10 @@
       class="section active"
       [class.active]="activeSection() === 'home'"
     >
-      <div class="hero-grid">
-        <!-- Left: Hero Image -->
-        <div class="hero-image-container">
-          <div class="image-frame">
-            <img
-              src="assets/photos/landingpage/hero-portrait.jpg"
-              alt="Martin Haryanto"
-              class="hero-image"
-              onerror="this.src = '../assets/photos/MeandChloe.jpeg'"
-            />
-            <!-- Decorative Particles -->
-            <div class="particle particle-1"></div>
-            <div class="particle particle-2"></div>
-            <div class="particle particle-3"></div>
-            <div class="particle particle-4"></div>
-          </div>
-          <!-- Accent Corner -->
-          <div class="accent-corner"></div>
-        </div>
-
-        <!-- Right: Hero Content -->
-        <div class="hero-content">
-          <div class="hero-text">
-            <h1 class="hero-title">
-              <span class="dash">—</span>
-              <span class="name">I'M MARTIN HARYANTO.</span>
-            </h1>
-            <h2 class="hero-subtitle">SOFTWARE DEVELOPER</h2>
-            <p class="hero-description">
-              I'm a software developer intrigued on crafting clean &
-              user-friendly experiences. I am passionate about building
-              excellent software that improves people lives.
-            </p>
-            <button class="hero-cta" (click)="openAboutModal()">
-              <span>MORE ABOUT ME</span>
-              <div class="cta-icon">
-                <ng-icon name="radixArrowRight" size="18" />
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-home-hero-section
+        [activeSection]="activeSection"
+        (aboutClick)="openAboutModal()"
+      ></app-home-hero-section>
     </section>
 
     <!-- ABOUT Section -->
@@ -81,20 +43,10 @@
       class="section"
       [class.active]="activeSection() === 'about'"
     >
-      <div class="section-content about-section">
-        <h2 class="section-title"><span class="dash">—</span> ABOUT ME</h2>
-        <div class="about-grid">
-          <div class="skills-grid">
-            @for (skill of skills; track skill.name) {
-              <div class="skill-card">
-                <ng-icon [name]="skill.icon" size="32" class="skill-icon" />
-                <h3>{{ skill.name }}</h3>
-                <p>{{ skill.description }}</p>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
+      <app-about-section
+        [activeSection]="activeSection"
+        [skills]="skills"
+      ></app-about-section>
     </section>
 
     <!-- PORTFOLIO Section -->
@@ -103,16 +55,9 @@
       class="section"
       [class.active]="activeSection() === 'portfolio'"
     >
-      <div class="section-content">
-        <h2 class="section-title"><span class="dash">—</span> PORTFOLIO</h2>
-        <p class="section-subtitle">
-          My recent projects and work showcasing various technologies and
-          solutions.
-        </p>
-        <div class="portfolio-placeholder">
-          <p>Portfolio projects coming soon...</p>
-        </div>
-      </div>
+      <app-portfolio-section
+        [activeSection]="activeSection"
+      ></app-portfolio-section>
     </section>
 
     <!-- GAMES Section -->
@@ -121,49 +66,10 @@
       class="section"
       [class.active]="activeSection() === 'games'"
     >
-      <div class="section-content">
-        <h2 class="section-title"><span class="dash">—</span> GAMES</h2>
-        <p class="section-subtitle">
-          Check out my mini games collection - interactive experiences built
-          with Angular.
-        </p>
-        <div class="home-games">
-          <div class="home-games__toolbar">
-            <app-game-filter
-              (filterChange)="onFilterChange($event)"
-            ></app-game-filter>
-          </div>
-
-          <div class="home-games__grid" role="list">
-            @for (
-              game of filteredGames();
-              track trackByGameId(i, game);
-              let i = $index
-            ) {
-              <app-home-game-card
-                [game]="game"
-                [tabindex]="getCardTabIndex(i)"
-                (cardClick)="onGameSelect($event)"
-                (cardKeydown)="onCardKeydown($event)"
-              ></app-home-game-card>
-            }
-          </div>
-
-          @if (filteredGames().length === 0) {
-            <div class="home-games__empty">
-              <h3>No games found</h3>
-              <p>Try adjusting your search to find more games.</p>
-            </div>
-          }
-
-          <div
-            id="home-games-live-region"
-            class="sr-only"
-            aria-live="polite"
-            aria-atomic="true"
-          ></div>
-        </div>
-      </div>
+      <app-games-section
+        [activeSection]="activeSection"
+        (gameSelected)="onGameSelect($event)"
+      ></app-games-section>
     </section>
 
     <!-- BLOG Section -->
@@ -172,19 +78,7 @@
       class="section"
       [class.active]="activeSection() === 'blog'"
     >
-      <div class="section-content">
-        <h2 class="section-title"><span class="dash">—</span> BLOG</h2>
-        <p class="section-subtitle">
-          Read my latest articles about software development, technology, and
-          more.
-        </p>
-        <div class="blog-links">
-          <a href="/blog" class="action-link">
-            <span>View All Posts</span>
-            <ng-icon name="radixArrowRight" size="18" />
-          </a>
-        </div>
-      </div>
+      <app-blog-section [activeSection]="activeSection"></app-blog-section>
     </section>
   </main>
 

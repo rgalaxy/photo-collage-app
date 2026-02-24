@@ -1,0 +1,189 @@
+// Variables - Royal Blue / Electric Blue theme
+$accent-color: #4169E1;
+$accent-hover: #5A7FE6;
+$accent-light: rgba(65, 105, 225, 0.2);
+$transition: 0.3s ease;
+
+// CSS Custom Properties for Theme Switching
+:host {
+  // Dark theme (default)
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #121212;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --nav-bg: rgba(255, 255, 255, 0.05);
+  --nav-bg-mobile: rgba(18, 18, 18, 0.95);
+  --modal-bg: #121212;
+}
+
+// Light theme
+:host-context(:not([data-theme])),
+:host-context([data-theme="light"]) {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-card: rgba(0, 0, 0, 0.03);
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --border-subtle: rgba(0, 0, 0, 0.1);
+  --nav-bg: rgba(0, 0, 0, 0.05);
+  --nav-bg-mobile: rgba(255, 255, 255, 0.95);
+  --modal-bg: #ffffff;
+}
+
+// Dark theme explicit
+:host-context([data-theme="dark"]) {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #121212;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --nav-bg: rgba(255, 255, 255, 0.05);
+  --nav-bg-mobile: rgba(18, 18, 18, 0.95);
+  --modal-bg: #121212;
+}
+
+.games-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+// Section Content
+.section-content {
+  max-width: 1200px;
+  width: 100%;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  .dash {
+    color: $accent-color;
+    font-weight: 300;
+  }
+}
+
+.section-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 600px;
+  margin-bottom: 32px;
+}
+
+.home-games {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.home-games__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  ::ng-deep app-game-filter {
+    flex: 1 1 360px;
+    max-width: 560px;
+  }
+}
+
+.home-games__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.home-games__empty {
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 16px;
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+}
+
+::ng-deep .home-games app-game-filter {
+  --primary-color: #4169E1;
+  --focus-color: #4169E1;
+  --border-color: rgba(65, 105, 225, 0.35);
+  --input-background: rgba(12, 12, 12, 0.85);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5f5;
+  --text-placeholder: rgba(248, 250, 252, 0.55);
+  --clear-button-bg: rgba(255, 255, 255, 0.08);
+  --clear-button-hover: #ef4444;
+}
+
+:host-context([data-theme="light"]) ::ng-deep .home-games app-game-filter {
+  --border-color: rgba(65, 105, 225, 0.2);
+  --input-background: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-placeholder: rgba(75, 85, 99, 0.6);
+  --clear-button-bg: #f3f4f6;
+  --clear-button-hover: #ef4444;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .games-section {
+    padding-right: 90px;
+  }
+
+  .home-games__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .games-section {
+    padding: 40px 24px;
+    padding-right: 80px;
+    padding-top: 64px;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    gap: 12px;
+  }
+
+  .home-games__grid {
+    grid-template-columns: 1fr;
+  }
+}
