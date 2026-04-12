@@ -31,5 +31,10 @@ export const routes: Routes = [
     path: 'pong-game',
     loadComponent: () =>
       import('./pages/pong-game/pong-game.component').then(m => m.PongGameComponent),
+  },
+  {
+    path: 'event/chloe-1st-birthday',
+    loadComponent: () =>
+      import('./pages/chloe-birthday/chloe-birthday.component').then(m => m.ChloeBirthdayComponent),
   }
 ];

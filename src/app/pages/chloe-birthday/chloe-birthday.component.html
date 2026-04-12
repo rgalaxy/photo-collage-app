@@ -1,0 +1,165 @@
+<!-- ==================== SPLASH OVERLAY ==================== -->
+@if (showSplash) {
+  <div class="splash-overlay" (click)="enterPage()">
+    <div class="splash-content">
+      <p class="splash-subtitle">You're Invited to</p>
+      <h1 class="splash-name">Chloe's</h1>
+      <p class="splash-event">1<sup>st</sup> Birthday Party</p>
+      <div class="splash-stars">✦ ★ ✦</div>
+      <button class="splash-button">
+        <span>Open Invitation</span>
+        <span class="btn-icon">✉</span>
+      </button>
+      <p class="splash-hint">Tap anywhere to open</p>
+    </div>
+  </div>
+}
+
+<div class="birthday-page" [class.hidden]="showSplash">
+  <!-- Music Toggle -->
+  <button
+    class="music-toggle"
+    (click)="toggleMusic()"
+    [class.playing]="isMusicPlaying"
+    aria-label="Toggle music"
+  >
+    @if (isMusicPlaying) {
+      <span class="music-icon">♫</span>
+    } @else {
+      <span class="music-icon muted">♪</span>
+    }
+  </button>
+
+  <!-- ==================== SECTION 1: INVITATION ==================== -->
+  <section class="invitation-section">
+    <div class="invitation-bg">
+      <div class="cloud-bg-image"></div>
+      <!-- Clouds -->
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+      <div class="cloud cloud-4"></div>
+      <div class="cloud cloud-5"></div>
+    </div>
+
+    <div class="invitation-content">
+      <!-- Decorative stars (SVG) -->
+      <div class="deco-star deco-star-1">✦</div>
+      <div class="deco-star deco-star-2">★</div>
+      <div class="deco-star deco-star-3">✦</div>
+      <div class="deco-star deco-star-4">★</div>
+      <div class="deco-star deco-star-5">✧</div>
+      <div class="deco-star deco-star-6">★</div>
+      <div class="deco-star deco-star-7">✦</div>
+
+      <!-- Title -->
+      <h1 class="title-script">Twinkle Twinkle</h1>
+      <p class="title-sub">✦ LITTLE STAR ✦</p>
+
+      <!-- Photo Circle -->
+      <div class="photo-frame">
+        <div class="photo-ring"></div>
+        <div class="photo-placeholder">
+          <img src="assets/photos/chloe-only.jpg" alt="Chloe Zevanya Eleanor Ong" class="photo-img" />
+        </div>
+      </div>
+
+      <!-- Name -->
+      <h2 class="child-name">Chloe Zevanya Eleanor Ong</h2>
+      <p class="turning-text">— is turning —</p>
+
+      <!-- Age -->
+      <div class="age-number">1</div>
+
+      <!-- Tagline -->
+      <p class="tagline">Join us for a magical celebration</p>
+
+      <!-- Event Details -->
+      <div class="event-details">
+        <p class="event-date">SATURDAY, 18 APRIL 2026</p>
+        <p class="event-time">12:00 PM</p>
+        <div class="divider-line"></div>
+        <p class="event-venue">Chloe's Home</p>
+        <p class="event-address">Jl Magelang No 292,<br />Mega Cinere, Depok</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 2: RUNDOWN ==================== -->
+  <section class="rundown-section">
+    <div class="rundown-bg"></div>
+    <div class="rundown-content">
+      <h2 class="section-title">
+        <span class="title-deco">✦</span>
+        The Celebration
+        <span class="title-deco">✦</span>
+      </h2>
+      <p class="section-subtitle">Here's what we have planned for the day</p>
+
+      <div class="timeline">
+        <div class="timeline-line"></div>
+        @for (item of rundownItems; track item.time; let i = $index) {
+          <div class="timeline-item" [class.right]="i % 2 !== 0">
+            <div class="timeline-dot">
+              <span class="dot-icon">{{ item.icon }}</span>
+            </div>
+            <div class="timeline-card">
+              <div class="card-time">{{ item.time }}</div>
+              <div class="card-event">{{ item.event }}</div>
+              @if (item.description) {
+                <div class="card-desc">{{ item.description }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 3: NOTES & THANK YOU ==================== -->
+  <section class="notes-section">
+    <div class="notes-content">
+      <h2 class="section-title">
+        <span class="title-deco">✦</span>
+        Important Notes
+        <span class="title-deco">✦</span>
+      </h2>
+
+      <div class="notes-list">
+        @for (note of notes; track note.text; let i = $index) {
+          <div class="note-item">
+            <div class="note-icon">{{ note.icon }}</div>
+            <div class="note-text">
+              <p>{{ note.text }}</p>
+              @if (note.link) {
+                <a
+                  [href]="note.link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="note-link"
+                >
+                  📍 {{ note.linkText }}
+                </a>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Thank You -->
+      <div class="thank-you">
+        <div class="thank-you-stars">✦ ★ ✦</div>
+        <h2 class="thank-you-title">Thank You!</h2>
+        <p class="thank-you-text">
+          We are so grateful for your love and presence.<br />
+          Let's make this a magical day for our little star!
+        </p>
+        <div class="thank-you-name">
+          <p>With love,</p>
+          <p class="family-name">The Ong Family</p>
+        </div>
+        <div class="thank-you-stars">✦ ★ ✦</div>
+      </div>
+    </div>
+  </section>
+</div>
