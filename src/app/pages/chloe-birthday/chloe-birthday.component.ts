@@ -12,6 +12,7 @@ import {
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SeoService } from '../../services/seo.service';
 
 @Component({
   selector: 'app-chloe-birthday',
@@ -24,6 +25,7 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
   private platformId = inject(PLATFORM_ID);
   private renderer = inject(Renderer2);
   private el = inject(ElementRef);
+  private seo = inject(SeoService);
 
   @ViewChild('rundownSection') rundownSection!: ElementRef;
 
@@ -62,11 +64,11 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
     },
     {
       icon: '🍼',
-      text: 'We will have baby food (MPASI) served, but we encourage you to bring your own since each kid has different preferences.',
+      text: 'If your kid is under 1 year old, we encourage parents to bring their own baby food (MPASI) since each kid has different preferences.',
     },
     {
       icon: '👕',
-      text: 'One of our main events is sensory play together with Chloe, so please bring extra clothes for your kid if you decide to join.',
+      text: 'One of our main events is 🎉sensory play🎉 together with Chloe, so please bring extra clothes for you and your kid.',
     },
     {
       icon: '👩‍👧',
@@ -81,6 +83,18 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
   private fontsLoaded = false;
 
   ngOnInit(): void {
+    this.seo.updateSEO({
+      title: "Chloe's 1st Birthday Party 🎂 – You're Invited!",
+      description:
+        "Join us to celebrate Chloe Zevanya Eleanor Ong's 1st birthday! Saturday, 18 April 2026 at 12:00 PM. Chloe's Home, Jl Magelang No 292, Mega Cinere, Depok.",
+      ogTitle: "You're Invited to Chloe's 1st Birthday Party! 🎂",
+      ogDescription:
+        "Join us to celebrate Chloe Zevanya Eleanor Ong turning 1! Saturday, 18 April 2026 · 12:00 PM · Mega Cinere, Depok.",
+      ogImage: 'https://martinharyanto.netlify.app/assets/photos/chloe-only.jpg',
+      ogUrl: 'https://martinharyanto.netlify.app/event/chloe-1st-birthday',
+      type: 'website',
+    });
+
     if (isPlatformBrowser(this.platformId)) {
       this.loadFonts();
       gsap.registerPlugin(ScrollTrigger);

@@ -165,6 +165,8 @@ $font-display: 'Roboto', serif;
 
   .btn-icon {
     font-size: 18px;
+    display: inline-block;
+    line-height: 1;
   }
 
   &:hover {
@@ -650,12 +652,12 @@ $font-display: 'Roboto', serif;
 
 .timeline-dot {
   position: absolute;
-  left: 16px;
+  left: 14px;
   top: 8px;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $gold-light, $gold);
+  background: linear-gradient(135deg, $white, $gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -663,7 +665,7 @@ $font-display: 'Roboto', serif;
   z-index: 2;
 
   .dot-icon {
-    font-size: 12px;
+    font-size: 16px;
     line-height: 1;
   }
 }
@@ -700,7 +702,7 @@ $font-display: 'Roboto', serif;
   }
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
     box-shadow:
       0 4px 20px rgba($purple-dark, 0.1),
       0 2px 6px rgba($purple-dark, 0.06);
@@ -718,9 +720,9 @@ $font-display: 'Roboto', serif;
 }
 
 .card-event {
-  font-family: $font-serif;
+  font-family: $font-sans;
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 700;
   color: $purple-dark;
   margin-bottom: 2px;
 }
