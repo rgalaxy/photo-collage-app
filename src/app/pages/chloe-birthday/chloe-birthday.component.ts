@@ -75,6 +75,10 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
       text: 'For those who bring a babysitter, we will also provide 1 portion of food.',
     },
     {
+      icon: '👗',
+      text: 'To match the theme of the event, we ask that you please refrain from wearing yellow clothing.',
+    },
+    {
       icon: '😋',
       text: 'Please come with an empty stomach so we can enjoy the food provided together!',
     },
