@@ -80,8 +80,14 @@
 
       <!-- Event Details -->
       <div class="event-details">
-        <p class="event-date">SATURDAY, 18 APRIL 2026</p>
-        <p class="event-time">12:00 PM</p>
+        @if (isFamilyVariant) {
+          <p class="event-date">SUNDAY, 19 APRIL 2026</p>
+          <p class="event-time">11:30 AM</p>
+          <p class="event-church-note">After Sunday Service</p>
+        } @else {
+          <p class="event-date">SATURDAY, 18 APRIL 2026</p>
+          <p class="event-time">12:00 PM</p>
+        }
         <div class="divider-line"></div>
         <p class="event-venue">Chloe's Home</p>
         <p class="event-address">Jl Magelang No 292,<br />Mega Cinere, Depok</p>
@@ -89,75 +95,117 @@
     </div>
   </section>
 
-  <!-- ==================== SECTION 2: RUNDOWN ==================== -->
-  <section class="rundown-section">
-    <div class="rundown-bg"></div>
-    <div class="rundown-content">
-      <h2 class="section-title">
-        <span class="title-deco">✦</span>
-        The Celebration
-        <span class="title-deco">✦</span>
-      </h2>
-      <p class="section-subtitle">Here's what we have planned for the day</p>
+  <!-- ==================== SECTION 2: RUNDOWN (friends only) ==================== -->
+  @if (!isFamilyVariant) {
+    <section class="rundown-section">
+      <div class="rundown-bg"></div>
+      <div class="rundown-content">
+        <h2 class="section-title">
+          <span class="title-deco">✦</span>
+          The Celebration
+          <span class="title-deco">✦</span>
+        </h2>
+        <p class="section-subtitle">Here's what we have planned for the day</p>
 
-      <div class="timeline">
-        <div class="timeline-line"></div>
-        @for (item of rundownItems; track item.time; let i = $index) {
-          <div class="timeline-item" [class.right]="i % 2 !== 0">
-            <div class="timeline-dot">
-              <span class="dot-icon">{{ item.icon }}</span>
+        <div class="timeline">
+          <div class="timeline-line"></div>
+          @for (item of rundownItems; track item.time; let i = $index) {
+            <div class="timeline-item" [class.right]="i % 2 !== 0">
+              <div class="timeline-dot">
+                <span class="dot-icon">{{ item.icon }}</span>
+              </div>
+              <div class="timeline-card">
+                <div class="card-time">{{ item.time }}</div>
+                <div class="card-event">{{ item.event }}</div>
+                @if (item.description) {
+                  <div class="card-desc">{{ item.description }}</div>
+                }
+              </div>
             </div>
-            <div class="timeline-card">
-              <div class="card-time">{{ item.time }}</div>
-              <div class="card-event">{{ item.event }}</div>
-              @if (item.description) {
-                <div class="card-desc">{{ item.description }}</div>
-              }
-            </div>
-          </div>
-        }
+          }
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  }
+  <!-- end @if !isFamilyVariant rundown -->
+
+  <!-- ==================== SECTION 2B: PHOTO COLLAGE (family only) ==================== -->
+  @if (isFamilyVariant) {
+    <section class="collage-section">
+      <div class="collage-content">
+        <h2 class="section-title">
+          <span class="title-deco">✦</span>
+          Chloe's Journey
+          <span class="title-deco">✦</span>
+        </h2>
+        <p class="section-subtitle">
+          A glimpse of her growth and precious moments.
+        </p>
+        <div class="collage-grid">
+          @for (photo of collagePhotos; track photo.src; let i = $index) {
+            <div class="collage-cell" [attr.data-index]="i">
+              <img
+                [src]="photo.src"
+                [alt]="photo.alt"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+  <!-- end @if isFamilyVariant collage -->
 
   <!-- ==================== SECTION 3: NOTES & THANK YOU ==================== -->
   <section class="notes-section">
     <div class="notes-content">
-      <h2 class="section-title">
-        <span class="title-deco">✦</span>
-        Important Notes
-        <span class="title-deco">✦</span>
-      </h2>
+      @if (!isFamilyVariant) {
+        <h2 class="section-title">
+          <span class="title-deco">✦</span>
+          Important Notes
+          <span class="title-deco">✦</span>
+        </h2>
 
-      <div class="notes-list">
-        @for (note of notes; track note.text; let i = $index) {
-          <div class="note-item">
-            <div class="note-icon">{{ note.icon }}</div>
-            <div class="note-text">
-              <p>{{ note.text }}</p>
-              @if (note.link) {
-                <a
-                  [href]="note.link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="note-link"
-                >
-                  📍 {{ note.linkText }}
-                </a>
-              }
+        <div class="notes-list">
+          @for (note of notes; track note.text; let i = $index) {
+            <div class="note-item">
+              <div class="note-icon">{{ note.icon }}</div>
+              <div class="note-text">
+                <p>{{ note.text }}</p>
+                @if (note.link) {
+                  <a
+                    [href]="note.link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="note-link"
+                  >
+                    📍 {{ note.linkText }}
+                  </a>
+                }
+              </div>
             </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
 
       <!-- Thank You -->
       <div class="thank-you">
         <div class="thank-you-stars">✦ ★ ✦</div>
         <h2 class="thank-you-title">Thank You!</h2>
-        <p class="thank-you-text">
-          We are so grateful for your love and presence.<br />
-          Let's make this a magical day for our little star!
-        </p>
+        @if (isFamilyVariant) {
+          <p class="thank-you-text">
+            To our dearest family — thank you for always being there,<br />
+            for every hug, every prayer, and every shared moment.<br />
+            We are beyond blessed to celebrate this milestone with you.
+          </p>
+        } @else {
+          <p class="thank-you-text">
+            We are so grateful for your love and presence.<br />
+            Let's make this a magical day for our little star!
+          </p>
+        }
         <div class="thank-you-name">
           <p>With love,</p>
           <p class="family-name">The Ong Family</p>

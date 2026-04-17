@@ -10,6 +10,7 @@ import {
   Renderer2,
 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SeoService } from '../../services/seo.service';
@@ -26,6 +27,7 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
   private renderer = inject(Renderer2);
   private el = inject(ElementRef);
   private seo = inject(SeoService);
+  private route = inject(ActivatedRoute);
 
   @ViewChild('rundownSection') rundownSection!: ElementRef;
 
@@ -42,6 +44,20 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
   ];
   isMusicPlaying = false;
   showSplash = true;
+  isFamilyVariant = false;
+
+  readonly collagePhotos = [
+    { src: 'assets/photos/family/family-1.jpeg', alt: 'Family moment 1' },
+    { src: 'assets/photos/family/family-2.jpeg', alt: 'Family moment 2' },
+    { src: 'assets/photos/family/family-3.jpeg', alt: 'Family moment 3' },
+    { src: 'assets/photos/family/family-4.jpeg', alt: 'Family moment 4' },
+    { src: 'assets/photos/family/family-5.jpeg', alt: 'Family moment 5' },
+    { src: 'assets/photos/family/family-6.jpeg', alt: 'Family moment 6' },
+    { src: 'assets/photos/family/family-7.jpeg', alt: 'Family moment 7' },
+    { src: 'assets/photos/family/family-8.jpeg', alt: 'Family moment 8' },
+    { src: 'assets/photos/family/family-9.jpeg', alt: 'Family moment 9' },
+    { src: 'assets/photos/family/family-10.jpeg', alt: 'Family moment 10' },
+  ];
 
   rundownItems = [
     { time: '12:00 – 12:10', event: 'Welcome Speech', description: 'by Monica Martin', icon: '🎤' },
@@ -87,17 +103,33 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
   private fontsLoaded = false;
 
   ngOnInit(): void {
-    this.seo.updateSEO({
-      title: "Chloe's 1st Birthday Party 🎂 – You're Invited!",
-      description:
-        "Join us to celebrate Chloe Zevanya Eleanor Ong's 1st birthday! Saturday, 18 April 2026 at 12:00 PM. Chloe's Home, Jl Magelang No 292, Mega Cinere, Depok.",
-      ogTitle: "You're Invited to Chloe's 1st Birthday Party! 🎂",
-      ogDescription:
-        "Join us to celebrate Chloe Zevanya Eleanor Ong turning 1! Saturday, 18 April 2026 · 12:00 PM · Mega Cinere, Depok.",
-      ogImage: 'https://martinharyanto.netlify.app/assets/photos/chloe-only.jpg',
-      ogUrl: 'https://martinharyanto.netlify.app/event/chloe-1st-birthday',
-      type: 'website',
-    });
+    this.isFamilyVariant = this.route.snapshot.data['variant'] === 'family';
+
+    if (this.isFamilyVariant) {
+      this.seo.updateSEO({
+        title: "Chloe's 1st Birthday – Family Sunday Celebration 🎂",
+        description:
+          "Join us for a family Sunday celebration of Chloe Zevanya Eleanor Ong's 1st birthday! Sunday, 19 April 2026 at 11:30 AM. After Sunday Service.",
+        ogTitle: "Family Sunday Celebration – Chloe's 1st Birthday! 🎂",
+        ogDescription:
+          "Celebrate Chloe turning 1 with family! Sunday, 19 April 2026 · 11:30 AM · Mega Cinere, Depok.",
+        ogImage: 'https://martinharyanto.netlify.app/assets/photos/chloe-only.jpg',
+        ogUrl: 'https://martinharyanto.netlify.app/event/chloe-1st-birthday/family',
+        type: 'website',
+      });
+    } else {
+      this.seo.updateSEO({
+        title: "Chloe's 1st Birthday Party 🎂 – You're Invited!",
+        description:
+          "Join us to celebrate Chloe Zevanya Eleanor Ong's 1st birthday! Saturday, 18 April 2026 at 12:00 PM. Chloe's Home, Jl Magelang No 292, Mega Cinere, Depok.",
+        ogTitle: "You're Invited to Chloe's 1st Birthday Party! 🎂",
+        ogDescription:
+          "Join us to celebrate Chloe Zevanya Eleanor Ong turning 1! Saturday, 18 April 2026 · 12:00 PM · Mega Cinere, Depok.",
+        ogImage: 'https://martinharyanto.netlify.app/assets/photos/chloe-only.jpg',
+        ogUrl: 'https://martinharyanto.netlify.app/event/chloe-1st-birthday',
+        type: 'website',
+      });
+    }
 
     if (isPlatformBrowser(this.platformId)) {
       this.loadFonts();
@@ -251,6 +283,23 @@ export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy 
         y: 30,
         duration: 0.6,
         delay: i * 0.1,
+      });
+    });
+
+    // Collage section (family variant) — staggered reveal per cell
+    const collageCells = gsap.utils.toArray('.collage-cell') as HTMLElement[];
+    collageCells.forEach((cell, i) => {
+      gsap.from(cell, {
+        scrollTrigger: {
+          trigger: cell,
+          start: 'top 92%',
+          toggleActions: 'play none none reverse',
+        },
+        opacity: 0,
+        scale: 0.92,
+        duration: 0.55,
+        delay: i * 0.06,
+        ease: 'power2.out',
       });
     });
   }

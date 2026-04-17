@@ -884,3 +884,103 @@ $font-display: 'Roboto', serif;
     min-height: 100vh;
   }
 }
+
+// =============================================================================
+// EVENT CHURCH NOTE (family variant)
+// =============================================================================
+.event-church-note {
+  font-family: $font-sans;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $purple-light;
+  margin: 2px 0 0;
+  opacity: 0.85;
+}
+
+// =============================================================================
+// PHOTO COLLAGE SECTION (family variant)
+// =============================================================================
+.collage-section {
+  position: relative;
+  background: linear-gradient(180deg, $blush 0%, $pink-soft 100%);
+  padding: 60px 0 70px;
+  overflow: hidden;
+}
+
+.collage-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+// 10-photo mosaic grid using named template areas
+// Layout (4 cols, 3 rows):
+//  p0  p1  p4  p4   <- p4 is tall (spans 2 rows)
+//  p2  p3  p4  p4
+//  p5  p6  p7  p7   <- p7 spans 2 cols, p5/p6 square
+//  p8  p8  p9  .    <- p8 spans 2 cols
+.collage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 120px 120px 120px;
+  grid-template-areas:
+    "p0 p1 p4 p4"
+    "p2 p3 p4 p4"
+    "p5 p5 p6 p7";
+  gap: 6px;
+  margin-top: 28px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba($purple-dark, 0.18);
+
+  // map each nth-child to its area
+  .collage-cell:nth-child(1)  { grid-area: p0; }
+  .collage-cell:nth-child(2)  { grid-area: p1; }
+  .collage-cell:nth-child(3)  { grid-area: p2; }
+  .collage-cell:nth-child(4)  { grid-area: p3; }
+  .collage-cell:nth-child(5)  { grid-area: p4; }
+  .collage-cell:nth-child(6)  { grid-area: p5; }
+  .collage-cell:nth-child(7)  { grid-area: p6; }
+  .collage-cell:nth-child(8)  { grid-area: p7; }
+  // photos 9 and 10 are hidden by default — show on larger screens
+  .collage-cell:nth-child(9),
+  .collage-cell:nth-child(10) { display: none; }
+}
+
+.collage-cell {
+  overflow: hidden;
+  background: $lavender;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Larger screens: expand to show all 10 photos in a wider mosaic
+@media (min-width: 600px) {
+  .collage-grid {
+    grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+    grid-template-rows: 160px 160px;
+    grid-template-areas:
+      "p0 p1 p4 p4 p8"
+      "p2 p3 p4 p4 p9"
+      "p5 p5 p6 p7 p7";
+
+    .collage-cell:nth-child(9),
+    .collage-cell:nth-child(10) { display: block; }
+
+    .collage-cell:nth-child(9)  { grid-area: p8; }
+    .collage-cell:nth-child(10) { grid-area: p9; }
+  }
+}

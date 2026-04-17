@@ -36,5 +36,12 @@ export const routes: Routes = [
     path: 'event/chloe-1st-birthday',
     loadComponent: () =>
       import('./pages/chloe-birthday/chloe-birthday.component').then(m => m.ChloeBirthdayComponent),
-  }
+    data: { variant: 'friends' },
+  },
+  {
+    path: 'event/chloe-1st-birthday/family',
+    loadComponent: () =>
+      import('./pages/chloe-birthday/chloe-birthday.component').then(m => m.ChloeBirthdayComponent),
+    data: { variant: 'family' },
+  },
 ];
