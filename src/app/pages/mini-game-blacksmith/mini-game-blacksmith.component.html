@@ -1,364 +1,290 @@
-<div class="blacksmith-game">
-  <!-- Toast Container -->
-  <div class="toast-container">
-    @for (toast of toasts; track toast) {
-      <div
-        class="toast"
-        [class.success]="toast.success"
-        [class.error]="!toast.success"
-        >
-        <div class="toast-message">{{ toast.message }}</div>
-        <button class="toast-close" (click)="removeToast(toast.id)">×</button>
-      </div>
+<div class="forge pg-dark">
+  <app-game-shell title="🔨 The Forge"></app-game-shell>
+
+  <!-- Toasts -->
+  <div class="toast-stack" aria-live="polite">
+    @for (toast of toasts; track toast.id) {
+      <div class="toast" [class.ok]="toast.success" [class.bad]="!toast.success">{{ toast.message }}</div>
     }
   </div>
 
-  <!-- High Scores Toggle (Fixed position) -->
-  <div class="high-scores-toggle">
-    <button class="toggle-btn" (click)="toggleHighScores()">
-      {{ showHighScores ? "❌" : "🏆" }}
-    </button>
-  </div>
+  <main class="forge-stage">
+    <!-- ===================== START ===================== -->
+    @if (!gameActive && !gameOver) {
+      <section class="screen start">
+        <div class="start-card">
+          <p class="start-kicker">forge · leaderboard challenge</p>
+          <h2 class="start-title">Forge a <span class="grad">legend</span>.</h2>
+          <p class="start-sub">
+            {{ GAME_TIME }} seconds at the anvil. Strike to refine, temper for quality, infuse the
+            elements — and <strong>bank your masterpiece</strong> before the clock dies. Push too
+            far past <strong>+{{ DANGER_FROM }}</strong> and the blade <strong>shatters</strong>.
+          </p>
+          <input
+            class="name-input"
+            [(ngModel)]="playerName"
+            maxlength="18"
+            placeholder="Your blacksmith name"
+            (keyup.enter)="startGame()"
+            aria-label="Blacksmith name"
+          />
+          <div class="start-actions">
+            <button class="btn-forge" (click)="startGame()">Enter the forge <span>→</span></button>
+            <button class="btn-ghost" (click)="openHowToPlayModal()">How to play</button>
+          </div>
+        </div>
 
-  <!-- High Scores Panel (Sliding from right) -->
-  <div class="high-scores-panel" [class.show]="showHighScores">
-    <h3>🏆 Top Blacksmiths</h3>
-    <div class="high-score-list">
-      @for (score of highScores; track score; let i = $index) {
-        <div
-          class="high-score-item"
-          >
-          <div class="rank-badge">{{ i + 1 }}</div>
-          <div class="score-details">
-            <div class="player-name">{{ score.screen_name }}</div>
-            <div class="score-value">{{ score.score }}</div>
-            @if (score.item_name) {
-              <div class="item-name">
-                {{ score.item_name }}
-              </div>
+        <div class="start-board">
+          <h3>🏆 Top smiths</h3>
+          <ol class="lb-list">
+            @for (s of highScores; track $index; let i = $index) {
+              <li class="lb-item" [class.gold]="i === 0">
+                <span class="lb-rank">{{ i + 1 }}</span>
+                <span class="lb-main">
+                  <span class="lb-name">{{ s.screen_name }}</span>
+                  @if (s.item_name) { <span class="lb-item-name">{{ s.item_name }}</span> }
+                </span>
+                <span class="lb-score">{{ s.score }}</span>
+              </li>
             }
-          </div>
+            @if (highScores.length === 0) {
+              <li class="lb-empty">No scores yet — be the first!</li>
+            }
+          </ol>
         </div>
-      }
-      @if (highScores.length === 0) {
-        <div class="no-scores">
-          No high scores yet. Be the first!
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Main Game Content -->
-  <div class="main-content">
-    <!-- Game Header (Compact) -->
-    <div class="game-header">
-      <h1 class="game-title">Yanto's Blacksmith v1.1</h1>
-      @if (gameActive) {
-        <div class="game-stats">
-          <div class="stat">
-            <span class="stat-label">Score:</span>
-            <span class="stat-value">{{ score }}</span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Time:</span>
-            <span class="stat-value">{{ timeRemaining }}s</span>
-          </div>
-          <button
-            class="finish-btn"
-            (click)="finishForging()"
-            [disabled]="gameOver"
-            >
-            ✅ Finish
-          </button>
-        </div>
-      }
-    </div>
-
-    <!-- Game Setup (when not playing) -->
-    @if (!gameActive) {
-      <div class="game-setup">
-        <div class="setup-panel">
-          <h2>Ready to Forge?</h2>
-          <div class="input-group">
-            <input
-              id="playerName"
-              type="text"
-              [(ngModel)]="playerName"
-              placeholder="Enter your name"
-              maxlength="20"
-              autocomplete="off"
-              />
-          </div>
-          <div class="setup-buttons">
-            <button class="start-btn" (click)="startGame()">
-              Start Forging! ⚒️
-            </button>
-            <button class="how-to-play-btn" (click)="openHowToPlayModal()">
-              How To Play
-            </button>
-          </div>
-        </div>
-      </div>
+      </section>
     }
 
-    <!-- Game Interface (when playing) -->
-    @if (gameActive) {
-      <div class="game-interface">
-        <!-- Weapon Selection (Compact) -->
-        @if (!currentWeapon) {
-          <div class="weapon-selection">
-            <h3>🗡️ Select Weapon</h3>
-            <div class="weapon-grid">
-              @for (weapon of weapons; track weapon) {
-                <button
-                  class="weapon-btn"
-                  (click)="selectedWeaponId = weapon.id; selectWeapon()"
-                  >
-                  {{ weapon.name }} ({{ weapon.baseScore }})
-                </button>
+    <!-- ===================== WEAPON PICKER ===================== -->
+    @if (gameActive && !currentWeapon) {
+      <section class="screen picker">
+        <div class="picker-head">
+          <span class="hud-pill time" [class.low]="timeRemaining <= 10">⏱ {{ timeRemaining }}s</span>
+          <h2>Choose your base</h2>
+          <p>Higher base = higher ceiling, but harder to perfect. The clock is already running.</p>
+        </div>
+        <div class="weapon-grid">
+          @for (w of weapons; track w.id) {
+            <button class="weapon-card" (click)="selectWeapon(w.id)">
+              <span class="wc-icon">{{ w.icon }}</span>
+              <span class="wc-name">{{ w.name }}</span>
+              <span class="wc-blurb">{{ w.blurb }}</span>
+              <span class="wc-base">base {{ w.baseScore }}</span>
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ===================== IN-GAME ===================== -->
+    @if (gameActive && currentWeapon) {
+      <section class="screen game">
+        <div class="hud">
+          <div class="hud-stat">
+            <span class="hud-label">Time</span>
+            <span class="hud-val time" [class.low]="timeRemaining <= 10">{{ timeRemaining }}<small>s</small></span>
+          </div>
+          <div class="hud-name">{{ getWeaponDisplayName() }}</div>
+          <div class="hud-stat right">
+            <span class="hud-label">Score</span>
+            <span class="hud-val score">{{ score }}</span>
+          </div>
+        </div>
+
+        <div class="game-body">
+          <!-- Anvil / weapon -->
+          <div class="weapon-display" [class.danger]="isDanger()" [style.--heat]="heat()">
+            <div class="anvil-glow"></div>
+            <div class="wd-icon">{{ currentWeapon.weapon.icon }}</div>
+
+            <div class="wd-refine">
+              <span class="wd-refine-val">+{{ currentWeapon.refinement }}</span>
+              <span class="wd-refine-max">/{{ MAX_REFINE }}</span>
+            </div>
+            <div class="wd-bar"><span [style.width.%]="(currentWeapon.refinement / MAX_REFINE) * 100"></span></div>
+
+            <div class="wd-badges">
+              <span class="badge q-badge q-{{ currentWeapon.quality }}">{{ currentQualityLabel() }}</span>
+              @for (e of currentWeapon.elements; track e) {
+                <span class="badge e-badge" [title]="elementLabel(e)">{{ elementIcon(e) }}</span>
               }
             </div>
-          </div>
-        }
-        <!-- Forging Interface (Compact) -->
-        @if (currentWeapon) {
-          <div class="forging-interface">
-            <!-- Current Weapon Display (Compact) -->
-            <div class="current-weapon">
-              <div class="weapon-display">
-                <h3 class="weapon-name">
-                  {{
-                  getWeaponDisplayName() ||
-                  "basic " + currentWeapon.weapon.name.toLowerCase()
-                  }}
-                </h3>
-                <div class="weapon-stats">
-                  <span class="stat-compact"
-                    >+{{ currentWeapon.refinement }}/15</span
-                    >
-                    <span class="stat-compact">{{ currentWeapon.quality }}</span>
-                    <span class="stat-compact"
-                      >{{ currentWeapon.elements.length }}/4 elements</span
-                      >
-                    </div>
-                  </div>
-                </div>
-                <!-- Forging Actions (Compact Grid) -->
-                <div class="forging-actions">
-                  <!-- Refine Action -->
-                  <div class="action-card">
-                    <h4>⚡ Refine</h4>
-                    <p class="success-rate">{{ getRefinementSuccessRate() }}%</p>
-                    @if (currentWeapon.refinement <= 8 && !isRefinementOnCooldown()) {
-                      <p
-                        class="warning"
-                        >
-                        🛡️ Safe zone (1-8)!
-                      </p>
-                    }
-                    @if (currentWeapon.refinement <= 8 && isRefinementOnCooldown()) {
-                      <p
-                        class="cooldown"
-                        >
-                        Cooldown: {{ getCeilRefinementCooldown() }}s
-                      </p>
-                    }
-                    @if (currentWeapon.refinement >= 9) {
-                      <p class="warning">
-                        💀 Danger zone!
-                      </p>
-                    }
-                    <button
-                      class="action-btn refine-btn"
-                      [disabled]="!canRefine()"
-                      (click)="refineWeapon()"
-                      >
-                      Hit
-                    </button>
-                  </div>
-                  <!-- Quality Action -->
-                  <div class="action-card">
-                    <h4>✨ Quality</h4>
-                    @if (canImproveQuality() && !isQualityOnCooldown()) {
-                      <p
-                        class="success-rate"
-                        >
-                        {{ getQualitySuccessRate() }}%
-                      </p>
-                    }
-                    @if (isQualityOnCooldown()) {
-                      <p class="cooldown">
-                        Cooldown: {{ getCeilQualityCooldown() }}s
-                      </p>
-                    }
-                    <button
-                      class="action-btn quality-btn"
-                      [disabled]="!canImproveQuality() || isQualityOnCooldown()"
-                      (click)="improveQuality()"
-                      >
-                      Improve
-                    </button>
-                  </div>
-                  <!-- Element Action -->
-                  <div class="action-card">
-                    <h4>🌟 Element</h4>
-                    @if (currentWeapon.refinement < 5) {
-                      <p class="requirement">
-                        Need +5
-                      </p>
-                    }
-                    @if (currentWeapon.refinement >= 5) {
-                      <div
-                        class="element-selection"
-                        >
-                        <select [(ngModel)]="selectedElement" class="element-dropdown">
-                          <option value="">Select</option>
-                          @for (element of getAvailableElements(); track element) {
-                            <option
-                              [value]="element"
-                              >
-                              {{ element | titlecase }}
-                            </option>
-                          }
-                        </select>
-                        @if (selectedElement && !isElementOnCooldown(selectedElement)) {
-                          <p
-                            class="success-rate"
-                            >
-                            {{ getElementSuccessRate() }}%
-                          </p>
-                        }
-                        @if (selectedElement && isElementOnCooldown(selectedElement)) {
-                          <p
-                            class="cooldown"
-                            >
-                            Cooldown: {{ getCeilElementCooldown(selectedElement) }}s
-                          </p>
-                        }
-                        <button
-                          class="action-btn element-btn"
-                [disabled]="
-                  !canAddElement() ||
-                  (selectedElement && isElementOnCooldown(selectedElement))
-                "
-                          (click)="addElement()"
-                          >
-                          Add
-                        </button>
-                      </div>
-                    }
-                  </div>
-                </div>
-              </div>
+
+            @if (isDanger()) {
+              <div class="danger-tag">⚠ DANGER — a failed strike shatters</div>
             }
           </div>
-        }
+
+          <!-- Actions -->
+          <div class="actions">
+            <button class="action refine" [class.danger]="isDanger()" (click)="refine()" [disabled]="!canRefine()">
+              <span class="a-top">
+                <span class="a-name">⚒ Strike</span>
+                <span class="a-rate" [class.bad]="isDanger()">{{ nextRefineRate() }}%</span>
+              </span>
+              @if (canRefine()) {
+                <span class="a-sub">Refine to +{{ currentWeapon.refinement + 1 }} · +{{ nextRefineGain() }} pts</span>
+                @if (isDanger()) { <span class="a-warn">{{ 100 - nextRefineRate() }}% to shatter</span> }
+              } @else {
+                <span class="a-sub">Max refinement reached</span>
+              }
+            </button>
+
+            <button class="action temper" (click)="temper()" [disabled]="!canTemper()">
+              <span class="a-top">
+                <span class="a-name">🔥 Temper</span>
+                @if (nextQuality()) { <span class="a-rate">{{ nextQualityRate() }}%</span> }
+              </span>
+              @if (nextQuality()) {
+                <span class="a-sub">{{ currentQualityLabel() }} → {{ nextQuality()?.label }} · +{{ nextQualityGain() }} pts</span>
+              } @else {
+                <span class="a-sub">Legendary — quality maxed</span>
+              }
+            </button>
+
+            <div class="action infuse" [class.locked]="currentWeapon.refinement < ELEMENT_UNLOCK">
+              <span class="a-top">
+                <span class="a-name">✦ Infuse</span>
+                @if (currentWeapon.refinement >= ELEMENT_UNLOCK) {
+                  <span class="a-rate">{{ nextElementRate() }}%</span>
+                }
+              </span>
+              @if (currentWeapon.refinement < ELEMENT_UNLOCK) {
+                <span class="a-sub">🔒 Unlocks at +{{ ELEMENT_UNLOCK }} refine</span>
+              } @else {
+                <span class="a-sub">+{{ 40 * (currentWeapon.elements.length + 1) }} pts · all 4 = +200 synergy</span>
+                <div class="elem-row">
+                  @for (e of elements; track e.key) {
+                    <button
+                      class="elem-pick"
+                      [class.owned]="hasElement(e.key)"
+                      [disabled]="hasElement(e.key)"
+                      (click)="infuse(e.key)"
+                      [attr.aria-label]="'Infuse ' + e.label"
+                      [title]="e.label"
+                    >{{ e.icon }}</button>
+                  }
+                </div>
+              }
+            </div>
+
+            <button class="action evolve" [class.ready]="canEvolve()" (click)="evolve()" [disabled]="!canEvolve()">
+              <span class="a-top">
+                <span class="a-name">✨ Evolve</span>
+                @if (!evolveMaxed()) {
+                  <span class="a-rate evo">→ {{ evolveTargetName() }}</span>
+                }
+              </span>
+              @if (evolveMaxed()) {
+                <span class="a-sub">Fully evolved — the pinnacle of its kind</span>
+              } @else {
+                <span class="a-sub">
+                  @if (canEvolve()) { Reforge — grander form + bigger base, <b>resets all</b> }
+                  @else { Meet all three to reforge: }
+                </span>
+                <div class="evolve-reqs">
+                  <span class="ereq" [class.met]="currentWeapon.refinement >= EVOLVE_REFINE_REQ">+{{ EVOLVE_REFINE_REQ }}</span>
+                  <span class="ereq" [class.met]="qualityIndex() >= EVOLVE_QUALITY_REQ">Masterwork+</span>
+                  <span class="ereq" [class.met]="currentWeapon.elements.length === 4">All elements</span>
+                </div>
+              }
+            </button>
+
+            <button class="action finish" (click)="finishForging()">
+              <span class="a-name">🏁 Finish &amp; bank</span>
+              <span class="a-bank">{{ score }} pts</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+  </main>
+
+  <!-- ===================== MODALS ===================== -->
+  @if (showFinishConfirmation) {
+    <div class="modal-overlay" (click)="cancelFinishForging()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">Bank this weapon?</h3>
+        <p class="modal-weapon">{{ getWeaponDisplayName() }}</p>
+        <p class="modal-bigscore">{{ score }} <small>pts</small></p>
+        <p class="modal-hint">Lock it in, or risk one more strike for a higher score.</p>
+        <div class="modal-actions">
+          <button class="btn-ghost" (click)="cancelFinishForging()">Keep forging</button>
+          <button class="btn-forge" (click)="confirmFinishForging()">Bank it <span>→</span></button>
+        </div>
       </div>
-
-      <!-- Finish Confirmation Modal -->
-      @if (showFinishConfirmation) {
-        <div
-          class="modal-overlay"
-          (click)="cancelFinishForging()"
-          >
-          <div class="modal-content" (click)="$event.stopPropagation()">
-            <h3>Finish Forging?</h3>
-            <p>Are you sure you want to finish forging and submit your score?</p>
-            <p>
-              <strong>Current Score: {{ score }}</strong>
-            </p>
-            @if (currentWeapon) {
-              <p>
-                <strong>Item: {{ getWeaponDisplayName() }}</strong>
-              </p>
-            }
-            <div class="modal-buttons">
-              <button class="modal-btn cancel-btn" (click)="cancelFinishForging()">
-                Cancel
-              </button>
-              <button class="modal-btn confirm-btn" (click)="confirmFinishForging()">
-                Finish
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Game Over Modal -->
-      @if (showGameOverModal) {
-        <div class="game-over-modal">
-          <div class="game-over-content">
-            <h2>🎯 Game Over!</h2>
-            <div class="game-over-reason">{{ gameOverReason }}</div>
-            <div class="final-score">
-              <div class="score-label">Final Score</div>
-              <div class="score-value">{{ score }}</div>
-            </div>
-            @if (currentWeapon) {
-              <div class="final-item">
-                Final Item: {{ getWeaponDisplayName() }}
-              </div>
-            }
-            <div class="game-over-actions">
-              <button class="game-over-btn new-game-btn" (click)="startNewGame()">
-                🔄 New Game
-              </button>
-              <button class="game-over-btn close-btn" (click)="closeGameOverModal()">
-                📋 View Scores
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- How To Play Modal -->
-      @if (showHowToPlayModal) {
-        <div class="modal-overlay">
-          <div class="modal-content how-to-play-modal">
-            <h3>⚒️ How To Play</h3>
-            <div class="how-to-play-content">
-              <ul>
-                <li><strong>Choose a weapon</strong> to start forging</li>
-                <li>
-                  <strong>Refine (+)</strong> to increase weapon level (higher risk at
-                  higher levels)
-                </li>
-                <li>
-                  <strong>Safe Zone (1-8):</strong> Weapons cannot break during
-                  refinements +1 to +8, but failed attempts trigger a 3-second
-                  cooldown
-                </li>
-                <li>
-                  <strong>Danger Zone (9+):</strong> At +9 and above, weapons can
-                  break and end the game immediately
-                </li>
-                <li>
-                  <strong>Improve Quality</strong> to boost weapon grade (cooldown:
-                  30s)
-                </li>
-                <li>
-                  <strong>Add Element</strong> for bonus points (cooldown: 10s per
-                  element)
-                </li>
-                <li>
-                  <strong>Finish early</strong> to secure your score, or let time run
-                  out
-                </li>
-                <li>
-                  You have <strong>60 seconds</strong> to forge the best weapon!
-                </li>
-                <li>
-                  <strong>Note:</strong> Only 75% of your score is submitted to
-                  leaderboard when your weapon breaks during refinement
-                </li>
-              </ul>
-            </div>
-            <div class="modal-buttons">
-              <button class="modal-btn confirm-btn" (click)="closeHowToPlayModal()">
-                Got it!
-              </button>
-            </div>
-          </div>
-        </div>
-      }
     </div>
+  }
+
+  @if (showGameOverModal && result) {
+    <div class="modal-overlay">
+      <div class="modal result" [class.shattered]="result.shattered">
+        <div class="result-emoji">{{ result.shattered ? "💥" : "🏆" }}</div>
+        <h3 class="modal-title">{{ result.shattered ? "Shattered!" : "Forged!" }}</h3>
+        <p class="modal-weapon">{{ result.name }}</p>
+
+        <div class="breakdown">
+          <div class="bd-row"><span>Base</span><b>{{ result.breakdown.base }}</b></div>
+          <div class="bd-row"><span>Refinement</span><b>{{ result.breakdown.refine }}</b></div>
+          <div class="bd-row"><span>Temper</span><b>{{ result.breakdown.quality }}</b></div>
+          <div class="bd-row"><span>Elements</span><b>{{ result.breakdown.element }}</b></div>
+          @if (result.breakdown.synergy) {
+            <div class="bd-row"><span>Synergy</span><b>{{ result.breakdown.synergy }}</b></div>
+          }
+          @if (result.breakdown.evolve) {
+            <div class="bd-row"><span>Evolution</span><b>{{ result.breakdown.evolve }}</b></div>
+          }
+          @if (result.shattered) {
+            <div class="bd-row salvage"><span>Shatter salvage</span><b>×{{ SALVAGE }}</b></div>
+          }
+        </div>
+
+        <p class="modal-bigscore final"><small>leaderboard score</small>{{ result.submitted }}</p>
+
+        @if (highScores.length) {
+          <div class="result-board">
+            <h4>🏆 Top smiths</h4>
+            <ol class="lb-list">
+              @for (s of highScores; track $index; let i = $index) {
+                <li
+                  class="lb-item"
+                  [class.gold]="i === 0"
+                  [class.you]="s.screen_name === playerName && s.score === result.submitted"
+                >
+                  <span class="lb-rank">{{ i + 1 }}</span>
+                  <span class="lb-main">
+                    <span class="lb-name">{{ s.screen_name }}</span>
+                    @if (s.item_name) { <span class="lb-item-name">{{ s.item_name }}</span> }
+                  </span>
+                  <span class="lb-score">{{ s.score }}</span>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+
+        <div class="modal-actions">
+          <button class="btn-ghost" (click)="closeGameOverModal()">Done</button>
+          <button class="btn-forge" (click)="startNewGame()">Forge again <span>→</span></button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showHowToPlayModal) {
+    <div class="modal-overlay" (click)="closeHowToPlayModal()">
+      <div class="modal howto" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">How to forge</h3>
+        <ul class="howto-list">
+          <li><b>⚒ Strike</b> refines your weapon (+power, +points). Success drops as it climbs; deep strikes pay a premium.</li>
+          <li><b>⚠ Danger (+{{ DANGER_FROM }} and up)</b> — a failed strike <b>shatters</b> the weapon; you keep only {{ SALVAGE * 100 }}% of your score.</li>
+          <li><b>🔥 Temper</b> raises quality (Common → Legendary). High tiers are hard — a failed Masterwork/Legendary temper can <b>crack the quality back down</b>.</li>
+          <li><b>✦ Infuse</b> elements (unlocks at +{{ ELEMENT_UNLOCK }}). Land all four for an Elementalist synergy bonus.</li>
+          <li><b>✨ Evolve</b> (at +{{ EVOLVE_REFINE_REQ }}, Masterwork+, all 4 elements) reforges a grander weapon with a bigger base — but <b>resets refine, quality &amp; elements</b>. The road to the top of the board.</li>
+          <li>Any failure cools the forge. Beat the clock and <b>bank</b> before disaster.</li>
+        </ul>
+        <button class="btn-forge" (click)="closeHowToPlayModal()">Got it</button>
+      </div>
+    </div>
+  }
+</div>

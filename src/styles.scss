@@ -227,13 +227,29 @@ body {
   --pg-bg-0: #f7f7fb;
   --pg-bg-1: #ffffff;
   --pg-bg-2: #eef0f7;
-  --pg-surface: rgba(15, 15, 30, 0.035);
-  --pg-surface-strong: rgba(15, 15, 30, 0.06);
-  --pg-border: rgba(15, 15, 30, 0.10);
-  --pg-border-strong: rgba(15, 15, 30, 0.18);
+  --pg-surface: rgba(15, 15, 30, 0.04);
+  --pg-surface-strong: rgba(15, 15, 30, 0.07);
+  --pg-border: rgba(15, 15, 30, 0.12);
+  --pg-border-strong: rgba(15, 15, 30, 0.2);
   --pg-text: #14141f;
   --pg-text-dim: #4a4a5e;
   --pg-text-faint: #8a8aa0;
+}
+
+/* Force the dark playground palette regardless of the global theme.
+   The standalone games are intentionally dark "app windows" — applied to
+   each game's root so its (hardcoded-dark) chrome never fights light-mode text. */
+.pg-dark {
+  --pg-bg-0: #07070d;
+  --pg-bg-1: #0b0b16;
+  --pg-bg-2: #12121f;
+  --pg-surface: rgba(255, 255, 255, 0.045);
+  --pg-surface-strong: rgba(255, 255, 255, 0.07);
+  --pg-border: rgba(255, 255, 255, 0.1);
+  --pg-border-strong: rgba(255, 255, 255, 0.18);
+  --pg-text: #f4f4fb;
+  --pg-text-dim: #a7a7c0;
+  --pg-text-faint: #6f6f8a;
 }
 
 ::selection {
