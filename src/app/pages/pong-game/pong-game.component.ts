@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { SupabaseService } from '../../services/supabase.service';
+import { GameShellComponent } from '../../shared/game-shell/game-shell.component';
+import { JuiceService } from '../../shared/juice/juice.service';
 
 interface PongScore {
   id?: number;
@@ -47,7 +49,7 @@ type GameState = 'setup' | 'playing' | 'paused' | 'gameOver';
 
 @Component({
     selector: 'app-pong-game',
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, GameShellComponent],
     standalone: true,
     templateUrl: './pong-game.component.html',
     styleUrl: './pong-game.component.scss',
@@ -116,7 +118,7 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
   toasts: { id: number; message: string; type: 'success' | 'error' | 'info' }[] = [];
   private toastIdCounter = 0;
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private supabaseService: SupabaseService, private juice: JuiceService) {}
 
   ngOnInit() {
     this.loadHighScores();
@@ -278,11 +280,28 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.ball.x < 0) {
       this.player2Score++;
       this.createParticles(this.ball.x, this.ball.y, '#ef4444');
+      this.juiceGoal('left');
       this.resetBall();
     } else if (this.ball.x > this.CANVAS_WIDTH) {
       this.player1Score++;
       this.createParticles(this.ball.x, this.ball.y, '#10b981');
+      this.juiceGoal('right');
       this.resetBall();
+    }
+  }
+
+  private juiceGoal(side: 'left' | 'right'): void {
+    const cv = this.canvasRef?.nativeElement;
+    this.juice.shake(cv, 9, 280);
+    this.juice.blip(side === 'left' ? 300 : 520, { type: 'sawtooth', duration: 0.13, gain: 0.05 });
+    if (cv) {
+      const r = cv.getBoundingClientRect();
+      const x = side === 'left' ? r.left + 10 : r.right - 10;
+      this.juice.burst(x, r.top + r.height / 2, {
+        count: 24,
+        power: 9,
+        colors: ['#22d3ee', '#7c3aed', '#fb7185'],
+      });
     }
   }
 
@@ -302,6 +321,7 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
       this.ball.vy = relativeIntersectY * 5;
       
       this.createParticles(this.ball.x, this.ball.y, '#fbbf24');
+      this.juice.blip(660, { type: 'square', duration: 0.04, gain: 0.03 });
     }
 
     // Paddle 2 collision
@@ -319,6 +339,7 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
       this.ball.vy = relativeIntersectY * 5;
       
       this.createParticles(this.ball.x, this.ball.y, '#fbbf24');
+      this.juice.blip(660, { type: 'square', duration: 0.04, gain: 0.03 });
     }
   }
 
@@ -415,7 +436,13 @@ export class PongGameComponent implements OnInit, OnDestroy, AfterViewInit {
     this.stopGame();
     this.gameState = 'gameOver';
     this.winner = this.player1Score >= this.maxScore ? this.player1Name : this.player2Name;
-    
+
+    // --- juice: celebrate the winner ---
+    this.juice.confetti(100);
+    [523, 659, 784, 1047].forEach((f, i) =>
+      setTimeout(() => this.juice.blip(f, { type: 'triangle', duration: 0.2, gain: 0.05 }), i * 120)
+    );
+
     // Calculate game duration
     const gameDuration = Math.floor((Date.now() - this.gameStartTime) / 1000);
     

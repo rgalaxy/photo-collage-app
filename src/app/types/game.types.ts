@@ -13,10 +13,10 @@ export interface GameItem {
 export const GAMES: GameItem[] = [
   {
     id: 'mini-game-blacksmith',
-    title: 'Blacksmith Mini Game',
+    title: 'The Forge',
     description: 'A fun and interactive blacksmith simulation game where you craft weapons and armor.',
     tags: ['single-player', 'simulation'],
-    imageUrl: '/assets/photos/landingpage/blacksmith.png',
+    imageUrl: '/assets/images/game-covers/blacksmith-cover.png',
     route: '/mini-game-blacksmith'
   },
   {
@@ -24,7 +24,7 @@ export const GAMES: GameItem[] = [
     title: 'Click The Target Game',
     description: 'Fast-paced target clicking game with combo system. Test your reflexes and accuracy.',
     tags: ['single-player', 'arcade', 'action'],
-    imageUrl: '/assets/photos/landingpage/clickthetarget.png',
+    imageUrl: '/assets/images/game-covers/target-cover.png',
     route: '/click-the-target-game'
   },
   {
@@ -32,7 +32,7 @@ export const GAMES: GameItem[] = [
     title: 'Pong Game',
     description: 'Classic pong game with modern graphics. Play against a friend or AI opponent.',
     tags: ['two-player', 'arcade'],
-    imageUrl: '/assets/photos/landingpage/pong.png',
+    imageUrl: '/assets/images/game-covers/pong-cover.png',
     route: '/pong-game'
   },
   {

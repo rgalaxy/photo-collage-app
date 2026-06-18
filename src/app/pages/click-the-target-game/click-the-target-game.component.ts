@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { trigger, state, style, transition, animate, keyframes } from '@angular/animations';
 import { interval, Subscription, timer } from 'rxjs';
 import { SupabaseService } from '../../services/supabase.service';
+import { GameShellComponent } from '../../shared/game-shell/game-shell.component';
+import { JuiceService } from '../../shared/juice/juice.service';
 
 interface Target {
   id: number;
@@ -51,7 +53,7 @@ interface DifficultyConfig {
 @Component({
     selector: 'app-click-the-target-game',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, GameShellComponent],
     templateUrl: './click-the-target-game.component.html',
     styleUrl: './click-the-target-game.component.scss',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -200,7 +202,7 @@ export class ClickTheTargetGameComponent implements OnInit, OnDestroy {
   toasts: { id: number; message: string; type: 'success' | 'error' | 'info' }[] = [];
   private toastIdCounter = 0;
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private supabaseService: SupabaseService, private juice: JuiceService) {}
 
   ngOnInit() {
     this.loadHighScores();
@@ -326,7 +328,13 @@ export class ClickTheTargetGameComponent implements OnInit, OnDestroy {
     this.stopGame();
     this.gameActive = false; // Now we properly set gameActive to false
     this.gameOver = true;
-    
+
+    // --- juice: celebrate ---
+    this.juice.confetti(90);
+    [523, 659, 784, 1047].forEach((f, i) =>
+      setTimeout(() => this.juice.blip(f, { type: 'triangle', duration: 0.18, gain: 0.05 }), i * 110)
+    );
+
     // Submit score to Supabase
     if (this.score > 0) {
       try {
@@ -416,7 +424,26 @@ export class ClickTheTargetGameComponent implements OnInit, OnDestroy {
     
     // Create floating score text
     this.createFloatingScore(target.x, target.y, points);
-    
+
+    // --- juice ---
+    const hot = points >= 2;
+    this.juice.burst(event.clientX, event.clientY, {
+      count: 12 + Math.min(this.combo, 12),
+      power: 6 + Math.min(this.combo, 8),
+      colors: hot ? ['#c6f24e', '#22d3ee', '#fb7185'] : this.juice.brand,
+    });
+    this.juice.blip(420 + this.combo * 16, { type: 'square', duration: 0.06, gain: 0.04 });
+    // combo milestone: extra punch
+    if (this.combo > 0 && this.combo % 5 === 0) {
+      this.juice.shake(document.querySelector('.game-area'), 11, 320);
+      this.juice.burst(event.clientX, event.clientY, {
+        count: 28,
+        power: 12,
+        colors: ['#c6f24e', '#22d3ee', '#fb7185', '#7c3aed'],
+      });
+      this.juice.blip(880, { type: 'triangle', duration: 0.16, gain: 0.05 });
+    }
+
     // Remove target after animation completes
     setTimeout(() => {
       this.targets = this.targets.filter(t => t.id !== target.id);
