@@ -1,15 +1,20 @@
 <div class="games-section">
   <div class="section-content">
-    <h2 class="section-title"><span class="dash">—</span> GAMES</h2>
-    <p class="section-subtitle">
-      Check out my mini games collection - interactive experiences built with
-      Angular.
-    </p>
+    <header class="games-head">
+      <p class="section-eyebrow"><span class="coin">◉</span> arcade · built with angular</p>
+      <h2 class="section-title">
+        <span class="grad">Press start.</span>
+      </h2>
+      <p class="section-subtitle">
+        A little corner of the site where the gamer in me ships playable things.
+        Hover a cabinet, then jump in.
+      </p>
+    </header>
+
     <div class="home-games">
       <div class="home-games__toolbar">
-        <app-game-filter
-          (filterChange)="onFilterChange($event)"
-        ></app-game-filter>
+        <app-game-filter (filterChange)="onFilterChange($event)"></app-game-filter>
+        <span class="games-count">{{ filteredGames().length }} titles</span>
       </div>
 
       <div class="home-games__grid" role="list">

@@ -13,6 +13,11 @@ export const routes: Routes = [
   },
   { path: 'blog', loadComponent: () => import('./pages/blog-list/blog-list.component').then(m => m.BlogListComponent) },
   {
+    path: 'og-image',
+    loadComponent: () =>
+      import('./pages/og-image/og-image.component').then(m => m.OgImageComponent),
+  },
+  {
     path: 'blog/:slug',
     loadComponent: () =>
       import('./pages/blog-detail/blog-detail.component').then(m => m.BlogDetailComponent),

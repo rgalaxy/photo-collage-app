@@ -1,11 +1,63 @@
 <div class="portfolio-section">
   <div class="section-content">
-    <h2 class="section-title"><span class="dash">—</span> PORTFOLIO</h2>
-    <p class="section-subtitle">
-      My recent projects and work showcasing various technologies and solutions.
-    </p>
-    <div class="portfolio-placeholder">
-      <p>Portfolio projects coming soon...</p>
-    </div>
+    <header class="portfolio-head">
+      <p class="section-eyebrow"><span class="dot"></span> selected work</p>
+      <h2 class="section-title">Things I've <span class="grad">shipped</span>.</h2>
+      <p class="section-subtitle">
+        A snapshot of recent work. Full case studies are landing soon — for now,
+        here's the shape of what I build.
+      </p>
+      <a class="portfolio-resume-link" routerLink="/old-portfolio" appMagnetic [magneticStrength]="0.2">
+        <span>See the full résumé</span>
+        <ng-icon name="radixArrowRight" size="15" />
+      </a>
+    </header>
+
+    @if (isPortfolio()) {
+      <div class="proj-grid">
+        @for (p of projects; track p.n; let i = $index) {
+          <article
+            class="proj-card"
+            [class.featured]="p.featured"
+            [style.--i]="i"
+            appTilt
+            [tiltMax]="5"
+          >
+            <div class="proj-media">
+              @if (p.image && p.link) {
+                <img [src]="p.image" [alt]="p.title" loading="lazy" />
+              } @else {
+                <div class="proj-placeholder" aria-hidden="true">
+                  <span class="proj-num">{{ p.n }}</span>
+                  <span class="proj-soon">case study soon</span>
+                </div>
+              }
+              <div class="proj-shine"></div>
+            </div>
+
+            <div class="proj-body">
+              <div class="proj-meta">
+                <span class="proj-cat">{{ p.category }}</span>
+                <span class="proj-year">{{ p.year }}</span>
+              </div>
+              <h3 class="proj-title">{{ p.title }}</h3>
+              <div class="proj-tags">
+                @for (t of p.tags; track t) {
+                  <span class="tag">{{ t }}</span>
+                }
+              </div>
+
+              @if (p.link) {
+                <a class="proj-link" [href]="p.link" target="_blank" rel="noopener" appMagnetic>
+                  View case study <ng-icon name="radixArrowRight" size="15" />
+                </a>
+              } @else {
+                <span class="proj-link is-soon">In the works <ng-icon name="radixArrowRight" size="15" /></span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
   </div>
 </div>

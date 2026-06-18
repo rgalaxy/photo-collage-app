@@ -1,4 +1,13 @@
-<div class="home-container">
+<div class="home-container" [attr.data-active]="activeSection()">
+  <!-- Signature interactive backdrop -->
+  <app-webgl-bg
+    class="home-bg"
+    [paletteShift]="sectionShift()"
+    [intensity]="bgIntensity()"
+    [dark]="isDarkMode()"
+  ></app-webgl-bg>
+  <div class="bg-scrim" aria-hidden="true"></div>
+
   <!-- Theme Toggle -->
   <button
     class="theme-toggle"
@@ -34,6 +43,7 @@
       <app-home-hero-section
         [activeSection]="activeSection"
         (aboutClick)="openAboutModal()"
+        (navigate)="navigateTo($event)"
       ></app-home-hero-section>
     </section>
 

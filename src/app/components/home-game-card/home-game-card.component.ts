@@ -4,11 +4,12 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { radixArrowRight } from '@ng-icons/radix-icons';
 
 import { GameItem } from '../../types/game.types';
+import { TiltDirective } from '../../shared/directives/tilt.directive';
 
 @Component({
   selector: 'app-home-game-card',
   standalone: true,
-  imports: [CommonModule, NgIconComponent],
+  imports: [CommonModule, NgIconComponent, TiltDirective],
   providers: [provideIcons({ radixArrowRight })],
   templateUrl: './home-game-card.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
