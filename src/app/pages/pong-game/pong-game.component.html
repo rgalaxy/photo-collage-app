@@ -1,263 +1,164 @@
-<div class="game-container pg-dark">
-  <!-- Shared arcade shell header -->
-  <app-game-shell title="🏓 2-Player Pong">
-    <button shellActions (click)="toggleHowToPlay()" class="btn btn-blue">How to Play</button>
-    <button shellActions (click)="toggleHighScores()" class="btn btn-green">High Scores</button>
+<div class="pong pg-dark">
+  <app-game-shell title="🏓 Neon Pong">
+    @if (gameState === 'playing' || gameState === 'paused') {
+      <button shellActions class="pong-ctl" (click)="pauseGame()">{{ gameState === 'paused' ? '▶' : 'II' }}</button>
+    }
+    <button shellActions class="pong-ctl" (click)="toggleHowToPlay()">?</button>
   </app-game-shell>
 
-  <!-- Game Setup Screen -->
-  @if (gameState === 'setup') {
-    <div class="setup-screen">
-      <div class="setup-card">
-        <h2 class="setup-title">Ready for Pong?</h2>
-        <!-- Player Names Input -->
-        <div class="players-input">
-          <div class="input-group">
-            <label class="input-label">Player 1 Name</label>
-            <input
-              [(ngModel)]="player1Name"
-              type="text"
-              placeholder="Enter Player 1 name"
-              class="text-input"
-              />
-            <span class="control-hint">Controls: W/S keys</span>
-          </div>
-          <div class="vs-divider">VS</div>
-          <div class="input-group">
-            <label class="input-label">Player 2 Name</label>
-            <input
-              [(ngModel)]="player2Name"
-              type="text"
-              placeholder="Enter Player 2 name"
-              class="text-input"
-              />
-            <span class="control-hint">Controls: Arrow Up/Down</span>
-          </div>
-        </div>
-        <!-- Game Settings -->
-        <div class="game-settings">
-          <div class="setting-group">
-            <label class="setting-label">First to</label>
-            <select [(ngModel)]="maxScore" class="setting-select">
-              <option value="3">3 points</option>
-              <option value="5">5 points</option>
-              <option value="7">7 points</option>
-              <option value="10">10 points</option>
-            </select>
-          </div>
-        </div>
-        <!-- Start Game Button -->
-        <button (click)="startGame()" class="btn btn-start">🚀 Start Game</button>
-      </div>
-    </div>
-  }
-
-  <!-- Game Area -->
-  @if (gameState === 'playing' || gameState === 'paused') {
-    <div class="game-section">
-      <!-- Game Stats Header -->
-      <div class="stats-header">
-        <div class="stats-content">
-          <div class="stats-flex">
-            <div class="player-stats">
-              <span class="player-name">{{ player1Name }}</span>
-              <span class="player-score">{{ player1Score }}</span>
-            </div>
-            <div class="center-stats">
-              <div class="game-info">
-                <span class="time-display">{{ getGameDuration() }}</span>
-                <span class="max-score-display">First to {{ maxScore }}</span>
-              </div>
-              <div class="game-controls">
-                <button
-                  (click)="pauseGame()"
-                  class="btn btn-small"
-                  [class.btn-warning]="gameState === 'playing'"
-                  [class.btn-success]="gameState === 'paused'"
-                  >
-                  {{ gameState === 'playing' ? '⏸️ Pause' : '▶️ Resume' }}
-                </button>
-                <button (click)="resetGame()" class="btn btn-small btn-danger">
-                  🔄 Reset
-                </button>
-              </div>
-            </div>
-            <div class="player-stats">
-              <span class="player-name">{{ player2Name }}</span>
-              <span class="player-score">{{ player2Score }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Game Canvas -->
-      <div class="canvas-container">
-        <canvas
-          #gameCanvas
-          class="game-canvas"
-          [class.paused]="gameState === 'paused'"
-        ></canvas>
-        <!-- Pause Overlay -->
-        @if (gameState === 'paused') {
-          <div class="pause-overlay" @fadeInOut>
-            <div class="pause-content">
-              <h3>⏸️ Game Paused</h3>
-              <p>Press Resume to continue</p>
-            </div>
-          </div>
-        }
-      </div>
-      <!-- Controls Info -->
-      <div class="controls-info">
-        <div class="control-group">
-          <span class="control-player">{{ player1Name }}</span>
-          <span class="control-keys">W/S Keys</span>
-        </div>
-        <div class="control-group">
-          <span class="control-player">{{ player2Name }}</span>
-          <span class="control-keys">↑/↓ Arrow Keys</span>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Toast Notifications -->
-  <div class="toast-container">
-    @for (toast of toasts; track toast) {
-      <div
-        @fadeInOut
-        class="toast"
-        [ngClass]="getToastClass(toast.type)"
-        >
-        {{ toast.message }}
-      </div>
+  <!-- Toasts -->
+  <div class="toast-stack" aria-live="polite">
+    @for (toast of toasts; track toast.id) {
+      <div class="toast" [class.ok]="toast.type === 'success'" [class.bad]="toast.type === 'error'">{{ toast.message }}</div>
     }
   </div>
 
-  <!-- How to Play Modal -->
-  @if (showHowToPlay) {
-    <div class="modal-overlay">
-      <div class="modal-content" @fadeInOut>
-        <div class="modal-header">
-          <h3 class="modal-title">How to Play Pong</h3>
-          <button (click)="toggleHowToPlay()" class="modal-close">×</button>
-        </div>
-        <div class="modal-body">
-          <p class="how-to-objective">
-            🏓 <strong>Objective:</strong> Use your paddle to hit the ball past your opponent and score points!
-          </p>
-          <div class="how-to-section">
-            <p><strong>Controls:</strong></p>
-            <ul class="how-to-list">
-              <li><strong>Player 1:</strong> W key (up) / S key (down)</li>
-              <li><strong>Player 2:</strong> Arrow Up (up) / Arrow Down (down)</li>
-              <li><strong>Pause:</strong> Use the pause button to take a break</li>
-            </ul>
-          </div>
-          <div class="how-to-section">
-            <p><strong>Gameplay:</strong></p>
-            <ul class="how-to-list">
-              <li>Move your paddle up and down to hit the ball</li>
-              <li>The ball speeds up slightly each time it hits a paddle</li>
-              <li>Score points when the ball passes your opponent's paddle</li>
-              <li>First player to reach the target score wins!</li>
-            </ul>
-          </div>
-          <div class="how-to-section">
-            <p><strong>Strategy Tips:</strong></p>
-            <ul class="how-to-list">
-              <li>Hit the ball with different parts of your paddle to change its angle</li>
-              <li>Try to predict where the ball will be, not where it is</li>
-              <li>Use the center line as a reference point</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
+  <main class="pong-stage">
+    <!-- ===================== SETUP ===================== -->
+    @if (gameState === 'setup') {
+      <section class="screen start">
+        <div class="start-card">
+          <p class="start-kicker">arcade · table tennis</p>
+          <h2 class="start-title">Neon <span class="grad">Pong</span>.</h2>
+          <p class="start-sub">First to {{ maxScore }} wins. Curve the ball off your paddle's edge — solo against the CPU, or pass-and-play with a friend.</p>
 
-  <!-- High Scores Modal -->
-  @if (showHighScores) {
-    <div class="modal-overlay">
-      <div class="modal-content modal-wide" @fadeInOut>
-        <div class="modal-header">
-          <h3 class="modal-title">🏆 High Scores</h3>
-          <button (click)="toggleHighScores()" class="modal-close">×</button>
-        </div>
-        <div class="scores-container">
-          @if (highScores.length === 0) {
-            <div class="no-scores">
-              No high scores yet. Play a game to set the first record!
+          <div class="field">
+            <span class="field-label">Mode</span>
+            <div class="seg">
+              <button class="seg-btn" [class.on]="mode === 'ai'" (click)="setMode('ai')">1P · vs CPU</button>
+              <button class="seg-btn" [class.on]="mode === 'local'" (click)="setMode('local')">2P · local</button>
+            </div>
+          </div>
+
+          @if (mode === 'ai') {
+            <div class="field">
+              <span class="field-label">CPU skill</span>
+              <div class="seg">
+                <button class="seg-btn" [class.on]="aiLevel === 'chill'" (click)="setAi('chill')">Chill</button>
+                <button class="seg-btn" [class.on]="aiLevel === 'normal'" (click)="setAi('normal')">Normal</button>
+                <button class="seg-btn" [class.on]="aiLevel === 'sharp'" (click)="setAi('sharp')">Sharp</button>
+              </div>
             </div>
           }
-          @for (score of highScores; track score; let i = $index) {
-            <div class="score-item">
-              <div class="score-left">
-                <span class="score-medal">
-                  {{ i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅" }}
+
+          <div class="names">
+            <input class="name-input" [(ngModel)]="player1Name" maxlength="14" placeholder="Your name" aria-label="Player 1 name" />
+            @if (mode === 'local') {
+              <input class="name-input" [(ngModel)]="player2Name" maxlength="14" placeholder="Player 2 name" aria-label="Player 2 name" />
+            }
+          </div>
+
+          <div class="field">
+            <span class="field-label">First to</span>
+            <div class="seg">
+              @for (t of winTargets; track t) {
+                <button class="seg-btn" [class.on]="maxScore === t" (click)="maxScore = t">{{ t }}</button>
+              }
+            </div>
+          </div>
+
+          <div class="start-actions">
+            <button class="btn-play" (click)="startGame()">Play <span>→</span></button>
+            <button class="btn-ghost" (click)="toggleHowToPlay()">Controls</button>
+          </div>
+        </div>
+
+        <div class="start-board">
+          <h3>🏆 Recent duels</h3>
+          <ol class="lb-list">
+            @for (s of highScores; track $index; let i = $index) {
+              <li class="lb-item" [class.gold]="i === 0">
+                <span class="lb-rank">{{ i + 1 }}</span>
+                <span class="lb-main">
+                  <span class="lb-name">🏆 {{ s.winner }}</span>
+                  <span class="lb-meta">{{ s.player1_name }} {{ s.player1_score }}–{{ s.player2_score }} {{ s.player2_name }}</span>
                 </span>
-                <div class="score-info">
-                  <div class="game-result">
-                    <span class="winner-name">{{ score.winner }}</span>
-                    <span class="vs-text">defeated</span>
-                    <span class="loser-name">
-                      {{ score.winner === score.player1_name ? score.player2_name : score.player1_name }}
-                    </span>
-                  </div>
-                  <div class="score-details">
-                    <span>{{ score.player1_score }} - {{ score.player2_score }}</span>
-                    <span>Duration: {{ score.game_duration }}s</span>
-                  </div>
-                  <div class="score-date">
-                    {{ score.created_at | date : "short" }}
-                  </div>
-                </div>
+              </li>
+            }
+            @if (highScores.length === 0) {
+              <li class="lb-empty">No duels yet — play a 2P match!</li>
+            }
+          </ol>
+          <p class="lb-note">2-player matches are saved to the board.</p>
+        </div>
+      </section>
+    }
+
+    <!-- ===================== GAME ===================== -->
+    @if (gameState === 'playing' || gameState === 'paused') {
+      <section class="screen game">
+        <div class="hud">
+          <div class="hud-side p1">
+            <span class="hud-name">{{ player1Name }}</span>
+            <span class="hud-score">{{ player1Score }}</span>
+          </div>
+          <div class="hud-mid">first to {{ maxScore }}</div>
+          <div class="hud-side p2">
+            <span class="hud-name">{{ player2Name }}</span>
+            <span class="hud-score">{{ player2Score }}</span>
+          </div>
+        </div>
+
+        <div class="pong-field">
+          <canvas #gameCanvas class="pong-canvas"></canvas>
+          @if (serveCountdown > 0) {
+            <div class="serve-count">{{ serveCountdown }}</div>
+          }
+          @if (gameState === 'paused') {
+            <div class="pause-veil">
+              <div class="pause-box">
+                <p>Paused</p>
+                <button class="btn-play" (click)="pauseGame()">Resume</button>
+                <button class="btn-ghost" (click)="quitToSetup()">Quit</button>
               </div>
             </div>
           }
         </div>
+
+        <div class="pong-foot">
+          <span class="ctrl-hint">
+            @if (mode === 'ai') { You: <b>W/S</b> or <b>↑/↓</b> · drag on touch }
+            @else { P1 <b>W/S</b> · P2 <b>↑/↓</b> · drag halves on touch }
+            · <b>space</b> pause
+          </span>
+          <button class="btn-end" (click)="quitToSetup()">Quit</button>
+        </div>
+      </section>
+    }
+  </main>
+
+  <!-- ===================== MODALS ===================== -->
+  @if (showHowToPlay) {
+    <div class="modal-overlay" (click)="toggleHowToPlay()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">How to play</h3>
+        <ul class="howto-list">
+          <li><span class="ic">🏓</span> Get the ball past your opponent's paddle to score. First to {{ maxScore }} wins.</li>
+          <li><span class="ic">⬆️</span> <b>P1</b> moves with <b>W / S</b>; <b>P2</b> with <b>↑ / ↓</b>. On a phone, <b>drag</b> your half of the table.</li>
+          <li><span class="ic">🎯</span> Hit with the paddle's <b>edge</b> to angle the ball — centre hits go straight.</li>
+          <li><span class="ic">⚡</span> The ball <b>speeds up</b> on every paddle hit (capped). Stay sharp.</li>
+          <li><span class="ic">⏸️</span> Press <b>space</b> to pause.</li>
+        </ul>
+        <button class="btn-play" (click)="toggleHowToPlay()">Got it</button>
       </div>
     </div>
   }
 
-  <!-- Game Over Modal -->
   @if (showGameOverModal) {
     <div class="modal-overlay">
-      <div class="modal-content" @fadeInOut>
-        <div class="game-over-content">
-          <div class="game-over-emoji">🎉</div>
-          <h3 class="game-over-title">{{ winner }} Wins!</h3>
-          <div class="game-over-stats">
-            <div class="final-score-display">
-              <div class="final-score">
-                <span class="winner-score">{{ winner === player1Name ? player1Score : player2Score }}</span>
-                <span class="score-separator">-</span>
-                <span class="loser-score">{{ winner === player1Name ? player2Score : player1Score }}</span>
-              </div>
-              <div class="score-label">Final Score</div>
-            </div>
-            <div class="game-summary">
-              <div class="summary-item">
-                <span class="summary-label">Game Duration:</span>
-                <span class="summary-value">{{ getGameDuration() }}</span>
-              </div>
-              <div class="summary-item">
-                <span class="summary-label">Winner:</span>
-                <span class="summary-value">{{ winner }}</span>
-              </div>
-              <div class="summary-item">
-                <span class="summary-label">Runner-up:</span>
-                <span class="summary-value">{{ winner === player1Name ? player2Name : player1Name }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="game-over-buttons">
-            <button (click)="startNewGame()" class="btn btn-start">
-              Play Again
-            </button>
-            <button (click)="closeGameOverModal()" class="btn btn-secondary">
-              New Players
-            </button>
-          </div>
+      <div class="modal result">
+        <div class="result-emoji">🏆</div>
+        <h3 class="modal-title">{{ winner }} wins!</h3>
+        <p class="result-score">
+          <span class="rs-num" [class.win]="player1Score > player2Score">{{ player1Score }}</span>
+          <span class="rs-dash">–</span>
+          <span class="rs-num" [class.win]="player2Score > player1Score">{{ player2Score }}</span>
+        </p>
+        <p class="result-names">{{ player1Name }} vs {{ player2Name }}</p>
+
+        <div class="modal-actions">
+          <button class="btn-ghost" (click)="quitToSetup()">Menu</button>
+          <button class="btn-play" (click)="startNewGame()">Rematch <span>→</span></button>
         </div>
       </div>
     </div>
