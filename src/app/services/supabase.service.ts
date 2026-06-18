@@ -133,4 +133,57 @@ export class SupabaseService {
     }
     return data;
   }
+
+  // Perfect Harvest Methods
+  // Insert a Perfect Harvest run score
+  async insertPerfectHarvestScore(playerName: string, score: number, perfectCount: number, highestCombo: number) {
+    const { data, error } = await this.supabase
+      .from('perfect_harvest_scores')
+      .insert([
+        {
+          player_name: playerName,
+          score: score,
+          perfect_count: perfectCount,
+          highest_combo: highestCombo,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+    if (error) {
+      console.error('Insert perfect harvest score error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Get top Perfect Harvest scores (global leaderboard)
+  async getPerfectHarvestHighScores(limit: number = 10) {
+    const { data, error } = await this.supabase
+      .from('perfect_harvest_scores')
+      .select('*')
+      .order('score', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Fetch perfect harvest scores error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Get a player's best Perfect Harvest score
+  async getPlayerBestPerfectHarvestScore(playerName: string) {
+    const { data, error } = await this.supabase
+      .from('perfect_harvest_scores')
+      .select('*')
+      .eq('player_name', playerName)
+      .order('score', { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error('Fetch player best perfect harvest score error:', error);
+      throw error;
+    }
+    return data && data.length > 0 ? data[0] : null;
+  }
 }

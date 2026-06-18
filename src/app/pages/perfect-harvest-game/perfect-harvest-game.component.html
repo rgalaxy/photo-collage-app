@@ -1,0 +1,190 @@
+<div class="ph pg-dark">
+  <app-game-shell title="🌾 Perfect Harvest">
+    <button shellActions class="ph-howbtn" type="button" (click)="toggleHowTo()">How to play</button>
+  </app-game-shell>
+
+  <!-- toasts -->
+  <div class="toast-stack" aria-live="polite">
+    @for (t of toasts; track t.id) {
+      <div class="toast" [class.ok]="t.type === 'success'" [class.bad]="t.type === 'error'">{{ t.message }}</div>
+    }
+  </div>
+
+  <main class="ph-stage">
+    <!-- the WebGL farm — always present so the engine can render it as a backdrop -->
+    <canvas #canvas class="ph-canvas"></canvas>
+
+    <!-- ===================== PLAYING ===================== -->
+    @if (screen === 'playing') {
+      <div class="ph-hud" aria-hidden="false">
+        <div class="hud-stat left">
+          <span class="hud-label">Score</span>
+          <span class="hud-val score">{{ score }}</span>
+        </div>
+
+        <div class="hud-time" [class.low]="timeRemaining <= 10">
+          <span class="time-val">{{ timeLabel }}</span>
+          <span class="time-bar"><i [style.width.%]="timeProgress * 100"></i></span>
+          <span class="time-phase">{{ phaseLabel }}</span>
+        </div>
+
+        <div class="hud-stat right" [class.live]="combo > 1">
+          <span class="hud-label">Combo</span>
+          <span class="hud-val combo">{{ combo }}<small>x</small></span>
+          <span class="combo-mult">{{ comboMult | number: '1.1-1' }}× pts</span>
+        </div>
+      </div>
+
+      <!-- floating score numbers, anchored over crops (canvas-relative px) -->
+      <div class="ph-floaters" aria-hidden="true">
+        @for (f of floaters; track f.id) {
+          <span class="floater g-{{ f.grade }}" [style.left.px]="f.x" [style.top.px]="f.y">{{ f.text }}</span>
+        }
+      </div>
+
+      <!-- big quality feedback flash -->
+      <div class="ph-grades" aria-hidden="true">
+        @for (g of gradeFlashes; track g.id) {
+          <div class="grade-flash g-{{ g.cls }}">{{ g.text }}</div>
+        }
+      </div>
+
+      <button class="ph-quit" type="button" (click)="quitToIntro()">End run</button>
+    }
+
+    <!-- ===================== INTRO ===================== -->
+    @if (screen === 'intro') {
+      <section class="ph-screen intro">
+        <div class="intro-card">
+          <p class="intro-kicker">timing · combo · leaderboard</p>
+          <h2 class="intro-title">Tap at <span class="grad">peak ripeness</span>.</h2>
+          <p class="intro-sub">
+            Crops grow on the field — harvest the instant the meter hits the
+            <strong>golden zone</strong>. Nail it for a <strong>Perfect</strong>, chain Perfects for a fat
+            combo multiplier, and don't let crops rot. You've got <strong>45 seconds</strong>.
+          </p>
+
+          <input
+            class="name-input"
+            [(ngModel)]="playerName"
+            maxlength="18"
+            placeholder="Your name"
+            (keyup.enter)="startGame()"
+            aria-label="Player name"
+          />
+
+          <div class="intro-actions">
+            <button class="btn-play" type="button" (click)="startGame()">Start harvest <span>→</span></button>
+            <button class="btn-ghost" type="button" (click)="toggleHowTo()">How to play</button>
+          </div>
+
+          @if (bestScore > 0) {
+            <p class="intro-best">🏅 Your best: <b>{{ bestScore }}</b></p>
+          }
+        </div>
+
+        <div class="intro-board">
+          <h3>🏆 Top harvesters</h3>
+          <ol class="lb-list">
+            @for (s of highScores; track $index; let i = $index) {
+              <li class="lb-item" [class.gold]="i === 0">
+                <span class="lb-rank">{{ i + 1 }}</span>
+                <span class="lb-main">
+                  <span class="lb-name">{{ s.player_name || 'Anonymous' }}</span>
+                  <span class="lb-meta">{{ s.perfect_count }} perfect · {{ s.highest_combo }}x combo</span>
+                </span>
+                <span class="lb-score">{{ s.score }}</span>
+              </li>
+            }
+            @if (highScores.length === 0) {
+              <li class="lb-empty">No scores yet — be the first!</li>
+            }
+          </ol>
+        </div>
+      </section>
+    }
+
+    <!-- ===================== GAME OVER ===================== -->
+    @if (screen === 'over' && summary) {
+      <section class="ph-screen over">
+        <div class="result-card">
+          <div class="result-emoji">🌻</div>
+          <h3 class="result-title">Harvest complete!</h3>
+          <p class="result-bigscore"><small>final score</small>{{ summary.score }}</p>
+
+          <div class="result-grid">
+            <div class="rg-cell perfect"><span>Perfect</span><b>{{ summary.perfect }}</b></div>
+            <div class="rg-cell great"><span>Great</span><b>{{ summary.great }}</b></div>
+            <div class="rg-cell good"><span>Good</span><b>{{ summary.good }}</b></div>
+            <div class="rg-cell miss"><span>Missed</span><b>{{ summary.miss }}</b></div>
+            <div class="rg-cell combo"><span>Best combo</span><b>{{ summary.highestCombo }}×</b></div>
+            <div class="rg-cell harvests"><span>Harvested</span><b>{{ summary.harvests }}</b></div>
+          </div>
+
+          @if (submitting) {
+            <p class="result-saving">Saving your score…</p>
+          }
+
+          @if (highScores.length) {
+            <div class="result-board">
+              <h4>🏆 Top harvesters</h4>
+              <ol class="lb-list">
+                @for (s of highScores; track $index; let i = $index) {
+                  <li class="lb-item" [class.gold]="i === 0" [class.you]="isYou(s)">
+                    <span class="lb-rank">{{ i + 1 }}</span>
+                    <span class="lb-main">
+                      <span class="lb-name">{{ s.player_name || 'Anonymous' }}</span>
+                      <span class="lb-meta">{{ s.perfect_count }} perfect · {{ s.highest_combo }}x combo</span>
+                    </span>
+                    <span class="lb-score">{{ s.score }}</span>
+                  </li>
+                }
+              </ol>
+            </div>
+          }
+
+          <div class="result-actions">
+            <button class="btn-ghost" type="button" (click)="quitToIntro()">Done</button>
+            <button class="btn-play" type="button" (click)="playAgain()">Play again <span>→</span></button>
+          </div>
+        </div>
+      </section>
+    }
+  </main>
+
+  <!-- ===================== HOW TO PLAY ===================== -->
+  @if (showHowTo) {
+    <div class="modal-overlay" (click)="toggleHowTo()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">How to play</h3>
+        <ul class="howto-list">
+          <li>
+            <span class="ic">🌱</span>
+            <span class="txt">Crops sprout on the field. A <b>ripeness bar</b> floats above each one with a bright <b>target line</b>.</span>
+          </li>
+          <li>
+            <span class="ic">🎯</span>
+            <span class="txt"><b>Tap or click</b> a crop the moment its bar fills up to the target line for a <b>Perfect</b>.</span>
+          </li>
+          <li>
+            <span class="ic">🔥</span>
+            <span class="txt">Perfects build your <b>combo</b> — the score multiplier climbs all the way to <b>×5</b>.</span>
+          </li>
+          <li>
+            <span class="ic">🍓</span>
+            <span class="txt">Rarer, higher-value crops have a <b>narrower</b> target — harder to nail, but worth far more.</span>
+          </li>
+          <li>
+            <span class="ic">🥀</span>
+            <span class="txt">Don't let a crop over-ripen — it <b>rots</b>, costs you, and breaks your combo.</span>
+          </li>
+          <li>
+            <span class="ic">⚡</span>
+            <span class="txt">It speeds up fast: quicker growth, smaller targets, and more crops at once.</span>
+          </li>
+        </ul>
+        <button class="btn-play" type="button" (click)="toggleHowTo()">Got it</button>
+      </div>
+    </div>
+  }
+</div>

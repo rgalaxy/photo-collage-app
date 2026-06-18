@@ -21,7 +21,7 @@ export const GAMES: GameItem[] = [
   },
   {
     id: 'click-the-target-game',
-    title: 'Click The Target Game',
+    title: 'Click The Target',
     description: 'Fast-paced target clicking game with combo system. Test your reflexes and accuracy.',
     tags: ['single-player', 'arcade', 'action'],
     imageUrl: '/assets/images/game-covers/target-cover.png',
@@ -29,11 +29,19 @@ export const GAMES: GameItem[] = [
   },
   {
     id: 'pong-game',
-    title: 'Pong Game',
+    title: 'Neon Pong',
     description: 'Classic pong game with modern graphics. Play against a friend or AI opponent.',
     tags: ['two-player', 'arcade'],
     imageUrl: '/assets/images/game-covers/pong-cover.png',
     route: '/pong-game'
+  },
+  {
+    id: 'perfect-harvest-game',
+    title: 'Perfect Harvest',
+    description: 'A 3D farming arcade game. Tap crops at peak ripeness, chain Perfects for huge combos, and climb the leaderboard.',
+    tags: ['single-player', 'arcade', 'action'],
+    imageUrl: '/assets/images/game-covers/perfect-harvest.png',
+    route: '/perfect-harvest-game'
   },
   {
     id: 'memory-match',

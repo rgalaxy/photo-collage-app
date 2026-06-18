@@ -1,302 +1,176 @@
-<div class="game-container pg-dark">
-  <!-- Shared arcade shell header -->
+<div class="ctt pg-dark">
   <app-game-shell title="🎯 Click The Target">
-    <button shellActions (click)="toggleHowToPlay()" class="btn btn-blue">How to Play</button>
-    <button shellActions (click)="toggleHighScores()" class="btn btn-green">High Scores</button>
+    <button shellActions class="ctt-howbtn" (click)="toggleHowToPlay()">How to play</button>
   </app-game-shell>
 
-  <!-- Game Setup Screen -->
-  @if (!gameActive && !gameOver) {
-    <div class="setup-screen">
-      <div class="setup-card">
-        <h2 class="setup-title">Ready to Play?</h2>
-        <!-- Player Name Input -->
-        <div class="input-group">
-          <label class="input-label">Your Name</label>
+  <!-- Toasts -->
+  <div class="toast-stack" aria-live="polite">
+    @for (toast of toasts; track toast.id) {
+      <div class="toast" [class.ok]="toast.type === 'success'" [class.bad]="toast.type === 'error'">{{ toast.message }}</div>
+    }
+  </div>
+
+  <main class="ctt-stage">
+    <!-- ===================== START ===================== -->
+    @if (!gameActive && !gameOver) {
+      <section class="screen start">
+        <div class="start-card">
+          <p class="start-kicker">reflex · leaderboard challenge</p>
+          <h2 class="start-title">Sharp eyes, <span class="grad">fast hands</span>.</h2>
+          <p class="start-sub">
+            {{ GAME_TIME }} seconds. Pop the targets, chain <strong>combos</strong> for a fat multiplier,
+            grab ⭐ bonuses and ⏱️ time — but <strong>don't hit the 💣 bombs</strong>. It speeds up as you go.
+          </p>
           <input
+            class="name-input"
             [(ngModel)]="playerName"
-            type="text"
-            placeholder="Enter your name"
-            class="text-input"
-            />
-        </div>
-        <!-- Difficulty Selection -->
-        <div class="input-group">
-          <label class="input-label">Difficulty</label>
-          <div class="dropdown">
-            <button
-              (click)="showDifficultySelector = !showDifficultySelector"
-              class="dropdown-button"
-              >
-              <span [class]="getDifficultyColor(difficulty)">{{
-                difficulty | titlecase
-              }}</span>
-              <span class="difficulty-desc">{{
-                getDifficultyDescription(difficulty)
-              }}</span>
-            </button>
-            @if (showDifficultySelector) {
-              <div class="dropdown-menu">
-                @for (diff of getDifficultyLevels(); track diff) {
-                  <button
-                    (click)="selectDifficulty(diff)"
-                    class="dropdown-item"
-                    >
-                    <span [class]="getDifficultyColor(diff)">{{
-                      diff | titlecase
-                    }}</span>
-                    <span class="difficulty-desc">{{
-                      getDifficultyDescription(diff)
-                    }}</span>
-                  </button>
-                }
-              </div>
-            }
+            maxlength="18"
+            placeholder="Your name"
+            (keyup.enter)="startGame()"
+            aria-label="Player name"
+          />
+          <div class="start-actions">
+            <button class="btn-play" (click)="startGame()">Start <span>→</span></button>
+            <button class="btn-ghost" (click)="toggleHowToPlay()">How to play</button>
           </div>
         </div>
-        <!-- Start Game Button -->
-        <button (click)="startGame()" class="btn btn-start">🚀 Start Game</button>
+
+        <div class="start-board">
+          <h3>🏆 Top shooters</h3>
+          <ol class="lb-list">
+            @for (s of highScores; track $index; let i = $index) {
+              <li class="lb-item" [class.gold]="i === 0">
+                <span class="lb-rank">{{ i + 1 }}</span>
+                <span class="lb-main">
+                  <span class="lb-name">{{ s.player_name || "Anonymous" }}</span>
+                  <span class="lb-meta">{{ s.accuracy }}% acc · {{ s.max_combo }}x combo</span>
+                </span>
+                <span class="lb-score">{{ s.scores }}</span>
+              </li>
+            }
+            @if (highScores.length === 0) {
+              <li class="lb-empty">No scores yet — be the first!</li>
+            }
+          </ol>
+        </div>
+      </section>
+    }
+
+    <!-- ===================== GAME ===================== -->
+    @if (gameActive) {
+      <section class="screen game">
+        <div class="hud">
+          <div class="hud-stat">
+            <span class="hud-label">Time</span>
+            <span class="hud-val time" [class.low]="timeRemaining <= 8">{{ timeRemaining }}<small>s</small></span>
+          </div>
+
+          <div class="combo-meter" [class.live]="combo > 0">
+            <div class="combo-top">
+              <span class="combo-num">{{ combo }}<small>x</small></span>
+              <span class="combo-mult">{{ comboMult() }}× pts</span>
+            </div>
+            <div class="combo-bar"><span [style.width.%]="comboFrac() * 100"></span></div>
+          </div>
+
+          <div class="hud-stat right">
+            <span class="hud-label">Score</span>
+            <span class="hud-val score">{{ score }}</span>
+          </div>
+        </div>
+
+        <div class="ct-field" (click)="fieldClick($event)">
+          @for (t of targets; track t.id) {
+            <button
+              class="ct-target t-{{ t.type }}"
+              [class.popped]="t.popped"
+              [style.left.%]="t.x"
+              [style.top.%]="t.y"
+              [style.--size]="t.size"
+              [style.--life]="t.ttl / t.maxTtl"
+              (click)="hitTarget(t, $event)"
+              [attr.aria-label]="t.type + ' target'"
+            >
+              <span class="ct-ring"></span>
+              <span class="ct-face">{{ targetIcon(t.type) }}</span>
+            </button>
+          }
+
+          @for (f of floatingScores; track f.id) {
+            <span class="ct-pop" [class.neg]="!f.good" [style.left.%]="f.x" [style.top.%]="f.y">{{ f.text }}</span>
+          }
+
+          @if (targets.length === 0) {
+            <div class="ct-hint">👀 stay sharp…</div>
+          }
+        </div>
+
+        <div class="ct-foot">
+          <span class="ct-acc">accuracy <b>{{ getAccuracy() }}%</b></span>
+          <button class="btn-end" (click)="endGame()">End run</button>
+        </div>
+      </section>
+    }
+  </main>
+
+  <!-- ===================== MODALS ===================== -->
+  @if (showHowToPlay) {
+    <div class="modal-overlay" (click)="toggleHowToPlay()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">How to play</h3>
+        <ul class="howto-list">
+          <li><span class="ic">🎯</span> <b>Normal</b> — pop it for points. Build a streak.</li>
+          <li><span class="ic">⭐</span> <b>Bonus</b> — smaller &amp; worth more. Snap it fast.</li>
+          <li><span class="ic">⏱️</span> <b>Time</b> — adds +{{ TIME_BONUS }}s to the clock.</li>
+          <li><span class="ic">💣</span> <b>Bomb</b> — <b>do not click</b>. It costs points &amp; your combo. Let it expire.</li>
+          <li><span class="ic">🔥</span> <b>Combo</b> — keep hitting before the bar empties; the multiplier climbs ×1 → ×4.</li>
+          <li><span class="ic">⚡</span> It gets faster, smaller and busier the longer you survive.</li>
+        </ul>
+        <button class="btn-play" (click)="toggleHowToPlay()">Got it</button>
       </div>
     </div>
   }
 
-  <!-- Game Area -->
-  @if (gameActive) {
-    <div class="game-section">
-      <!-- Game Stats Header -->
-      <div class="stats-header">
-        <div class="stats-content">
-          <div class="stats-flex">
-            <div class="stats-left">
-              <span class="stat-item"
-                >Score: <span class="score-highlight">{{ score }}</span></span
-                >
-                <span class="stat-item">Hits: {{ hits }}</span>
-                <span class="stat-item">Misses: {{ misses }}</span>
-                <span class="stat-item">Accuracy: {{ getAccuracy() }}%</span>
-              </div>
-              <div class="stats-right">
-                @if (combo > 0) {
-                  <div class="combo-display">
-                    <span class="combo-text">Combo: {{ combo }}</span>
-                    <span class="combo-multiplier"
-                      >x{{ comboMultiplier.toFixed(1) }}</span
-                      >
-                    </div>
-                  }
-                  <span class="stat-item"
-                    >Time:
-                    <span class="time-highlight">{{
-                      formatTime(timeRemaining)
-                    }}</span></span
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Game Area -->
-            <div class="game-area" (click)="clickGameArea($event)">
-              <!-- Targets -->
-              @for (target of targets; track trackByTargetId($index, target)) {
-                <div
-                  class="target"
-                  [style.left.%]="target.x"
-                  [style.top.%]="target.y"
-                  [style.width.px]="target.size"
-                  [style.height.px]="target.size"
-                  [class.target-clicked]="target.isClicked"
-                  (click)="clickTarget(target, $event)"
-                  [@targetClick]="target.isClicked ? 'clicked' : 'normal'"
-                  >
-                  <span class="target-emoji">🎯</span>
-                  <!-- Countdown ring -->
-                  <div
-                    class="countdown-ring"
-          [style.opacity]="
-            target.timeLeft / difficultyConfigs[difficulty].targetLifetime
-          "
-                  ></div>
-                </div>
-              }
-              <!-- Floating Score Texts -->
-              @for (scoreText of floatingScores; track trackByScoreId($index, scoreText)) {
-                <div
-                  class="floating-score"
-                  [style.left.%]="scoreText.x"
-                  [style.top.%]="scoreText.y"
-                  [@floatingScore]="'show'"
-                  >
-                  +{{ scoreText.points }}
-                </div>
-              }
-              <!-- Center message when no targets -->
-              @if (targets.length === 0) {
-                <div class="no-targets-message">
-                  <div class="no-targets-content">
-                    <div class="no-targets-emoji">👀</div>
-                    <div class="no-targets-text">Stay alert! Targets will appear...</div>
-                  </div>
-                </div>
-              }
-            </div>
-            <!-- Finish Game Button -->
-            <div class="end-game-button">
-              <button (click)="endGame()" class="btn btn-danger">End Game</button>
-            </div>
-          </div>
-        }
+  @if (showGameOverModal && result) {
+    <div class="modal-overlay">
+      <div class="modal result">
+        <div class="result-emoji">🎉</div>
+        <h3 class="modal-title">Run over!</h3>
+        <p class="modal-bigscore final"><small>final score</small>{{ result.score }}</p>
 
-        <!-- Toast Notifications -->
-        <div class="toast-container">
-          @for (toast of toasts; track toast) {
-            <div
-              @fadeInOut
-              class="toast"
-              [ngClass]="getToastClass(toast.type)"
-              >
-              {{ toast.message }}
-            </div>
-          }
+        <div class="result-grid">
+          <div class="rg-cell"><span>Hits</span><b>{{ result.hits }}</b></div>
+          <div class="rg-cell"><span>Accuracy</span><b>{{ result.accuracy }}%</b></div>
+          <div class="rg-cell"><span>Best combo</span><b>{{ result.maxCombo }}×</b></div>
         </div>
 
-        <!-- How to Play Modal -->
-        @if (showHowToPlay) {
-          <div class="modal-overlay">
-            <div class="modal-content" @fadeInOut>
-              <div class="modal-header">
-                <h3 class="modal-title">How to Play</h3>
-                <button (click)="toggleHowToPlay()" class="modal-close">×</button>
-              </div>
-              <div class="modal-body">
-                <p class="how-to-objective">
-                  🎯 <strong>Objective:</strong> Click on as many targets as you can
-                  before time runs out!
-                </p>
-                <div class="how-to-section">
-                  <p><strong>Gameplay:</strong></p>
-                  <ul class="how-to-list">
-                    <li>Targets appear randomly on screen</li>
-                    <li>Each target has a limited lifetime</li>
-                    <li>Click targets to score points</li>
-                    <li>Missing targets counts as a miss</li>
-                  </ul>
-                </div>
-                <div class="how-to-section">
-                  <p><strong>Combo System:</strong></p>
-                  <ul class="how-to-list">
-                    <li>Hit targets consecutively to build combo</li>
-                    <li>Every 5 combo hits increases score multiplier</li>
-                    <li>Missing targets or waiting too long resets combo</li>
-                  </ul>
-                </div>
-                <div class="how-to-section">
-                  <p><strong>Difficulty Levels:</strong></p>
-                  <ul class="how-to-list">
-                    <li>
-                      <span class="difficulty-easy">Easy:</span> 45s, slower targets,
-                      bigger size
-                    </li>
-                    <li>
-                      <span class="difficulty-medium">Medium:</span> 30s, medium speed &
-                      size
-                    </li>
-                    <li>
-                      <span class="difficulty-hard">Hard:</span> 20s, fast targets,
-                      smaller size
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+        @if (highScores.length) {
+          <div class="result-board">
+            <h4>🏆 Top shooters</h4>
+            <ol class="lb-list">
+              @for (s of highScores; track $index; let i = $index) {
+                <li
+                  class="lb-item"
+                  [class.gold]="i === 0"
+                  [class.you]="s.player_name === playerName && s.scores === result.score"
+                >
+                  <span class="lb-rank">{{ i + 1 }}</span>
+                  <span class="lb-main">
+                    <span class="lb-name">{{ s.player_name || "Anonymous" }}</span>
+                    <span class="lb-meta">{{ s.accuracy }}% acc · {{ s.max_combo }}x combo</span>
+                  </span>
+                  <span class="lb-score">{{ s.scores }}</span>
+                </li>
+              }
+            </ol>
           </div>
         }
 
-        <!-- High Scores Modal -->
-        @if (showHighScores) {
-          <div class="modal-overlay">
-            <div class="modal-content modal-wide" @fadeInOut>
-              <div class="modal-header">
-                <h3 class="modal-title">🏆 High Scores</h3>
-                <button (click)="toggleHighScores()" class="modal-close">×</button>
-              </div>
-              <div class="scores-container">
-                @if (highScores.length === 0) {
-                  <div class="no-scores">
-                    No high scores yet. Be the first!
-                  </div>
-                }
-                @for (score of highScores; track score; let i = $index) {
-                  <div class="score-item">
-                    <div class="score-left">
-                      <span class="score-medal">
-                        {{ i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅" }}
-                      </span>
-                      <div class="score-info">
-                        <div class="score-name">
-                          {{ score.player_name || "Anonymous" }}
-                        </div>
-                        <div class="score-details">
-                          <span>Accuracy: {{ score.accuracy }}%</span>
-                          <span>Combo: {{ score.max_combo }}</span>
-                        </div>
-                        <div class="score-date">
-                          {{ score.created_at | date : "short" }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="score-right">
-                      <div class="score-points">
-                        {{ score.scores }}
-                      </div>
-                      <div class="score-label">points</div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Game Over Modal -->
-        @if (showGameOverModal) {
-          <div class="modal-overlay">
-            <div class="modal-content" @fadeInOut>
-              <div class="game-over-content">
-                <div class="game-over-emoji">🎉</div>
-                <h3 class="game-over-title">Game Over!</h3>
-                <div class="game-over-stats">
-                  <div class="final-score">{{ score }} Points</div>
-                  <div class="stats-grid">
-                    <div class="stat-card">
-                      <div class="stat-label">Hits</div>
-                      <div class="stat-value stat-hits">{{ hits }}</div>
-                    </div>
-                    <div class="stat-card">
-                      <div class="stat-label">Misses</div>
-                      <div class="stat-value stat-misses">{{ misses }}</div>
-                    </div>
-                    <div class="stat-card">
-                      <div class="stat-label">Accuracy</div>
-                      <div class="stat-value">{{ getAccuracy() }}%</div>
-                    </div>
-                    <div class="stat-card">
-                      <div class="stat-label">Max Combo</div>
-                      <div class="stat-value stat-combo">
-                        {{ maxCombo }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="game-over-buttons">
-                  <button (click)="startNewGame()" class="btn btn-start">
-                    Play Again
-                  </button>
-                  <button (click)="closeGameOverModal()" class="btn btn-secondary">
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
+        <div class="modal-actions">
+          <button class="btn-ghost" (click)="closeGameOverModal()">Done</button>
+          <button class="btn-play" (click)="startNewGame()">Play again <span>→</span></button>
+        </div>
       </div>
+    </div>
+  }
+</div>

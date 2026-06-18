@@ -38,6 +38,11 @@ export const routes: Routes = [
       import('./pages/pong-game/pong-game.component').then(m => m.PongGameComponent),
   },
   {
+    path: 'perfect-harvest-game',
+    loadComponent: () =>
+      import('./pages/perfect-harvest-game/perfect-harvest-game.component').then(m => m.PerfectHarvestGameComponent),
+  },
+  {
     path: 'event/chloe-1st-birthday',
     loadComponent: () =>
       import('./pages/chloe-birthday/chloe-birthday.component').then(m => m.ChloeBirthdayComponent),
