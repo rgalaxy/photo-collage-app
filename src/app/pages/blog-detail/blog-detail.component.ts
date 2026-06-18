@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BlogService } from '../../services/blog.service';
 import { SeoService } from '../../services/seo.service';
@@ -12,6 +12,7 @@ import { BLOCKS, Document } from '@contentful/rich-text-types';
     imports: [CommonModule, RouterModule],
     standalone: true,
     templateUrl: './blog-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './blog-detail.component.scss'
 })
 export class BlogDetailComponent {

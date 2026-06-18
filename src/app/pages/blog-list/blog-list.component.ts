@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { BlogService } from '../../services/blog.service';
 import { RouterModule } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -17,6 +17,7 @@ import {
             radixExclamationTriangle
         })],
     templateUrl: './blog-list.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './blog-list.component.scss'
 })
 export class BlogListComponent {

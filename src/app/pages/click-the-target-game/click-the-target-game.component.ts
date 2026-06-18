@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { trigger, state, style, transition, animate, keyframes } from '@angular/animations';
@@ -54,6 +54,7 @@ interface DifficultyConfig {
     imports: [CommonModule, FormsModule],
     templateUrl: './click-the-target-game.component.html',
     styleUrl: './click-the-target-game.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
     animations: [
         trigger('targetAnimation', [
             state('appear', style({

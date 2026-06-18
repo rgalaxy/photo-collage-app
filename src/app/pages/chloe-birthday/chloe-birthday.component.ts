@@ -8,6 +8,7 @@ import {
   ElementRef,
   ViewChild,
   Renderer2,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -20,6 +21,7 @@ import { SeoService } from '../../services/seo.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './chloe-birthday.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./chloe-birthday.component.scss'],
 })
 export class ChloeBirthdayComponent implements OnInit, AfterViewInit, OnDestroy {

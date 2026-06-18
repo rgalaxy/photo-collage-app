@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -35,6 +35,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
             radixInstagramLogo
         })],
     templateUrl: './portfolio.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./portfolio.component.scss']
 })
 export class PortfolioComponent implements OnInit, AfterViewInit {

@@ -1,4 +1,4 @@
-import { Component, Input, Signal } from '@angular/core';
+import { Component, Input, Signal, ChangeDetectionStrategy } from '@angular/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   radixDesktop,
@@ -18,6 +18,7 @@ import {
     radixTable
   })],
   templateUrl: './about-section.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './about-section.component.scss'
 })
 export class AboutSectionComponent {

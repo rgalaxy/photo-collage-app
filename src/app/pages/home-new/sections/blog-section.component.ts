@@ -1,4 +1,4 @@
-import { Component, Input, Signal } from '@angular/core';
+import { Component, Input, Signal, ChangeDetectionStrategy } from '@angular/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { radixArrowRight } from '@ng-icons/radix-icons';
 
@@ -10,6 +10,7 @@ import { radixArrowRight } from '@ng-icons/radix-icons';
     radixArrowRight
   })],
   templateUrl: './blog-section.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './blog-section.component.scss'
 })
 export class BlogSectionComponent {

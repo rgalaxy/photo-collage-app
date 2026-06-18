@@ -1,10 +1,11 @@
-import { Component, Input, Signal } from '@angular/core';
+import { Component, Input, Signal, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-portfolio-section',
   standalone: true,
   imports: [],
   templateUrl: './portfolio-section.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './portfolio-section.component.scss'
 })
 export class PortfolioSectionComponent {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { trigger, state, style, transition, animate } from '@angular/animations';
@@ -51,6 +51,7 @@ type GameState = 'setup' | 'playing' | 'paused' | 'gameOver';
     standalone: true,
     templateUrl: './pong-game.component.html',
     styleUrl: './pong-game.component.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
     animations: [
         trigger('fadeInOut', [
             transition(':enter', [

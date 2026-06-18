@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Output, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { radixMagnifyingGlass } from '@ng-icons/radix-icons';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
     standalone: true,
     providers: [provideIcons({ radixMagnifyingGlass })],
     templateUrl: './game-filter.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./game-filter.component.scss']
 })
 export class GameFilterComponent implements OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, PLATFORM_ID, signal, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgIcon, provideIcons, NgIconComponent } from '@ng-icons/core';
@@ -56,6 +56,7 @@ interface NavItem {
     radixGithubLogo
   })],
   templateUrl: './home-new.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home-new.component.scss'
 })
 export class HomeNewComponent implements OnInit, OnDestroy {

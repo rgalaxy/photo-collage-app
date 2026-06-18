@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
@@ -21,6 +21,7 @@ interface WeaponInstance {
     imports: [CommonModule, FormsModule],
     standalone : true,
     templateUrl: './mini-game-blacksmith.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './mini-game-blacksmith.component.scss'
 })
 export class MiniGameBlacksmithComponent implements OnInit {

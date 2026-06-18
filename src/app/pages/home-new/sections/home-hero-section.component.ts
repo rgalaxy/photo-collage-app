@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter, inject, PLATFORM_ID, Input, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, inject, PLATFORM_ID, Input, Signal, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -14,6 +14,7 @@ import gsap from 'gsap';
     radixArrowRight
   })],
   templateUrl: './home-hero-section.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home-hero-section.component.scss'
 })
 export class HomeHeroSectionComponent implements OnInit, OnDestroy {

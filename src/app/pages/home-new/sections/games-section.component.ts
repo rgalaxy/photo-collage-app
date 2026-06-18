@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, signal, computed, inject, PLATFORM_ID, HostListener, Signal } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, signal, computed, inject, PLATFORM_ID, HostListener, Signal, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { GameFilterComponent } from '../../../components/game-filter/game-filter.component';
 import { HomeGameCardComponent } from '../../../components/home-game-card/home-game-card.component';
@@ -9,6 +9,7 @@ import { GameItem, GAMES } from '../../../types/game.types';
   standalone: true,
   imports: [GameFilterComponent, HomeGameCardComponent],
   templateUrl: './games-section.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './games-section.component.scss'
 })
 export class GamesSectionComponent implements OnInit {

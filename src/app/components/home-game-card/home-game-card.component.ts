@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { radixArrowRight } from '@ng-icons/radix-icons';
@@ -11,6 +11,7 @@ import { GameItem } from '../../types/game.types';
   imports: [CommonModule, NgIconComponent],
   providers: [provideIcons({ radixArrowRight })],
   templateUrl: './home-game-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./home-game-card.component.scss']
 })
 export class HomeGameCardComponent {
