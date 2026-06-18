@@ -1,124 +1,99 @@
 .filter-container {
-  margin-bottom: 1.5rem;
+  width: 100%;
 }
 
+/* Visible label hidden — the input has an aria-label + a clear placeholder */
 .filter-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-primary, #374151);
-  margin-bottom: 0.5rem;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .filter-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  border-radius: 100px;
+  background: var(--input-background, rgba(12, 12, 20, 0.7));
+  border: 1px solid var(--border-color, rgba(124, 58, 237, 0.35));
+  backdrop-filter: blur(12px);
+  transition: border-color 0.3s var(--ease-out-expo, ease),
+    box-shadow 0.3s var(--ease-out-expo, ease);
+}
+
+.filter-input-wrapper:focus-within {
+  border-color: transparent;
+  box-shadow:
+    0 0 0 1.5px var(--focus-color, #22d3ee),
+    0 12px 34px -16px rgba(124, 58, 237, 0.7);
 }
 
 .search-icon {
   position: absolute;
-  left: 1rem;
+  left: 18px;
   z-index: 2;
-  color: var(--text-placeholder, #9ca3af);
+  color: var(--text-placeholder, rgba(244, 244, 251, 0.5));
   pointer-events: none;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
   transition: color 0.2s ease;
-
-  ng-icon {
-    display: block;
-  }
+}
+.filter-input-wrapper:focus-within .search-icon {
+  color: var(--focus-color, #22d3ee);
 }
 
 .filter-input {
   width: 100%;
-  max-width: 400px;
-  padding: 1rem 1rem 1rem 3rem;
-  padding-right: 3rem;
-  font-size: 1rem;
-  border: 2px solid var(--border-color, #e5e7eb);
-  border-radius: 20px;
-  background: var(--input-background, #ffffff);
-  color: var(--text-primary, #111827);
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(10px);
-
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color, #667eea);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
-
-}
-
-.filter-input-wrapper:focus-within .search-icon {
-  color: var(--primary-color, #667eea);
+  padding: 13px 48px 13px 46px;
+  font-size: 0.95rem;
+  font-family: var(--font-body, inherit);
+  border: 0;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-primary, #f4f4fb);
 
   &::placeholder {
-    color: var(--text-placeholder, #9ca3af);
-    font-weight: 400;
+    color: var(--text-placeholder, rgba(244, 244, 251, 0.5));
+    font-family: var(--font-mono, monospace);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+  }
+  &:focus {
+    outline: none;
   }
 }
 
 .clear-button {
   position: absolute;
-  right: 1rem;
-  background: var(--clear-button-bg, #f8fafc);
-  border: 1px solid var(--border-color, #e5e7eb);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-secondary, #6b7280);
-  cursor: pointer;
-  padding: 0;
-  width: 1.75rem;
-  height: 1.75rem;
+  right: 10px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.05rem;
+  line-height: 1;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  color: var(--text-secondary, #cbd5f5);
+  background: var(--clear-button-bg, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--border-color, rgba(124, 58, 237, 0.35));
+  transition: all 0.25s var(--ease-out-expo, ease);
 
   &:hover {
-    background: var(--clear-button-hover, #ef4444);
-    color: #ffffff;
-    border-color: var(--clear-button-hover, #ef4444);
-    transform: scale(1.1);
+    background: var(--clear-button-hover, #fb7185);
+    color: #fff;
+    border-color: transparent;
+    transform: scale(1.08);
   }
-
-  &:focus {
-    outline: 2px solid var(--focus-color, #667eea);
+  &:focus-visible {
+    outline: 2px solid var(--focus-color, #22d3ee);
     outline-offset: 2px;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .filter-container {
-    --text-primary: #f9fafb;
-    --text-secondary: #d1d5db;
-    --text-placeholder: #6b7280;
-    --border-color: #374151;
-    --primary-color: #667eea;
-    --focus-color: #667eea;
-    --input-background: #1f2937;
-    --clear-button-bg: #374151;
-    --clear-button-hover: #ef4444;
-  }
-  
-  .search-icon {
-    color: var(--text-placeholder, #6b7280);
-  }
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .filter-input {
-    max-width: 100%;
   }
 }

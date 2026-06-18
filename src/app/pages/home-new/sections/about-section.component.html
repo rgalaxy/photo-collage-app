@@ -1,13 +1,82 @@
 <div class="about-section">
   <div class="section-content">
-    <h2 class="section-title"><span class="dash">—</span> ABOUT ME</h2>
     <div class="about-grid">
-      <div class="skills-grid">
-        @for (skill of skills; track skill.name) {
-          <div class="skill-card">
-            <ng-icon [name]="skill.icon" size="32" class="skill-icon" />
-            <h3>{{ skill.name }}</h3>
-            <p>{{ skill.description }}</p>
+      <!-- Intro -->
+      <div class="about-intro">
+        <p class="section-eyebrow"><span class="dot"></span> about me</p>
+        <h2 class="about-title">
+          I turn <span class="grad">ideas</span> into
+          <span class="grad">interfaces</span> people love.
+        </h2>
+        <p class="about-bio">
+          I'm Martin — a software developer who lives in the messy middle where
+          design meets engineering. Most days that's frontend; some nights it's a
+          browser game or a little motion experiment.
+        </p>
+        <p class="about-bio">
+          I care about the details most people never notice: the easing curve, the
+          empty state, the focus ring. Off the keyboard, you'll find me on a
+          badminton court or chasing a new personal best on a run.
+        </p>
+        <div class="about-now">
+          <span class="now-label">Currently</span>
+          <span class="now-value">building delightful web apps &amp; playable side-projects</span>
+        </div>
+
+        <a class="resume-cta" routerLink="/old-portfolio" appMagnetic [magneticStrength]="0.25">
+          <span>View full résumé</span>
+          <span class="resume-cta-icon"><ng-icon name="radixArrowRight" size="16" /></span>
+        </a>
+      </div>
+
+      <!-- Skills explorer -->
+      <div class="about-explorer">
+        <div class="cat-tabs" role="tablist" aria-label="Skill categories">
+          @for (cat of categories; track cat.id) {
+            <button
+              class="cat-tab"
+              type="button"
+              role="tab"
+              [class.active]="activeCat() === cat.id"
+              [attr.aria-selected]="activeCat() === cat.id"
+              (click)="setCat(cat.id)"
+            >
+              {{ cat.label }}
+            </button>
+          }
+        </div>
+
+        <div class="cat-meta">
+          <span class="cat-count">{{ current().skills.length }}</span>
+          <p class="cat-blurb">{{ current().blurb }}</p>
+        </div>
+
+        @if (isAbout()) {
+          <div class="skill-cloud" [class.is-play]="current().kind === 'play'">
+            @for (skill of current().skills; track skill.name; let i = $index) {
+              <div
+                class="skill-chip"
+                [class.play]="current().kind === 'play'"
+                [style.--i]="i"
+                [style.--lvlScale]="levelScale(skill.level)"
+                appMagnetic
+                [magneticStrength]="0.18"
+              >
+                @if (current().kind === 'play') {
+                  <span class="chip-emoji">{{ skill.emoji }}</span>
+                  <span class="chip-name">{{ skill.name }}</span>
+                } @else {
+                  <span class="chip-mono">{{ mono(skill.name) }}</span>
+                  <span class="chip-info">
+                    <span class="chip-name">{{ skill.name }}</span>
+                    <span class="chip-bar" aria-hidden="true">
+                      <span class="chip-bar-fill"></span>
+                    </span>
+                  </span>
+                  <span class="chip-lvl">{{ skill.level }}</span>
+                }
+              </div>
+            }
           </div>
         }
       </div>

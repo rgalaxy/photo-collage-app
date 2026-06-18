@@ -1,10 +1,11 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './services/theme.service';
+import { CursorComponent } from './shared/cursor/cursor.component';
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet],
+    imports: [RouterOutlet, CursorComponent],
     standalone: true,
     templateUrl: './app.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

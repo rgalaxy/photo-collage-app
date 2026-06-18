@@ -46,12 +46,31 @@ $transition: 0.3s ease;
 
 .home-container {
   min-height: 100vh;
-  background-color: var(--bg-primary);
+  background-color: transparent;
   color: var(--text-primary);
   position: relative;
   overflow: hidden;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: background-color $transition, color $transition;
+}
+
+/* Signature interactive backdrop + readability scrim.
+   The <app-webgl-bg> host is already position:absolute inset:0; we only
+   set its stacking order here so canvas < scrim < content. */
+.home-bg {
+  z-index: 0;
+}
+.bg-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--pg-bg-0);
+  opacity: 0.5;
+  transition: opacity 0.6s var(--ease-out-expo);
+}
+.home-container[data-active='home'] .bg-scrim {
+  opacity: 0.16;
 }
 
 // Theme Toggle
@@ -70,11 +89,12 @@ $transition: 0.3s ease;
   align-items: center;
   justify-content: center;
   z-index: 100;
+  backdrop-filter: blur(12px);
   transition: $transition;
 
   &:hover {
-    background: $accent-color;
-    border-color: $accent-color;
+    background: var(--brand-gradient);
+    border-color: transparent;
     color: #fff;
     transform: rotate(15deg);
   }
@@ -107,6 +127,7 @@ $transition: 0.3s ease;
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   cursor: pointer;
+  backdrop-filter: blur(12px);
   transition: all $transition;
   white-space: nowrap;
   overflow: hidden;
@@ -124,8 +145,8 @@ $transition: 0.3s ease;
   }
 
   &:hover, &.active {
-    background: $accent-color;
-    border-color: $accent-color;
+    background: var(--brand-gradient);
+    border-color: transparent;
     color: #fff;
 
     .nav-label {
@@ -136,7 +157,7 @@ $transition: 0.3s ease;
   }
 
   &.active {
-    box-shadow: 0 4px 15px rgba($accent-color, 0.4);
+    box-shadow: 0 8px 24px -6px rgba(124, 58, 237, 0.6);
   }
 }
 
@@ -145,6 +166,7 @@ $transition: 0.3s ease;
   width: 100%;
   height: 100vh;
   position: relative;
+  z-index: 2;
   overflow: hidden;
 }
 

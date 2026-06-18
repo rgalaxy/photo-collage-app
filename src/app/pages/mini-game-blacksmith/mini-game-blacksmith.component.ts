@@ -1,530 +1,506 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
+import { GameShellComponent } from '../../shared/game-shell/game-shell.component';
+import { JuiceService } from '../../shared/juice/juice.service';
 
 interface Weapon {
   id: string;
   name: string;
   baseScore: number;
+  icon: string;
+  blurb: string;
 }
 
 interface WeaponInstance {
   weapon: Weapon;
-  refinement: number; // 0 to 15
-  quality: string; // 'basic', 'mediocre', 'decent', 'well-made', 'exceptional'
-  elements: string[]; // array of elements
+  refinement: number; // 0..MAX_REFINE
+  quality: string; // quality tier key
+  elements: string[]; // element keys
+  evolveStage: number; // index into the weapon's evolution chain
+}
+
+interface QualityTier {
+  key: string;
+  label: string;
+  mult: number;
+}
+
+interface ElementDef {
+  key: string;
+  label: string;
+  icon: string;
+}
+
+interface ForgeResult {
+  name: string;
+  score: number;
+  submitted: number;
+  shattered: boolean;
+  breakdown: { base: number; refine: number; quality: number; element: number; synergy: number; evolve: number };
 }
 
 @Component({
-    selector: 'app-mini-game-blacksmith',
-    imports: [CommonModule, FormsModule],
-    standalone : true,
-    templateUrl: './mini-game-blacksmith.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './mini-game-blacksmith.component.scss'
+  selector: 'app-mini-game-blacksmith',
+  standalone: true,
+  imports: [CommonModule, FormsModule, GameShellComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './mini-game-blacksmith.component.html',
+  styleUrl: './mini-game-blacksmith.component.scss',
 })
-export class MiniGameBlacksmithComponent implements OnInit {
-  // Game state
-  score = 0;
+export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
+  // ----- tunables -----
+  readonly GAME_TIME = 105;
+  readonly MAX_REFINE = 15;
+  readonly DANGER_FROM = 10; // strikes past +10 can SHATTER; +10 and below only cost time
+  readonly ELEMENT_UNLOCK = 4; // refinement needed before infusing elements
+  readonly FAIL_TIME_PENALTY = 3; // seconds lost when the forge "cools" on a miss
+  readonly SALVAGE = 0.5; // fraction of score kept on a shatter
+
+  // ----- state -----
   playerName = '';
   gameActive = false;
-  gameTime = 90;
-  timeRemaining = 90;
-  showFinishConfirmation = false;
-  
-  // Game over state
   gameOver = false;
-  gameOverReason = '';
-  showGameOverModal = false;
-  
-  // How to play modal
-  showHowToPlayModal = false;
-  
-  // Cooldown timers
-  qualityImproveLastUsed = 0;
-  elementAddLastUsed: { [key: string]: number } = {};
-  refinementLastUsed = 0;
-  
-  // Available weapons
-  weapons: Weapon[] = [
-    { id: 'dagger', name: 'Dagger', baseScore: 10 },
-    { id: 'sword', name: 'Sword', baseScore: 20 },
-    { id: 'axe', name: 'Axe', baseScore: 25 },
-    { id: 'bow', name: 'Bow', baseScore: 15 },
-    { id: 'staff', name: 'Staff', baseScore: 30 }
-  ];
-
-  // Current weapon being forged
+  score = 0;
+  timeRemaining = this.GAME_TIME;
   currentWeapon: WeaponInstance | null = null;
-  selectedWeaponId = '';
-
-  // Quality levels
-  qualityLevels = ['basic', 'mediocre', 'decent', 'well-made', 'exceptional'];
-  
-  // Elements
-  elements = ['fire', 'earth', 'water', 'wind'];
   selectedElement = '';
 
-  // Configuration for success rates and scoring
-  config = {
-    refinement: {
-      // Exponential decay formula: high chances 1-10, big punishment 11+
-      scoreMultiplier: 10, // Score per refinement level
-      safeRefinementCooldown: 3 // 3 seconds cooldown for safe zone (levels 1-8)
-    },
-    quality: {
-      successRates: {
-        basic: 80,
-        mediocre: 65,
-        decent: 50,
-        'well-made': 30,
-        exceptional: 15
-      },
-      scoreMultipliers: {
-        basic: 1,
-        mediocre: 2,
-        decent: 4,
-        'well-made': 8,
-        exceptional: 16
-      },
-      cooldownSeconds: 30 // 30 seconds cooldown
-    },
-    element: {
-      baseSuccessRate: 70, // Base 70% for first element
-      decreaseRate: 15, // Decrease 15% per existing element
-      scoreMultiplier: 25, // Score per element
-      cooldownSeconds: 10 // 10 seconds cooldown per element
-    }
-  };
-  
-  // High scores
-  showHighScores = false;
+  showFinishConfirmation = false;
+  showGameOverModal = false;
+  showHowToPlayModal = false;
+
+  result: ForgeResult | null = null;
+  private breakdown = { base: 0, refine: 0, quality: 0, element: 0, synergy: 0, evolve: 0 };
+
   highScores: any[] = [];
-  
-  // Game timer
-  private gameTimer: any;
-
-  // Last action result
-  lastActionResult: { success: boolean; message: string } | null = null;
-
-  // Toast notifications
   toasts: { id: number; message: string; success: boolean }[] = [];
   private toastIdCounter = 0;
+  private gameTimer: any;
 
-  constructor(private supabaseService: SupabaseService) {}
+  // ----- data -----
+  weapons: Weapon[] = [
+    { id: 'dagger', name: 'Dagger', baseScore: 12, icon: '🗡️', blurb: 'Fast & forgiving' },
+    { id: 'sword', name: 'Sword', baseScore: 20, icon: '⚔️', blurb: 'Balanced classic' },
+    { id: 'bow', name: 'Bow', baseScore: 16, icon: '🏹', blurb: 'Steady aim' },
+    { id: 'axe', name: 'Battle Axe', baseScore: 26, icon: '🪓', blurb: 'Heavy hitter' },
+    { id: 'hammer', name: 'Warhammer', baseScore: 32, icon: '🔨', blurb: 'High risk, high base' },
+  ];
 
-  ngOnInit() {
+  qualityTiers: QualityTier[] = [
+    { key: 'common', label: 'Common', mult: 0 },
+    { key: 'fine', label: 'Fine', mult: 3 },
+    { key: 'exquisite', label: 'Exquisite', mult: 7 },
+    { key: 'masterwork', label: 'Masterwork', mult: 14 },
+    { key: 'legendary', label: 'Legendary', mult: 28 },
+  ];
+  private qualitySuccess: Record<string, number> = {
+    fine: 85,
+    exquisite: 58,
+    masterwork: 30,
+    legendary: 12,
+  };
+  // extra punishment when a high-tier temper fails: seconds lost + chance to drop a tier
+  private temperFail: Record<string, { time: number; drop: number }> = {
+    fine: { time: 2, drop: 0 },
+    exquisite: { time: 3, drop: 0 },
+    masterwork: { time: 5, drop: 30 },
+    legendary: { time: 7, drop: 45 },
+  };
+
+  elements: ElementDef[] = [
+    { key: 'fire', label: 'Fire', icon: '🔥' },
+    { key: 'earth', label: 'Earth', icon: '🪨' },
+    { key: 'water', label: 'Water', icon: '💧' },
+    { key: 'wind', label: 'Wind', icon: '🌪️' },
+  ];
+
+  // Evolution lifts the weapon to a grander form (new name + bigger base) but
+  // resets refinement / quality / elements — a high-skill detour to a higher ceiling.
+  evolutionChains: Record<string, string[]> = {
+    dagger: ['Dagger', 'Kris', 'Rondel', 'Stiletto'],
+    sword: ['Sword', 'Longsword', 'Claymore', 'Excalibur'],
+    bow: ['Bow', 'Crossbow', 'Arbalest', 'Ballista'],
+    axe: ['Battle Axe', 'Greataxe', 'War Cleaver', 'Ragnarök'],
+    hammer: ['Warhammer', 'Maul', 'Earthshaker', 'Mjölnir'],
+  };
+  readonly EVOLVE_REFINE_REQ = 10;
+  readonly EVOLVE_QUALITY_REQ = 3; // masterwork index
+
+  constructor(private supabaseService: SupabaseService, private juice: JuiceService) {}
+
+  ngOnInit(): void {
     this.loadHighScores();
   }
 
-  async loadHighScores() {
-    const allHighScores = await this.supabaseService.getHighScores() || [];
-    // Only show top 7 scores
-    this.highScores = allHighScores.slice(0, 7);
+  ngOnDestroy(): void {
+    if (this.gameTimer) clearInterval(this.gameTimer);
   }
 
-  startGame() {
+  async loadHighScores(): Promise<void> {
+    const all = (await this.supabaseService.getHighScores()) || [];
+    this.highScores = all.slice(0, 7);
+  }
+
+  // ===================== flow =====================
+  startGame(): void {
     if (!this.playerName.trim()) {
-      alert('Please enter your name first!');
+      this.showToast('Enter your blacksmith name first!', false);
       return;
     }
-    
     this.gameActive = true;
+    this.gameOver = false;
     this.score = 0;
-    this.timeRemaining = this.gameTime;
+    this.breakdown = { base: 0, refine: 0, quality: 0, element: 0, synergy: 0, evolve: 0 };
+    this.timeRemaining = this.GAME_TIME;
     this.currentWeapon = null;
-    this.selectedWeaponId = '';
     this.selectedElement = '';
-    this.lastActionResult = null;
-    this.toasts = []; // Clear all toasts
-    this.gameOver = false; // Reset game over state
-    this.showFinishConfirmation = false; // Reset finish confirmation
-    
-    // Reset all cooldowns to ensure no disabled states
-    this.qualityImproveLastUsed = 0;
-    this.elementAddLastUsed = {};
-    this.refinementLastUsed = 0;
-    
-    // Clear any existing timer
-    if (this.gameTimer) {
-      clearInterval(this.gameTimer);
-    }
-    
+    this.result = null;
+    this.toasts = [];
+    this.showFinishConfirmation = false;
+    this.showGameOverModal = false;
+
+    if (this.gameTimer) clearInterval(this.gameTimer);
     this.gameTimer = setInterval(() => {
       this.timeRemaining--;
-      if (this.timeRemaining <= 0) {
-        this.endGame();
+      if (this.timeRemaining <= 8 && this.timeRemaining > 0) {
+        this.juice.blip(660, { type: 'sine', duration: 0.05, gain: 0.025 });
       }
+      if (this.timeRemaining <= 0) this.endGame('Time up!');
     }, 1000);
   }
 
-  async endGame(reason: string = 'Time up!', penaltyForBreaking: boolean = false) {
+  selectWeapon(id: string): void {
+    if (!this.gameActive || this.currentWeapon) return;
+    const weapon = this.weapons.find(w => w.id === id);
+    if (!weapon) return;
+    // clone — Evolve mutates baseScore, and we must not corrupt the master list
+    this.currentWeapon = { weapon: { ...weapon }, refinement: 0, quality: 'common', elements: [], evolveStage: 0 };
+    this.score = weapon.baseScore;
+    this.breakdown.base = weapon.baseScore;
+    this.juice.blip(520, { type: 'triangle', duration: 0.08, gain: 0.04 });
+  }
+
+  finishForging(): void {
+    if (this.currentWeapon) this.showFinishConfirmation = true;
+  }
+  confirmFinishForging(): void {
+    this.showFinishConfirmation = false;
+    this.endGame('Masterpiece banked!');
+  }
+  cancelFinishForging(): void {
+    this.showFinishConfirmation = false;
+  }
+
+  private async endGame(reason: string, shattered = false): Promise<void> {
+    if (this.gameOver) return;
     this.gameActive = false;
     this.gameOver = true;
-    this.gameOverReason = reason;
-    clearInterval(this.gameTimer);
-    
-    if (this.score > 0) {
-      const itemName = this.currentWeapon ? this.getWeaponDisplayName() : 'No item forged';
-      // Apply penalty only when weapon breaks during refinement
-      const submittedScore = penaltyForBreaking ? Math.floor(this.score * 0.75) : this.score;
-      await this.supabaseService.insertHighScore(this.playerName, submittedScore, itemName);
-      await this.loadHighScores();
+    if (this.gameTimer) clearInterval(this.gameTimer);
+
+    const submitted = shattered ? Math.floor(this.score * this.SALVAGE) : this.score;
+    this.result = {
+      name: this.currentWeapon ? this.getWeaponDisplayName() : 'No weapon forged',
+      score: this.score,
+      submitted,
+      shattered,
+      breakdown: { ...this.breakdown },
+    };
+
+    if (!shattered && submitted > 0) {
+      this.juice.confetti(90);
+      [523, 659, 784, 1047].forEach((f, i) =>
+        setTimeout(() => this.juice.blip(f, { type: 'triangle', duration: 0.2, gain: 0.05 }), i * 120)
+      );
     }
-    
-    // Show game over modal immediately
+
+    if (submitted > 0 && this.currentWeapon) {
+      try {
+        await this.supabaseService.insertHighScore(this.playerName, submitted, this.result.name);
+        await this.loadHighScores();
+      } catch (e) {
+        console.error('high score submit failed', e);
+      }
+    }
+
     this.showGameOverModal = true;
   }
 
-  closeGameOverModal() {
-    this.showGameOverModal = false;
-    // Reset game active state when closing modal to return to setup screen
-    this.gameActive = false;
-  }
-
-  startNewGame() {
+  startNewGame(): void {
     this.showGameOverModal = false;
     this.gameOver = false;
-    this.gameActive = false; // Will be set to true in startGame()
-    this.gameOverReason = '';
-    this.score = 0;
-    this.currentWeapon = null;
-    this.selectedWeaponId = '';
-    this.selectedElement = '';
-    this.lastActionResult = null;
-    this.timeRemaining = this.gameTime;
-    this.showFinishConfirmation = false;
-    this.qualityImproveLastUsed = 0;
-    this.elementAddLastUsed = {};
-    this.refinementLastUsed = 0;
-    this.toasts = []; // Clear all toasts
-    
-    // Clear any existing timer
-    if (this.gameTimer) {
-      clearInterval(this.gameTimer);
-    }
-    
     this.startGame();
   }
 
-  finishForging() {
-    this.showFinishConfirmation = true;
+  closeGameOverModal(): void {
+    this.showGameOverModal = false;
+    this.gameOver = false;
+    this.gameActive = false;
+    this.currentWeapon = null;
   }
 
-  confirmFinishForging() {
-    this.showFinishConfirmation = false;
-    this.endGame('Finished forging');
-  }
-
-  cancelFinishForging() {
-    this.showFinishConfirmation = false;
-  }
-
-  toggleHighScores() {
-    this.showHighScores = !this.showHighScores;
-  }
-
-  openHowToPlayModal() {
-    this.showHowToPlayModal = true;
-  }
-
-  closeHowToPlayModal() {
-    this.showHowToPlayModal = false;
-  }
-
-  selectWeapon() {
-    if (!this.selectedWeaponId) return;
-    
-    const weapon = this.weapons.find(w => w.id === this.selectedWeaponId);
-    if (weapon) {
-      this.currentWeapon = {
-        weapon,
-        refinement: 0,
-        quality: 'basic',
-        elements: []
-      };
-      this.lastActionResult = null;
-    }
-  }
-
-  refineWeapon() {
-    if (!this.currentWeapon || this.currentWeapon.refinement >= 15) return;
-
-    // Check if refinement is on cooldown (for safe refinement levels 1-8)
-    const now = Date.now();
-    const timeSinceLastUse = (now - this.refinementLastUsed) / 1000;
-    if (this.currentWeapon.refinement <= 8 && timeSinceLastUse < this.config.refinement.safeRefinementCooldown) {
-      const remainingTime = Math.ceil(this.config.refinement.safeRefinementCooldown - timeSinceLastUse);
-      this.showToast(`Refinement on cooldown! Wait ${remainingTime} seconds.`, false);
-      return;
-    }
-
-    // Exponential decay formula: high chances 1-10, big punishment 11+
-    let successRate: number;
-    if (this.currentWeapon.refinement <= 10) {
-      // High success rate for levels 1-10: starts at 95% for +1, gradually decreases
-      successRate = 95 - (this.currentWeapon.refinement * 3);
+  // ===================== actions =====================
+  refine(): void {
+    if (!this.canRefine()) return;
+    const lvl = this.currentWeapon!.refinement;
+    const rate = this.refineRate(lvl);
+    if (Math.random() * 100 < rate) {
+      this.currentWeapon!.refinement++;
+      const gain = this.refineGain(this.currentWeapon!.refinement);
+      this.score += gain;
+      this.breakdown.refine += gain;
+      this.showToast(`Refined to +${this.currentWeapon!.refinement}!  +${gain}`, true);
+      this.juiceForge(true);
+    } else if (lvl >= this.DANGER_FROM) {
+      this.showToast('The blade SHATTERED!', false);
+      this.juiceForge(false);
+      this.endGame('Your weapon shattered!', true);
     } else {
-      // Big punishment for 11+: exponential decay
-      const punishmentLevel = this.currentWeapon.refinement - 10;
-      successRate = Math.max(5, 65 - Math.pow(punishmentLevel, 2.5) * 10);
+      this.timeRemaining = Math.max(1, this.timeRemaining - this.FAIL_TIME_PENALTY);
+      this.showToast(`Missed — the forge cooled  −${this.FAIL_TIME_PENALTY}s`, false);
+      this.juice.shake(document.querySelector('.weapon-display'), 5, 200);
+      this.juice.blip(180, { type: 'sawtooth', duration: 0.12, gain: 0.04 });
     }
-    
-    const success = Math.random() * 100 < successRate;
-    
-    if (success) {
-      this.currentWeapon.refinement++;
-      const scoreGained = this.config.refinement.scoreMultiplier * this.currentWeapon.refinement;
-      this.score += scoreGained;
-      this.showToast(`Success! Weapon refined to +${this.currentWeapon.refinement}! (+${scoreGained} points)`, true);
+  }
+
+  temper(): void {
+    if (!this.canTemper()) return;
+    const next = this.nextQuality()!;
+    const rate = this.qualitySuccess[next.key];
+    if (Math.random() * 100 < rate) {
+      this.currentWeapon!.quality = next.key;
+      const gain = this.currentWeapon!.weapon.baseScore * next.mult;
+      this.score += gain;
+      this.breakdown.quality += gain;
+      this.showToast(`Tempered to ${next.label}!  +${gain}`, true);
+      this.juiceForge(true);
     } else {
-      // Special handling for refinement levels 1-8: weapon cannot break, but goes on cooldown
-      if (this.currentWeapon.refinement <= 8) {
-        this.showToast(`Failed! Safe refinement (${this.currentWeapon.refinement}/8) - weapon did not break! 3s cooldown applied.`, false);
-        this.refinementLastUsed = now;
+      // higher tiers: more time lost + a chance the temper cracks the current quality down a tier
+      const pen = this.temperFail[next.key] ?? { time: this.FAIL_TIME_PENALTY, drop: 0 };
+      this.timeRemaining = Math.max(1, this.timeRemaining - pen.time);
+      const idx = this.qualityIndex();
+      if (pen.drop > 0 && idx > 0 && Math.random() * 100 < pen.drop) {
+        const dropped = this.qualityTiers[idx - 1];
+        this.currentWeapon!.quality = dropped.key;
+        this.showToast(`Temper cracked — dropped to ${dropped.label}!  −${pen.time}s`, false);
+        this.juiceForge(false);
       } else {
-        // At +9 and above, weapon can break and end the game
-        this.showToast('Failed! Weapon broke! Game ended!', false);
-        
-        // End game immediately when weapon breaks with penalty
-        setTimeout(() => {
-          this.endGame('Weapon broke during refinement!', true);
-        }); // Give time to show the failure message
+        this.showToast(`Temper failed  −${pen.time}s`, false);
+        this.juice.shake(document.querySelector('.weapon-display'), 5, 200);
+        this.juice.blip(180, { type: 'sawtooth', duration: 0.12, gain: 0.04 });
       }
     }
   }
 
-  improveQuality() {
-    if (!this.currentWeapon) return;
-
-    const currentQualityIndex = this.qualityLevels.indexOf(this.currentWeapon.quality);
-    if (currentQualityIndex >= this.qualityLevels.length - 1) return;
-
-    // Check 30-second cooldown
-    const now = Date.now();
-    const timeSinceLastUse = (now - this.qualityImproveLastUsed) / 1000;
-    if (timeSinceLastUse < this.config.quality.cooldownSeconds) {
-      const remainingTime = Math.ceil(this.config.quality.cooldownSeconds - timeSinceLastUse);
-      this.showToast(`Quality improvement on cooldown! Wait ${remainingTime} seconds.`, false);
-      return;
-    }
-
-    const nextQuality = this.qualityLevels[currentQualityIndex + 1];
-    const successRate = this.config.quality.successRates[nextQuality as keyof typeof this.config.quality.successRates];
-    
-    const success = Math.random() * 100 < successRate;
-    
-    // Update last used time regardless of success/failure
-    this.qualityImproveLastUsed = now;
-    
-    if (success) {
-      this.currentWeapon.quality = nextQuality;
-      const scoreMultiplier = this.config.quality.scoreMultipliers[nextQuality as keyof typeof this.config.quality.scoreMultipliers];
-      const scoreGained = this.currentWeapon.weapon.baseScore * scoreMultiplier;
-      this.score += scoreGained;
-      this.showToast(`Success! Quality improved to ${nextQuality}! (+${scoreGained} points)`, true);
+  infuse(element: string): void {
+    if (!this.currentWeapon || !this.gameActive) return;
+    this.selectedElement = element;
+    if (!this.canInfuse()) return;
+    const rate = this.elementRate(this.currentWeapon.elements.length);
+    if (Math.random() * 100 < rate) {
+      this.currentWeapon.elements.push(element);
+      const gain = 40 * this.currentWeapon.elements.length;
+      this.score += gain;
+      this.breakdown.element += gain;
+      let msg = `Infused ${this.elementLabel(element)}!  +${gain}`;
+      if (this.currentWeapon.elements.length === 4) {
+        this.score += 200;
+        this.breakdown.synergy += 200;
+        msg = `Elementalist synergy!  +${gain} +200`;
+      }
+      this.showToast(msg, true);
+      this.selectedElement = '';
+      this.juiceForge(true);
     } else {
-      this.showToast('Failed! Quality improvement failed!', false);
+      this.timeRemaining = Math.max(1, this.timeRemaining - this.FAIL_TIME_PENALTY);
+      this.showToast(`${this.elementLabel(element)} fizzled  −${this.FAIL_TIME_PENALTY}s`, false);
+      this.juice.shake(document.querySelector('.weapon-display'), 5, 200);
+      this.juice.blip(180, { type: 'sawtooth', duration: 0.12, gain: 0.04 });
     }
   }
 
-  addElement() {
-    if (!this.currentWeapon || !this.selectedElement || this.currentWeapon.refinement < 5) return;
-    
-    if (this.currentWeapon.elements.includes(this.selectedElement)) {
-      this.showToast('This element is already applied to the weapon!', false);
-      return;
-    }
+  evolve(): void {
+    if (!this.canEvolve()) return;
+    const w = this.currentWeapon!;
+    w.evolveStage++;
+    w.weapon.baseScore = Math.round(w.weapon.baseScore * 1.6);
+    const bonus = 150 + w.weapon.baseScore * 4;
+    this.score += bonus;
+    this.breakdown.evolve += bonus;
+    // a grander weapon — but the work resets
+    w.refinement = 0;
+    w.quality = 'common';
+    w.elements = [];
+    this.showToast(`Evolved into the ${this.weaponBaseName()}!  +${bonus}`, true);
+    this.juiceForge(true);
+    this.juice.confetti(40);
+    this.juice.blip(1047, { type: 'triangle', duration: 0.22, gain: 0.055 });
+  }
 
-    // Check 10-second cooldown per element
-    const now = Date.now();
-    const lastUsed = this.elementAddLastUsed[this.selectedElement] || 0;
-    const timeSinceLastUse = (now - lastUsed) / 1000;
-    if (timeSinceLastUse < this.config.element.cooldownSeconds) {
-      const remainingTime = Math.ceil(this.config.element.cooldownSeconds - timeSinceLastUse);
-      this.showToast(`${this.selectedElement} element on cooldown! Wait ${remainingTime} seconds.`, false);
-      return;
-    }
+  // ===================== rules =====================
+  refineRate(level: number): number {
+    let r: number;
+    if (level < 5) r = 92 - level * 4; // 0-4: 92,88,84,80,76
+    else if (level < this.DANGER_FROM) r = 72 - (level - 5) * 6; // 5-9: 72,66,60,54,48 (safe — fail only costs time)
+    else r = Math.max(12, 44 - (level - this.DANGER_FROM) * 8); // 10-14: 44,36,28,20,12 (shatter on fail)
+    return Math.round(r);
+  }
+  /** Reward for reaching `newLevel`. Danger-zone strikes pay a premium so a
+   *  push to +15 legendary is genuinely worth the shatter risk. */
+  refineGain(newLevel: number): number {
+    const danger = newLevel > this.DANGER_FROM ? (newLevel - this.DANGER_FROM) * 25 : 0;
+    return 12 * newLevel + danger;
+  }
+  elementRate(count: number): number {
+    return Math.max(15, 78 - count * 16);
+  }
 
-    const successRate = Math.max(
-      10,
-      this.config.element.baseSuccessRate - (this.currentWeapon.elements.length * this.config.element.decreaseRate)
+  canRefine(): boolean {
+    return !!this.currentWeapon && this.gameActive && !this.gameOver && this.currentWeapon.refinement < this.MAX_REFINE;
+  }
+  canTemper(): boolean {
+    return !!this.currentWeapon && this.gameActive && !this.gameOver && this.qualityIndex() < this.qualityTiers.length - 1;
+  }
+  canInfuse(): boolean {
+    return (
+      !!this.currentWeapon &&
+      this.gameActive &&
+      !this.gameOver &&
+      this.currentWeapon.refinement >= this.ELEMENT_UNLOCK &&
+      this.currentWeapon.elements.length < 4 &&
+      !!this.selectedElement &&
+      !this.currentWeapon.elements.includes(this.selectedElement)
     );
-    
-    const success = Math.random() * 100 < successRate;
-    
-    // Update last used time for this element regardless of success/failure
-    this.elementAddLastUsed[this.selectedElement] = now;
-    
-    if (success) {
-      this.currentWeapon.elements.push(this.selectedElement);
-      const scoreGained = this.config.element.scoreMultiplier * this.currentWeapon.elements.length;
-      this.score += scoreGained;
-      this.showToast(`Success! ${this.selectedElement} element added! (+${scoreGained} points)`, true);
-      this.selectedElement = '';
-    } else {
-      this.showToast(`Failed! ${this.selectedElement} element was not added!`, false);
-    }
+  }
+  canEvolve(): boolean {
+    const w = this.currentWeapon;
+    if (!w || !this.gameActive || this.gameOver || this.evolveMaxed()) return false;
+    return w.refinement >= this.EVOLVE_REFINE_REQ && this.qualityIndex() >= this.EVOLVE_QUALITY_REQ && w.elements.length === 4;
+  }
+  evolveMaxed(): boolean {
+    const w = this.currentWeapon;
+    if (!w) return true;
+    const chain = this.evolutionChains[w.weapon.id];
+    return !chain || w.evolveStage >= chain.length - 1;
+  }
+  weaponBaseName(): string {
+    const w = this.currentWeapon;
+    if (!w) return '';
+    return this.evolutionChains[w.weapon.id]?.[w.evolveStage] ?? w.weapon.name;
+  }
+  evolveTargetName(): string {
+    const w = this.currentWeapon;
+    if (!w) return '';
+    return this.evolutionChains[w.weapon.id]?.[w.evolveStage + 1] ?? '';
+  }
+
+  // ===================== view helpers =====================
+  isDanger(): boolean {
+    return !!this.currentWeapon && this.currentWeapon.refinement >= this.DANGER_FROM;
+  }
+  nextRefineRate(): number {
+    return this.currentWeapon ? this.refineRate(this.currentWeapon.refinement) : 0;
+  }
+  nextRefineGain(): number {
+    return this.currentWeapon ? this.refineGain(this.currentWeapon.refinement + 1) : 0;
+  }
+  heat(): number {
+    return this.currentWeapon ? this.currentWeapon.refinement / this.MAX_REFINE : 0;
+  }
+
+  qualityIndex(): number {
+    return this.currentWeapon ? this.qualityTiers.findIndex(q => q.key === this.currentWeapon!.quality) : 0;
+  }
+  qualityTier(key: string): QualityTier {
+    return this.qualityTiers.find(q => q.key === key) ?? this.qualityTiers[0];
+  }
+  currentQualityLabel(): string {
+    return this.currentWeapon ? this.qualityTier(this.currentWeapon.quality).label : '';
+  }
+  nextQuality(): QualityTier | null {
+    const i = this.qualityIndex();
+    return i < this.qualityTiers.length - 1 ? this.qualityTiers[i + 1] : null;
+  }
+  nextQualityRate(): number {
+    const n = this.nextQuality();
+    return n ? this.qualitySuccess[n.key] : 0;
+  }
+  nextQualityGain(): number {
+    const n = this.nextQuality();
+    return n && this.currentWeapon ? this.currentWeapon.weapon.baseScore * n.mult : 0;
+  }
+
+  elementLabel(key: string): string {
+    return this.elements.find(e => e.key === key)?.label ?? key;
+  }
+  elementIcon(key: string): string {
+    return this.elements.find(e => e.key === key)?.icon ?? '';
+  }
+  hasElement(key: string): boolean {
+    return !!this.currentWeapon?.elements.includes(key);
+  }
+  nextElementRate(): number {
+    return this.currentWeapon ? this.elementRate(this.currentWeapon.elements.length) : 0;
   }
 
   getWeaponDisplayName(): string {
     if (!this.currentWeapon) return '';
-    
+    const w = this.currentWeapon;
+    const q = this.qualityTier(w.quality);
     let name = '';
-    
-    // Add quality prefix (except for basic)
-    if (this.currentWeapon.quality !== 'basic') {
-      name += this.currentWeapon.quality + ' ';
-    }
-    
-    // Add weapon name
-    name += this.currentWeapon.weapon.name.toLowerCase();
-    
-    
-    // Add element suffix
-    if (this.currentWeapon.elements.length > 0) {
-      if (this.currentWeapon.elements.length === 4) {
-        name += ' of elementalist';
-      } else {
-        name += ` of ${this.currentWeapon.elements.join(' & ')}`;
-      }
-    }
-
-
-    // Add refinement
-    if (this.currentWeapon.refinement > 0) {
-      name += ` +${this.currentWeapon.refinement}`;
-    }
-    
+    if (q.key !== 'common') name += q.label + ' ';
+    name += this.weaponBaseName();
+    if (w.elements.length === 4) name += ' of the Elements';
+    else if (w.elements.length) name += ' of ' + w.elements.map(e => this.elementLabel(e)).join(' & ');
+    if (w.refinement > 0) name += ` +${w.refinement}`;
     return name;
   }
 
-  getAvailableElements(): string[] {
-    if (!this.currentWeapon) return [];
-    return this.elements.filter(e => !this.currentWeapon!.elements.includes(e));
+  // ===================== ui plumbing =====================
+  openHowToPlayModal(): void {
+    this.showHowToPlayModal = true;
+  }
+  closeHowToPlayModal(): void {
+    this.showHowToPlayModal = false;
   }
 
-  getRefinementSuccessRate(): number {
-    if (!this.currentWeapon || this.currentWeapon.refinement >= 15) return 0;
-    
-    // Use same exponential decay formula as refineWeapon
-    let successRate: number;
-    if (this.currentWeapon.refinement < 10) {
-      // High success rate for levels 1-10
-      successRate = 95 - ((this.currentWeapon.refinement + 1) * 3);
-    } else {
-      // Big punishment for 11+: exponential decay
-      const punishmentLevel = (this.currentWeapon.refinement + 1) - 10;
-      successRate = Math.max(5, 65 - Math.pow(punishmentLevel, 2.5) * 10);
-    }
-    
-    return Math.round(successRate);
-  }
-
-  getQualitySuccessRate(): number {
-    if (!this.currentWeapon) return 0;
-    const currentQualityIndex = this.qualityLevels.indexOf(this.currentWeapon.quality);
-    if (currentQualityIndex >= this.qualityLevels.length - 1) return 0;
-    const nextQuality = this.qualityLevels[currentQualityIndex + 1];
-    return this.config.quality.successRates[nextQuality as keyof typeof this.config.quality.successRates];
-  }
-
-  getElementSuccessRate(): number {
-    if (!this.currentWeapon || this.currentWeapon.refinement < 5) return 0;
-    return Math.max(
-      10,
-      this.config.element.baseSuccessRate - (this.currentWeapon.elements.length * this.config.element.decreaseRate)
-    );
-  }
-
-  canRefine(): boolean {
-    if (!this.currentWeapon || this.gameOver || this.currentWeapon.refinement >= 15) return false;
-    
-    // Check if refinement is on cooldown (for safe refinement levels 1-8)
-    if (this.currentWeapon.refinement <= 8) {
-      const now = Date.now();
-      const timeSinceLastUse = (now - this.refinementLastUsed) / 1000;
-      return timeSinceLastUse >= this.config.refinement.safeRefinementCooldown;
-    }
-    
-    return true;
-  }
-
-  canImproveQuality(): boolean {
-    if (!this.currentWeapon || this.gameOver) return false;
-    const currentQualityIndex = this.qualityLevels.indexOf(this.currentWeapon.quality);
-    return currentQualityIndex < this.qualityLevels.length - 1;
-  }
-
-  canAddElement(): boolean {
-    return !this.gameOver && 
-           this.currentWeapon !== null && 
-           this.currentWeapon.refinement >= 5 && 
-           this.currentWeapon.elements.length < 4 &&
-           this.selectedElement !== '' &&
-           !this.currentWeapon.elements.includes(this.selectedElement);
-  }
-
-  // Cooldown helper methods
-  getRefinementCooldownRemaining(): number {
-    const now = Date.now();
-    const timeSinceLastUse = (now - this.refinementLastUsed) / 1000;
-    return Math.max(0, this.config.refinement.safeRefinementCooldown - timeSinceLastUse);
-  }
-
-  getQualityCooldownRemaining(): number {
-    const now = Date.now();
-    const timeSinceLastUse = (now - this.qualityImproveLastUsed) / 1000;
-    return Math.max(0, this.config.quality.cooldownSeconds - timeSinceLastUse);
-  }
-
-  getElementCooldownRemaining(element: string): number {
-    const now = Date.now();
-    const lastUsed = this.elementAddLastUsed[element] || 0;
-    const timeSinceLastUse = (now - lastUsed) / 1000;
-    return Math.max(0, this.config.element.cooldownSeconds - timeSinceLastUse);
-  }
-
-  isRefinementOnCooldown(): boolean {
-    return this.getRefinementCooldownRemaining() > 0;
-  }
-
-  isQualityOnCooldown(): boolean {
-    return this.getQualityCooldownRemaining() > 0;
-  }
-
-  isElementOnCooldown(element: string): boolean {
-    return this.getElementCooldownRemaining(element) > 0;
-  }
-
-  // Helper methods for template
-  getCeilRefinementCooldown(): number {
-    return Math.ceil(this.getRefinementCooldownRemaining());
-  }
-
-  getCeilQualityCooldown(): number {
-    return Math.ceil(this.getQualityCooldownRemaining());
-  }
-
-  getCeilElementCooldown(element: string): number {
-    return Math.ceil(this.getElementCooldownRemaining(element));
-  }
-
-  showToast(message: string, success: boolean) {
-    const toast = {
-      id: this.toastIdCounter++,
-      message,
-      success
-    };
+  showToast(message: string, success: boolean): void {
+    const toast = { id: this.toastIdCounter++, message, success };
     this.toasts.push(toast);
-    
-    setTimeout(() => {
-      this.removeToast(toast.id);
-    }, 2400);
+    // keep the feedback stack small so it never obstructs play (esp. on mobile)
+    if (this.toasts.length > 3) this.toasts = this.toasts.slice(-3);
+    setTimeout(() => this.removeToast(toast.id), 1900);
+  }
+  removeToast(id: number): void {
+    this.toasts = this.toasts.filter(t => t.id !== id);
   }
 
-  removeToast(id: number) {
-    this.toasts = this.toasts.filter(toast => toast.id !== id);
+  private juiceForge(success: boolean): void {
+    const el = document.querySelector('.weapon-display') as HTMLElement | null;
+    if (success) {
+      this.juice.shake(el, 6, 220);
+      this.juice.blip(720, { type: 'square', duration: 0.05, gain: 0.04 });
+      if (el) {
+        const r = el.getBoundingClientRect();
+        this.juice.burst(r.left + r.width / 2, r.top + r.height * 0.42, {
+          count: 22,
+          power: 8,
+          gravity: 0.3,
+          colors: ['#ffd63a', '#ffa955', '#ff8c00', '#22d3ee'],
+        });
+      }
+    } else {
+      this.juice.shake(el, 12, 360);
+      this.juice.blip(120, { type: 'sawtooth', duration: 0.22, gain: 0.06 });
+      if (el) {
+        const r = el.getBoundingClientRect();
+        this.juice.burst(r.left + r.width / 2, r.top + r.height / 2, {
+          count: 26,
+          power: 9,
+          colors: ['#6b6b6b', '#fb7185', '#9a9a9a'],
+        });
+      }
+    }
   }
 }

@@ -1,14 +1,39 @@
 <div class="blog-section">
   <div class="section-content">
-    <h2 class="section-title"><span class="dash">—</span> BLOG</h2>
-    <p class="section-subtitle">
-      Read my latest articles about software development, technology, and more.
-    </p>
-    <div class="blog-links">
-      <a href="/blog" class="action-link">
-        <span>View All Posts</span>
+    <header class="blog-head">
+      <p class="section-eyebrow"><span class="prompt">&gt;_</span> devlog</p>
+      <h2 class="section-title">Notes &amp; <span class="grad">devlogs</span>.</h2>
+      <p class="section-subtitle">
+        Half engineering journal, half thinking out loud — what I'm learning,
+        breaking, and shipping.
+      </p>
+    </header>
+
+    @if (isBlog()) {
+      <ul class="devlog-list">
+        @for (post of posts; track post.title; let i = $index) {
+          <li class="devlog-row" [style.--i]="i">
+            <a class="devlog-link" routerLink="/blog">
+              <span class="devlog-date">{{ post.date }}</span>
+              <span class="devlog-main">
+                <span class="devlog-title">{{ post.title }}</span>
+                <span class="devlog-tags">
+                  @for (t of post.tags; track t) {
+                    <span class="tag">#{{ t }}</span>
+                  }
+                  <span class="devlog-read">{{ post.read }} read</span>
+                </span>
+              </span>
+              <span class="devlog-arrow"><ng-icon name="radixArrowRight" size="16" /></span>
+            </a>
+          </li>
+        }
+      </ul>
+
+      <a class="blog-all" routerLink="/blog">
+        <span>Read all posts</span>
         <ng-icon name="radixArrowRight" size="18" />
       </a>
-    </div>
+    }
   </div>
 </div>

@@ -1,322 +1,144 @@
-<!-- Navigation -->
-<nav class="navbar">
-  <div class="nav-container">
-    <div class="nav-brand">
-      <span class="brand-text">Personal</span>
-    </div>
-    <ul class="nav-menu">
-      <li>
-        <a (click)="scrollToSection('home')" class="nav-link active">Home</a>
-      </li>
-      <li><a (click)="scrollToSection('about')" class="nav-link">CV</a></li>
-      <li>
-        <a (click)="scrollToSection('skills')" class="nav-link">Skills</a>
-      </li>
-      <li>
-        <a (click)="scrollToSection('portfolio')" class="nav-link">Portfolio</a>
-      </li>
-      <li>
-        <a (click)="scrollToSection('my-games')" class="nav-link">Games</a>
-      </li>
-      <li>
-        <a (click)="scrollToSection('contact')" class="nav-link">Contact</a>
-      </li>
-    </ul>
-    <a href="/blog" class="contact-btn" aria-label="link-to-blog">
-      <span>My Blog</span>
+<div class="resume">
+  <!-- Top bar -->
+  <div class="resume-bar">
+    <a class="back-link" routerLink="/" appMagnetic>
+      <ng-icon name="radixArrowRight" size="16" class="flip" />
+      <span>Back home</span>
+    </a>
+    <a class="cv-btn" [href]="cvUrl" target="_blank" rel="noopener" download appMagnetic>
+      <ng-icon name="radixDownload" size="16" />
+      <span>Download CV</span>
     </a>
   </div>
-</nav>
 
-<!-- Scroll Progress Indicator -->
-<div class="scroll-progress"></div>
+  <div class="resume-inner">
+    <!-- Header -->
+    <header class="resume-header" appReveal>
+      <p class="r-eyebrow"><span class="dot"></span> résumé</p>
+      <h1 class="r-name">{{ profile.name }}</h1>
+      <p class="r-title">{{ profile.title }}</p>
+      <p class="r-summary">{{ profile.summary }}</p>
 
-<!-- Hero Section -->
-<section id="home" class="hero">
-  <div class="hero-container">
-    <div class="hero-name-left">
-      <h1 class="hero-name-part">MARTIN</h1>
-    </div>
-
-    <div class="hero-center">
-      <div class="hero-image-wrapper">
-        <img
-          src="assets/photos/me.png"
-          alt="Martin Haryanto - Software Engineer and Frontend Developer"
-          class="profile-image"
-          loading="lazy"
-        />
-      </div>
-    </div>
-
-    <div class="hero-name-right">
-      <h1 class="hero-name-part">HARYANTO</h1>
-      <p class="hero-subtitle">
-        Software Engineer,<br />
-        Full-Stack Developer & UI/UX Enthusiast
-      </p>
-    </div>
-  </div>
-
-  <div class="hero-stats-bottom">
-    <div class="stat-item">
-      <div class="stat-number">10</div>
-      <div class="stat-label">Years Of Experience</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-number">5</div>
-      <div class="stat-label">Projects Worldwide</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-number">30+</div>
-      <div class="stat-label">Tools Experienced</div>
-    </div>
-  </div>
-
-  <!-- Scroll Down Indicator -->
-  <div class="scroll-indicator">
-    <div class="scroll-mouse">
-      <div class="scroll-wheel"></div>
-    </div>
-    <span class="scroll-text">SCROLL DOWN</span>
-  </div>
-</section>
-
-<!-- About Section -->
-<section id="about" class="about">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">About Me</h2>
-    </div>
-    <div class="about-content">
-      <div class="about-text">
-        <p>
-          I'm an easy-going person that loves to solve problems and discuss
-          about innovative ideas. I have over 10 years of experience creating
-          digital experiences that users love. I specialize in user interface
-          design and implementation strategies that enhance user experience.
-        </p>
-        <p>
-          Other than my professional work, I also enjoys badminton, learning new
-          things, and building creative projects.
-        </p>
-        <button class="btn-primary" (click)="downloadCV()">Download CV</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Skills Section -->
-<section id="skills" class="skills">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">My Skills</h2>
-      <p class="section-subtitle">
-        Here are some of the key areas where I excel
-      </p>
-    </div>
-    <div class="skills-grid">
-      @for (skill of skills; track skill) {
-        <div class="skill-card">
-          <div class="skill-icon">
-            <ng-icon [name]="skill.icon" size="32"></ng-icon>
+      <div class="r-stats">
+        @for (s of stats; track s.label) {
+          <div class="r-stat">
+            <span class="r-stat-val">{{ s.value }}</span>
+            <span class="r-stat-label">{{ s.label }}</span>
           </div>
-          <h3 class="skill-name">{{ skill.name }}</h3>
-          <p class="skill-description">{{ skill.description }}</p>
+        }
+      </div>
+
+      <div class="r-contact">
+        <span class="r-loc">{{ profile.location }}</span>
+        <div class="r-socials">
+          @for (s of socials; track s.label) {
+            <a [href]="s.url" target="_blank" rel="noopener" [attr.aria-label]="s.label" class="r-social">
+              <ng-icon [name]="s.icon" size="18" />
+            </a>
+          }
         </div>
-      }
-    </div>
-  </div>
-</section>
+      </div>
+    </header>
 
-<!-- Portfolio Section -->
-<section id="portfolio" class="portfolio">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">My Portfolio</h2>
-      <p class="section-subtitle">Some of my recent work and projects</p>
-    </div>
-    <div class="portfolio-grid">
-      @for (project of projects; track project) {
-        <div
-          class="portfolio-item"
-          [class.clickable]="project.redirectionUrl"
-          (click)="navigateToProject(project)"
-        >
-          <div class="portfolio-image">
-            <div class="project-placeholder">
-              <span>Project Image</span>
-            </div>
+    <!-- Body -->
+    <div class="resume-grid">
+      <main class="resume-main">
+        <section>
+          <h2 class="r-section-title"><span class="hash">#</span> Experience</h2>
+          <div class="timeline">
+            @for (job of experiences; track job.company + job.period) {
+              <article class="tl-item" appReveal>
+                <div class="tl-dot"></div>
+                <div class="tl-head">
+                  <h3 class="tl-role">{{ job.role }}</h3>
+                  <span class="tl-period">{{ job.period }}</span>
+                </div>
+                <p class="tl-company">{{ job.company }}</p>
+                <ul class="tl-points">
+                  @for (pt of job.points; track pt) {
+                    <li>{{ pt }}</li>
+                  }
+                </ul>
+                @if (job.wins?.length) {
+                  <ul class="tl-wins">
+                    @for (w of job.wins; track w) {
+                      <li>{{ w }}</li>
+                    }
+                  </ul>
+                }
+              </article>
+            }
           </div>
-          <div class="portfolio-content">
-            <h3 class="project-title">{{ project.title }}</h3>
-            <p class="project-description">{{ project.description }}</p>
-            <div class="project-tech">
-              @for (tech of project.tech; track tech) {
-                <span class="tech-tag">{{ tech }}</span>
-              }
-            </div>
-            @if (project.redirectionUrl) {
-              <div class="project-actions">
-                <span class="view-project">Click to view project →</span>
+        </section>
+
+        <section class="freelance">
+          <h2 class="r-section-title"><span class="hash">#</span> Freelance</h2>
+          <div class="timeline">
+            @for (job of freelance; track job.company) {
+              <article class="tl-item" appReveal>
+                <div class="tl-dot"></div>
+                <div class="tl-head">
+                  <h3 class="tl-role">{{ job.role }}</h3>
+                  <span class="tl-period">{{ job.period }}</span>
+                </div>
+                <p class="tl-company">{{ job.company }}</p>
+                <ul class="tl-points">
+                  @for (pt of job.points; track pt) {
+                    <li>{{ pt }}</li>
+                  }
+                </ul>
+              </article>
+            }
+          </div>
+        </section>
+      </main>
+
+      <aside class="resume-aside">
+        <section class="aside-block" appReveal>
+          <h2 class="r-section-title"><span class="hash">#</span> Stack</h2>
+          <div class="skill-groups">
+            @for (g of skillGroups; track g.label) {
+              <div class="skill-group">
+                <span class="skill-group-label">{{ g.label }}</span>
+                <div class="skill-pills">
+                  @for (it of g.items; track it) {
+                    <span class="skill-pill">{{ it }}</span>
+                  }
+                </div>
               </div>
             }
           </div>
-        </div>
-      }
+        </section>
+
+        <section class="aside-block" appReveal>
+          <h2 class="r-section-title"><span class="hash">#</span> Education</h2>
+          @for (e of education; track e.school) {
+            <div class="edu-item">
+              <p class="edu-school">{{ e.school }}</p>
+              <p class="edu-detail">{{ e.detail }}</p>
+              <span class="edu-period">{{ e.period }}</span>
+            </div>
+          }
+        </section>
+
+        <section class="aside-block" appReveal>
+          <h2 class="r-section-title"><span class="hash">#</span> Languages</h2>
+          <div class="skill-pills">
+            @for (l of languages; track l) {
+              <span class="skill-pill">{{ l }}</span>
+            }
+          </div>
+        </section>
+
+        <section class="aside-block" appReveal>
+          <h2 class="r-section-title"><span class="hash">#</span> Off-screen</h2>
+          <div class="skill-pills">
+            @for (h of hobbies; track h) {
+              <span class="skill-pill">{{ h }}</span>
+            }
+          </div>
+        </section>
+      </aside>
     </div>
   </div>
-</section>
-
-<!-- My Games Section -->
-<section id="my-games" class="my-games">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">My Games</h2>
-      <p class="section-subtitle">
-        Play interactive games and challenge yourself with fun experiences
-      </p>
-    </div>
-
-    <div class="my-games-content">
-      <div class="my-games-text">
-        <h3>Discover Fun Interactive Games</h3>
-        <p>
-          Explore my collection of games created with a spurt of idea to bring
-          excitement for you. Each game is designed to provide entertainment and
-          challenge your skills.
-        </p>
-        <ul class="games-features">
-          <li>Single-player and multiplayer games</li>
-          <li>Various difficulty levels</li>
-          <li>Responsive design for all devices</li>
-          <li>High score tracking</li>
-        </ul>
-      </div>
-
-      <div class="my-games-screenshots">
-        <div class="screenshot-stack">
-          <div class="screenshot screenshot-1">
-            <img
-              src="/assets/photos/landingpage/blacksmith.png"
-              alt="Blacksmith Game Screenshot"
-              loading="lazy"
-            />
-          </div>
-          <div class="screenshot screenshot-2">
-            <img
-              src="/assets/photos/landingpage/pong.png"
-              alt="Pong Game Screenshot"
-              loading="lazy"
-            />
-          </div>
-          <div class="screenshot screenshot-3">
-            <img
-              src="/assets/photos/landingpage/clickthetarget.png"
-              alt="Click Target Game Screenshot"
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Contact Section -->
-<section id="contact" class="contact">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">Let's Work Together</h2>
-      <p class="section-subtitle">
-        Ready to start your next project? Let's connect and discuss how I can
-        help bring your ideas to life.
-      </p>
-    </div>
-
-    <div class="contact-wrapper">
-      <!-- Contact Cards -->
-      <div class="contact-cards">
-        <div class="contact-card">
-          <div class="contact-icon">
-            <ng-icon name="radixEnvelopeClosed" size="24"></ng-icon>
-          </div>
-          <div class="contact-info">
-            <h4>Email</h4>
-            <p>hollandmakermh&#64;gmail.com</p>
-          </div>
-        </div>
-
-        <div class="contact-card">
-          <div class="contact-icon">
-            <ng-icon name="radixPhone" size="24"></ng-icon>
-          </div>
-          <div class="contact-info">
-            <h4>Phone</h4>
-            <p>+62 815-8669-6610</p>
-          </div>
-        </div>
-
-        <div class="contact-card">
-          <div class="contact-icon">
-            <ng-icon name="radixGlobe" size="24"></ng-icon>
-          </div>
-          <div class="contact-info">
-            <h4>Location</h4>
-            <p>Depok, Indonesia</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Social Links -->
-      <div class="social-section">
-        <h3 class="social-title">Connect With Me</h3>
-        <div class="social-links">
-          <a
-            href="https://www.linkedin.com/in/martin-haryanto/"
-            target="_blank"
-            class="social-link linkedin"
-            aria-label="LinkedIn Profile"
-          >
-            <ng-icon name="radixLinkedinLogo" size="20"></ng-icon>
-            <span>LinkedIn</span>
-          </a>
-
-          <a
-            href="https://github.com/rgalaxy"
-            target="_blank"
-            class="social-link github"
-            aria-label="GitHub Profile"
-          >
-            <ng-icon name="radixGithubLogo" size="20"></ng-icon>
-            <span>GitHub</span>
-          </a>
-
-          <a
-            href="https://www.instagram.com/martinharyanto/"
-            target="_blank"
-            class="social-link instagram"
-            aria-label="Instagram Profile"
-          >
-            <ng-icon name="radixInstagramLogo" size="20"></ng-icon>
-            <span>Instagram</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <span class="brand-text">Personal</span>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2025 Martin Haryanto. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
+</div>

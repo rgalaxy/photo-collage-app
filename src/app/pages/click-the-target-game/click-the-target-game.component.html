@@ -1,20 +1,9 @@
-<div class="game-container">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-content">
-      <div class="header-flex">
-        <h1 class="title">🎯 Click The Target</h1>
-        <div class="button-group">
-          <button (click)="toggleHowToPlay()" class="btn btn-blue">
-            How to Play
-          </button>
-          <button (click)="toggleHighScores()" class="btn btn-green">
-            High Scores
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="game-container pg-dark">
+  <!-- Shared arcade shell header -->
+  <app-game-shell title="🎯 Click The Target">
+    <button shellActions (click)="toggleHowToPlay()" class="btn btn-blue">How to Play</button>
+    <button shellActions (click)="toggleHighScores()" class="btn btn-green">High Scores</button>
+  </app-game-shell>
 
   <!-- Game Setup Screen -->
   @if (!gameActive && !gameOver) {

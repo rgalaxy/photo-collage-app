@@ -1,44 +1,86 @@
-<div class="hero-section">
-  <div class="hero-grid">
-    <!-- Left: Hero Image -->
-    <div class="hero-image-container">
-      <div class="image-frame">
-        <img
-          src="assets/photos/landingpage/hero-portrait.jpg"
-          alt="Martin Haryanto"
-          class="hero-image"
-          onerror="this.src = '../assets/photos/MeandChloe.jpeg'"
-        />
-        <!-- Decorative Particles -->
-        <div class="particle particle-1"></div>
-        <div class="particle particle-2"></div>
-        <div class="particle particle-3"></div>
-        <div class="particle particle-4"></div>
-        <div class="particle particle-5"></div>
+<div class="hero">
+  <div class="hero-inner">
+    <!-- Left: kinetic copy -->
+    <div class="hero-copy">
+      <p class="hero-eyebrow">
+        <span class="status-dot" aria-hidden="true"></span>
+        Available for new projects
+      </p>
+
+      <h1 class="hero-title">
+        <span class="line"><span class="hero-word">I'm</span></span>
+        <span class="line"><span class="hero-word grad">Martin</span></span>
+        <span class="line"><span class="hero-word grad">Haryanto</span></span>
+      </h1>
+
+      <p class="hero-roles">
+        <span class="roles-pre">I build as</span>
+        <span class="roles-rotator" aria-live="polite">
+          @for (role of roles; track role) {
+            <span class="role">{{ role }}</span>
+          }
+          <!-- reserve width so layout doesn't jump -->
+          <span class="role-ghost" aria-hidden="true">an interaction craftsman</span>
+        </span>
+      </p>
+
+      <p class="hero-desc">
+        Software developer crafting clean, playful, user-friendly experiences —
+        from production web apps to little browser games. I care about the
+        details most people never notice.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" appMagnetic (click)="openAboutModal()">
+          <span>More about me</span>
+          <span class="btn-icon"><ng-icon name="radixArrowRight" size="18" /></span>
+        </button>
+        <button class="btn btn-ghost" appMagnetic (click)="goTo('portfolio')">
+          See my work
+        </button>
       </div>
-      <!-- Accent Corner -->
-      <div class="accent-corner"></div>
+
+      <dl class="hero-stats">
+        <div class="stat">
+          <dt>10+</dt>
+          <dd>years building</dd>
+        </div>
+        <div class="stat">
+          <dt>3</dt>
+          <dd>playable games</dd>
+        </div>
+        <div class="stat">
+          <dt>∞</dt>
+          <dd>curiosity</dd>
+        </div>
+      </dl>
     </div>
 
-    <!-- Right: Hero Content -->
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1 class="hero-title">
-          <span class="name">I'M MARTIN HARYANTO.</span>
-        </h1>
-        <h2 class="hero-subtitle">SOFTWARE DEVELOPER</h2>
-        <p class="hero-description">
-          I'm a software developer intrigued on crafting clean & user-friendly
-          experiences. I am passionate about building excellent software that
-          improves people lives.
-        </p>
-        <button class="hero-cta" (click)="openAboutModal()">
-          <span>MORE ABOUT ME</span>
-          <div class="cta-icon">
-            <ng-icon name="radixArrowRight" size="18" />
-          </div>
-        </button>
+    <!-- Right: 3D tilt photo -->
+    <div class="hero-visual" #visual>
+      <div class="tilt" #tilt>
+        <div class="photo-card">
+          <img
+            src="assets/photos/landingpage/hero-portrait.jpg"
+            alt="Portrait of Martin Haryanto"
+            class="photo"
+            loading="eager"
+            onerror="this.src = 'assets/photos/MeandChloe.jpeg'"
+          />
+          <span class="photo-tag">
+            <span class="tag-dot"></span> frontend · games · motion
+          </span>
+        </div>
+        <span class="orb orb-1" aria-hidden="true"></span>
+        <span class="orb orb-2" aria-hidden="true"></span>
+        <span class="orb orb-3" aria-hidden="true"></span>
+        <span class="orb orb-4" aria-hidden="true"></span>
       </div>
     </div>
   </div>
+
+  <button class="scroll-hint" (click)="goTo('about')" aria-label="Go to About section">
+    <span>scroll to explore</span>
+    <ng-icon name="radixArrowDown" size="16" />
+  </button>
 </div>
