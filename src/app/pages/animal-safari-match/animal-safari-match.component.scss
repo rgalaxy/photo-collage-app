@@ -4,12 +4,25 @@
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
-  color: var(--pg-text);
   font-family: var(--font-body);
   --asm-gold: #ffd24a;
   --asm-green: #7cc36a;
   --asm-orange: #ff8a3d;
   --asm-grad: linear-gradient(120deg, #ffd24a, #ff8a3d 70%);
+
+  // This game is an always-dark, immersive experience (dark glass cards over a
+  // colourful 3D world). Pin the shared palette to its dark values — and to the
+  // embedded game-shell — so it stays readable in the site's LIGHT mode too
+  // (otherwise --pg-text flips to dark and disappears on the dark cards).
+  --pg-text: #f4f4fb;
+  --pg-text-dim: #b8b8cc;
+  --pg-text-faint: #8b8ba6;
+  --pg-surface: rgba(255, 255, 255, 0.05);
+  --pg-surface-strong: rgba(255, 255, 255, 0.09);
+  --pg-border: rgba(255, 255, 255, 0.13);
+  --pg-border-strong: rgba(255, 255, 255, 0.22);
+  color: var(--pg-text);
+
   background:
     radial-gradient(60% 55% at 50% 0%, rgba(255, 210, 74, 0.12), transparent 55%),
     #0a0f14;
