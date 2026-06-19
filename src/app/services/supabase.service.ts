@@ -186,4 +186,93 @@ export class SupabaseService {
     }
     return data && data.length > 0 ? data[0] : null;
   }
+
+  // Animal Safari Match Methods
+  // ---------------------------------------------------------------------------
+  // The game's player-owned progression lives in localStorage (frontend-only
+  // mechanic). Supabase only stores anonymous, append-only events: a row per
+  // finished level + a row per animal discovered, which feed the community
+  // "Players have discovered N lions" counter. See
+  //   supabase/migrations/20260619120000_create_animal_safari_match.sql
+
+  // Log one completed level (anonymous play session).
+  async insertSafariSession(session: {
+    playerName: string;
+    theme: string;
+    pairs: number;
+    moves: number;
+    durationSeconds: number;
+    animalsFound: number;
+    coinsEarned: number;
+  }) {
+    const { data, error } = await this.supabase
+      .from('safari_sessions')
+      .insert([
+        {
+          player_name: session.playerName,
+          theme: session.theme,
+          pairs: session.pairs,
+          moves: session.moves,
+          duration_seconds: session.durationSeconds,
+          animals_found: session.animalsFound,
+          coins_earned: session.coinsEarned,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+    if (error) {
+      console.error('Insert safari session error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Append one discovery event per animal matched in a run (batched).
+  async recordSafariDiscoveries(
+    playerName: string,
+    discoveries: { animalId: string; rarity: string; isFirst: boolean }[],
+  ) {
+    if (!discoveries.length) return null;
+    const rows = discoveries.map(d => ({
+      player_name: playerName,
+      animal_id: d.animalId,
+      rarity: d.rarity,
+      is_first: d.isFirst,
+      created_at: new Date().toISOString(),
+    }));
+
+    const { data, error } = await this.supabase.from('safari_discoveries').insert(rows);
+
+    if (error) {
+      console.error('Insert safari discoveries error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Read per-animal community tallies (drives the discovery counter).
+  async getSafariCommunityTotals() {
+    const { data, error } = await this.supabase
+      .from('safari_community_totals')
+      .select('*');
+
+    if (error) {
+      console.error('Fetch safari community totals error:', error);
+      throw error;
+    }
+    return data as { animal_id: string; total_found: number; total_discoverers: number }[] | null;
+  }
+
+  // Total number of anonymous sessions logged (community "games played").
+  async getSafariSessionCount() {
+    const { count, error } = await this.supabase
+      .from('safari_sessions')
+      .select('*', { count: 'exact', head: true });
+
+    if (error) {
+      console.error('Fetch safari session count error:', error);
+      throw error;
+    }
+    return count ?? 0;
+  }
 }
