@@ -7,6 +7,7 @@
   position: relative;
   width: 100%;
   min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - 80px); // honour mobile browser chrome
   display: flex;
   align-items: center;
   justify-content: center;
@@ -339,7 +340,9 @@
 
 @media (max-width: 640px) {
   .hero {
-    min-height: calc(100vh - 60px);
+    // Fit between the section's top padding and the bottom tab bar without
+    // overflowing, using the dynamic viewport so the address bar is excluded.
+    min-height: calc(100dvh - 150px);
   }
   .hero-stats {
     flex-wrap: wrap;

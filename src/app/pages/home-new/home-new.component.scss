@@ -165,6 +165,7 @@ $transition: 0.3s ease;
 .sections-wrapper {
   width: 100%;
   height: 100vh;
+  height: 100dvh; // dynamic viewport: excludes mobile browser chrome, no clipping
   position: relative;
   z-index: 2;
   overflow: hidden;
@@ -301,7 +302,7 @@ $transition: 0.3s ease;
   }
 }
 
-// Responsive
+// Responsive — desktop tablet sizes keep the right rail, just narrow the gutter.
 @media (max-width: 1024px) {
   .section {
     padding-right: 90px;
@@ -314,10 +315,12 @@ $transition: 0.3s ease;
   }
 }
 
+// Mobile: the right rail becomes a fixed bottom tab bar, freeing the full width.
 @media (max-width: 768px) {
   .section {
-    padding: 40px 24px;
-    padding-right: 80px;
+    // No more right-side gutter for the rail; reserve room for the bottom bar.
+    padding: 28px 20px;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
   }
 
   .theme-toggle {
@@ -326,6 +329,70 @@ $transition: 0.3s ease;
     width: 40px;
     height: 40px;
     z-index: 150;
+  }
+
+  // Right rail -> full-width bottom tab bar, anchored above the home indicator.
+  .side-nav {
+    inset: auto 0 0 0; // top/right/bottom/left -> pin to bottom edge, full width
+    transform: none;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-around;
+    gap: 4px;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    background: var(--nav-bg-mobile);
+    border-top: 1px solid var(--border-subtle);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .nav-item {
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    min-height: 0;
+    padding: 7px 4px;
+    border: none;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--text-secondary);
+    backdrop-filter: none;
+
+    .nav-label {
+      max-width: none;
+      opacity: 0.85;
+      padding: 0;
+      font-size: 0.6rem;
+      letter-spacing: 0.4px;
+    }
+
+    // No hover-expand on touch devices — keep the resting tab look.
+    &:hover {
+      background: transparent;
+      border-color: transparent;
+      color: var(--text-secondary);
+
+      .nav-label {
+        max-width: none;
+        opacity: 0.85;
+        padding: 0;
+      }
+    }
+
+    // Active tab: brand-gradient pill, label always shown.
+    &.active {
+      background: var(--brand-gradient);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 6px 18px -8px rgba(124, 58, 237, 0.7);
+
+      .nav-label {
+        max-width: none;
+        opacity: 1;
+        padding: 0;
+      }
+    }
   }
 
   .modal-content {
@@ -341,6 +408,14 @@ $transition: 0.3s ease;
 
   .social-link {
     justify-content: center;
+  }
+}
+
+// Very narrow phones: keep 5 tabs readable without wrapping.
+@media (max-width: 360px) {
+  .nav-item .nav-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.2px;
   }
 }
 

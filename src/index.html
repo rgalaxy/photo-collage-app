@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <meta name="robots" content="index, follow" />
 
     <!-- Primary Meta Tags -->
@@ -34,7 +37,7 @@
     />
     <meta
       property="og:image"
-      content="https://martinharyanto.netlify.app/assets/photos/me.png"
+      content="https://martinharyanto.netlify.app/assets/photos/me-og.jpg"
     />
     <meta property="og:site_name" content="Martin Haryanto Portfolio" />
 
@@ -54,7 +57,7 @@
     />
     <meta
       property="twitter:image"
-      content="https://martinharyanto.netlify.app/assets/photos/me.png"
+      content="https://martinharyanto.netlify.app/assets/photos/me-og.jpg"
     />
 
     <!-- Canonical URL -->
@@ -78,6 +81,15 @@
       as="font"
       type="font/woff2"
       crossorigin
+    />
+
+    <!-- Preload the LCP hero portrait so it is discoverable before JS boots -->
+    <link
+      rel="preload"
+      href="assets/photos/hero-portrait.webp"
+      as="image"
+      type="image/webp"
+      fetchpriority="high"
     />
 
     <!-- Google Fonts - loaded after page render for better performance -->
@@ -161,8 +173,8 @@
               "Agile Methodologies"
             ],
             "sameAs": [
-              "https://github.com/martinharyanto",
-              "https://linkedin.com/in/martinharyanto"
+              "https://github.com/rgalaxy",
+              "https://linkedin.com/in/martin-haryanto"
             ]
           },
           {

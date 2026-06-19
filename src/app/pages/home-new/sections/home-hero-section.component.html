@@ -61,10 +61,14 @@
       <div class="tilt" #tilt>
         <div class="photo-card">
           <img
-            src="assets/photos/landingpage/hero-portrait.jpg"
+            src="assets/photos/hero-portrait.webp"
             alt="Portrait of Martin Haryanto"
             class="photo"
+            width="760"
+            height="950"
             loading="eager"
+            fetchpriority="high"
+            decoding="async"
             onerror="this.src = 'assets/photos/MeandChloe.jpeg'"
           />
           <span class="photo-tag">

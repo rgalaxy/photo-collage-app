@@ -99,7 +99,7 @@ export class SeoService {
       title: 'Martin Haryanto - Software Engineer & Frontend Developer',
       description: 'Passionate software engineer with a decade of experience in building and maintaining web applications. Expertise in full-stack development, UI/UX design, and agile methodologies.',
       keywords: 'Martin Haryanto, Software Engineer, Frontend Developer, Full Stack Developer, Web Developer, JavaScript, Angular, React, TypeScript',
-      ogImage: 'https://martinharyanto.netlify.app/assets/photos/me.png',
+      ogImage: 'https://martinharyanto.netlify.app/assets/photos/me-og.jpg',
       ogUrl: 'https://martinharyanto.netlify.app/',
       canonical: 'https://martinharyanto.netlify.app/',
       type: 'website'
