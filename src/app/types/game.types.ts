@@ -44,13 +44,12 @@ export const GAMES: GameItem[] = [
     route: '/perfect-harvest-game'
   },
   {
-    id: 'memory-match',
-    title: 'Memory Match',
-    description: 'Test your memory with this classic card matching game. Multiple difficulty levels.',
+    id: 'animal-safari-match',
+    title: 'Animal Safari Match',
+    description: 'A gentle 3D memory game for little explorers. Open safari tents, match the animals, collect a parade you keep forever, and open Safari Eggs.',
     tags: ['single-player', 'strategy'],
-    imageUrl: 'https://via.placeholder.com/640x360?text=Memory+Match',
-    route: '/memory-match',
-    isComingSoon: true
+    imageUrl: '/assets/images/game-covers/animal-safari-cover.png',
+    route: '/animal-safari-match'
   },
   {
     id: 'snake-game',
