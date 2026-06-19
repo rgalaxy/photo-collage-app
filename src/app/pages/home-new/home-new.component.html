@@ -17,14 +17,15 @@
     <ng-icon [name]="isDarkMode() ? 'radixSun' : 'radixMoon'" size="20" />
   </button>
 
-  <!-- Right Side Navigation -->
-  <nav class="side-nav">
+  <!-- Primary navigation: right rail on desktop, bottom tab bar on mobile -->
+  <nav class="side-nav" aria-label="Section navigation">
     @for (item of navItems; track item.id) {
       <button
         class="nav-item"
         [class.active]="activeSection() === item.id"
         (click)="navigateTo(item.id)"
         [attr.aria-label]="item.label"
+        [attr.aria-current]="activeSection() === item.id ? 'page' : null"
       >
         <ng-icon [name]="item.icon" size="18" />
         <span class="nav-label">{{ item.label }}</span>

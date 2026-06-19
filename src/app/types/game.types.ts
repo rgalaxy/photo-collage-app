@@ -16,7 +16,7 @@ export const GAMES: GameItem[] = [
     title: 'The Forge',
     description: 'A fun and interactive blacksmith simulation game where you craft weapons and armor.',
     tags: ['single-player', 'simulation'],
-    imageUrl: '/assets/images/game-covers/blacksmith-cover.png',
+    imageUrl: '/assets/images/game-covers/blacksmith-cover.webp',
     route: '/mini-game-blacksmith'
   },
   {
@@ -24,7 +24,7 @@ export const GAMES: GameItem[] = [
     title: 'Click The Target',
     description: 'Fast-paced target clicking game with combo system. Test your reflexes and accuracy.',
     tags: ['single-player', 'arcade', 'action'],
-    imageUrl: '/assets/images/game-covers/target-cover.png',
+    imageUrl: '/assets/images/game-covers/target-cover.webp',
     route: '/click-the-target-game'
   },
   {
@@ -32,7 +32,7 @@ export const GAMES: GameItem[] = [
     title: 'Neon Pong',
     description: 'Classic pong game with modern graphics. Play against a friend or AI opponent.',
     tags: ['two-player', 'arcade'],
-    imageUrl: '/assets/images/game-covers/pong-cover.png',
+    imageUrl: '/assets/images/game-covers/pong-cover.webp',
     route: '/pong-game'
   },
   {
@@ -40,7 +40,7 @@ export const GAMES: GameItem[] = [
     title: 'Perfect Harvest',
     description: 'A 3D farming arcade game. Tap crops at peak ripeness, chain Perfects for huge combos, and climb the leaderboard.',
     tags: ['single-player', 'arcade', 'action'],
-    imageUrl: '/assets/images/game-covers/perfect-harvest.png',
+    imageUrl: '/assets/images/game-covers/perfect-harvest.webp',
     route: '/perfect-harvest-game'
   },
   {
