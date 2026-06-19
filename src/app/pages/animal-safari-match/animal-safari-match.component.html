@@ -1,0 +1,404 @@
+<app-game-shell title="🦁 Animal Safari Match">
+  <div shellActions class="asm-shell-actions">
+    <span class="asm-coin-pill" title="Safari coins">🪙 {{ store.coins() }}</span>
+  </div>
+</app-game-shell>
+
+<div class="asm-stage">
+  <canvas #canvas class="asm-canvas"></canvas>
+
+  <!-- ============================================================ PLAYING HUD -->
+  @if (screen() === 'playing') {
+    <div class="asm-hud">
+      <div class="asm-hud-left">
+        <div class="asm-hud-theme">{{ themeInfo(selectedTheme())?.emoji }} {{ themeInfo(selectedTheme())?.label }}</div>
+        <div class="asm-pairs">
+          @for (slot of pairSlots(); track $index) {
+            <span class="asm-pair-dot" [class.found]="$index < hudMatched()"></span>
+          }
+        </div>
+      </div>
+      <div class="asm-hud-right">
+        <span class="asm-moves">👣 {{ hudMoves() }}</span>
+        <button class="asm-quit" type="button" (click)="quitToHome()">✕ Leave</button>
+      </div>
+    </div>
+    <div class="asm-found-banner">{{ hudMatched() }} / {{ hudTotal() }} pairs found</div>
+  }
+
+  <!-- ================================================================ HOME -->
+  @if (screen() === 'home') {
+    <div class="asm-home">
+      <div class="asm-home-card">
+        <div class="asm-emoji-row" aria-hidden="true">🦁 🐘 🦒 🐼 🦊</div>
+        <h2 class="asm-title">Animal Safari Match</h2>
+        <p class="asm-sub">Tap the tents, find the matching animals, and grow your Safari Parade!</p>
+
+        <div class="asm-config">
+          <div class="asm-config-group">
+            <span class="asm-config-label">World</span>
+            <div class="asm-chips">
+              @for (t of playableThemes; track t) {
+                <button
+                  class="asm-chip"
+                  type="button"
+                  [class.active]="selectedTheme() === t"
+                  [class.locked]="!store.isThemeUnlocked(t)"
+                  (click)="pickTheme(t)"
+                >
+                  <span class="asm-chip-emoji">{{ themeInfo(t)?.emoji }}</span>
+                  <span>{{ themeInfo(t)?.label }}</span>
+                  @if (!store.isThemeUnlocked(t)) { <span class="asm-lock">🔒</span> }
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="asm-config-group">
+            <span class="asm-config-label">Board</span>
+            <div class="asm-chips">
+              @for (d of difficulties; track d.label; let i = $index) {
+                <button
+                  class="asm-chip"
+                  type="button"
+                  [class.active]="selectedDifficulty() === i"
+                  (click)="pickDifficulty(i)"
+                >
+                  <span>{{ d.label }}</span>
+                  <span class="asm-chip-sub">{{ d.pairs }} pairs</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <button class="asm-play" type="button" (click)="startGame()">▶ Play</button>
+
+        <div class="asm-nav">
+          <button class="asm-nav-btn" type="button" (click)="openPanel('album')">
+            <span class="asm-nav-emoji">📖</span>
+            <span class="asm-nav-label">Album</span>
+            <span class="asm-nav-meta">{{ store.collectionCount() }}/{{ totalAnimals }}</span>
+          </button>
+          <button class="asm-nav-btn" type="button" (click)="openPanel('parade')">
+            <span class="asm-nav-emoji">🎉</span>
+            <span class="asm-nav-label">Parade</span>
+            <span class="asm-nav-meta">{{ store.collectionCount() }}</span>
+          </button>
+          <button class="asm-nav-btn" type="button" (click)="openPanel('eggs')">
+            <span class="asm-nav-emoji">🥚</span>
+            <span class="asm-nav-label">Eggs</span>
+            <span class="asm-nav-meta">🪙 {{ store.coins() }}</span>
+          </button>
+          <button class="asm-nav-btn" type="button" (click)="openPanel('daily')">
+            <span class="asm-nav-emoji">🎁</span>
+            <span class="asm-nav-label">Daily</span>
+            <span class="asm-nav-meta" [class.ready]="dailyInfo().claimable">
+              {{ dailyInfo().claimable ? 'Ready!' : 'Day ' + dailyInfo().day }}
+            </span>
+          </button>
+          <button class="asm-nav-btn" type="button" (click)="openPanel('stats')">
+            <span class="asm-nav-emoji">📊</span>
+            <span class="asm-nav-label">Stats</span>
+            <span class="asm-nav-meta">{{ store.collectionPct() }}%</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================ COMPLETE -->
+  @if (screen() === 'complete' && summary(); as sum) {
+    <div class="asm-overlay">
+      <div class="asm-complete-card">
+        <div class="asm-complete-burst" aria-hidden="true">🎉</div>
+        <h2 class="asm-complete-title">Level Complete!</h2>
+        <p class="asm-complete-sub">{{ sum.theme.emoji }} {{ sum.theme.label }} · {{ sum.pairs }} pairs · {{ sum.moves }} taps · {{ durationLabel(sum.durationSeconds) }}</p>
+
+        <div class="asm-coins-won">
+          <span class="asm-coins-big">🪙 +{{ sum.coins }}</span>
+          <span class="asm-coins-break">{{ sum.baseCoins }} board @if (sum.bonusCoins > 0) { + {{ sum.bonusCoins }} discovery }</span>
+        </div>
+
+        @if (sum.newAnimals.length) {
+          <div class="asm-new-block">
+            <span class="asm-block-title">✨ New animals discovered!</span>
+            <div class="asm-new-row">
+              @for (a of sum.newAnimals; track a.id) {
+                <div class="asm-new-animal" [style.--rc]="rarity[a.rarity].color">
+                  <span class="asm-new-emoji">{{ a.emoji }}</span>
+                  <span class="asm-new-name">{{ a.name }}</span>
+                  <span class="asm-new-rarity">{{ rarity[a.rarity].label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (sum.stickers.length) {
+          <div class="asm-sticker-won">
+            🏷️ Sticker earned:
+            @for (s of sum.stickers; track s.id) {
+              <span class="asm-sticker-chip">{{ s.animalEmoji }}{{ s.emoji }} {{ s.mood }} {{ s.animalName }}</span>
+            }
+          </div>
+        }
+
+        <div class="asm-parade-joined">
+          @for (m of sum.matches; track $index) {
+            <span class="asm-joined-emoji">{{ m.animal.emoji }}</span>
+          }
+          <span class="asm-joined-label">joined your parade</span>
+        </div>
+
+        <div class="asm-complete-actions">
+          <button class="asm-btn primary" type="button" (click)="playAgain()">▶ Play Again</button>
+          <button class="asm-btn" type="button" (click)="openPanel('parade')">🎉 Parade</button>
+          <button class="asm-btn" type="button" (click)="backToHome()">🏠 Home</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================== PANELS -->
+  @if (panel() !== 'none') {
+    <div class="asm-panel-backdrop" (click)="closePanel()"></div>
+    <div class="asm-panel-wrap">
+      <div class="asm-panel" role="dialog" aria-modal="true">
+      <header class="asm-panel-head">
+        <h3 class="asm-panel-title">
+          @switch (panel()) {
+            @case ('album') { 📖 Animal Album }
+            @case ('parade') { 🎉 Safari Parade }
+            @case ('eggs') { 🥚 Safari Eggs }
+            @case ('daily') { 🎁 Daily Reward }
+            @case ('stats') { 📊 My Safari }
+          }
+        </h3>
+        <button class="asm-panel-close" type="button" (click)="closePanel()" aria-label="Close">✕</button>
+      </header>
+
+      <div class="asm-panel-body">
+        @switch (panel()) {
+
+          <!-- ----- ALBUM ----- -->
+          @case ('album') {
+            @if (albumSelected(); as sel) {
+              <!-- detail: spinning 3D model + fun fact -->
+              <button class="asm-detail-back" type="button" (click)="backToAlbumGrid()">← All animals</button>
+              <div class="asm-detail" [style.--rc]="rarity[sel.rarity].color">
+                <div class="asm-showcase asm-detail-canvas">
+                  <canvas #albumCanvas></canvas>
+                </div>
+                <div class="asm-detail-info">
+                  <h4 class="asm-detail-name">{{ sel.emoji }} {{ sel.name }}</h4>
+                  <span class="asm-detail-rarity">{{ rarity[sel.rarity].label }}</span>
+                  <p class="asm-detail-meta">
+                    Found {{ store.entry(sel.id)?.timesFound }}× · First seen {{ formatDate(store.entry(sel.id)?.firstDiscoveredAt) }}
+                  </p>
+                  <p class="asm-detail-fact">💡 {{ factFor(sel.id) }}</p>
+                </div>
+              </div>
+            } @else {
+              <div class="asm-album-tabs">
+                <button class="asm-tab" [class.active]="albumTab() === 'animals'" (click)="albumTab.set('animals')">Animals · {{ store.collectionCount() }}/{{ totalAnimals }}</button>
+                <button class="asm-tab" [class.active]="albumTab() === 'stickers'" (click)="albumTab.set('stickers')">Stickers · {{ store.stickerCount() }}/{{ totalStickers }}</button>
+              </div>
+
+              @if (albumTab() === 'animals') {
+                <div class="asm-album-filters">
+                  <button class="asm-pill" [class.active]="albumFilter() === 'all'" (click)="setAlbumFilter('all')">All</button>
+                  @for (t of themes; track t.id) {
+                    <button class="asm-pill" [class.active]="albumFilter() === t.id" (click)="setAlbumFilter(t.id)">{{ t.emoji }} {{ t.label }}</button>
+                  }
+                </div>
+                <div class="asm-album-grid">
+                  @for (a of albumAnimals(); track a.id) {
+                    <button
+                      class="asm-album-cell"
+                      type="button"
+                      [class.locked]="!store.hasAnimal(a.id)"
+                      [disabled]="!store.hasAnimal(a.id)"
+                      [style.--rc]="rarity[a.rarity].color"
+                      (click)="selectAlbumAnimal(a)"
+                    >
+                      <span class="asm-album-emoji">{{ a.emoji }}</span>
+                      @if (store.hasAnimal(a.id)) {
+                        <span class="asm-album-name">{{ a.name }}</span>
+                        <span class="asm-album-rarity">{{ rarity[a.rarity].label }}</span>
+                        <span class="asm-album-meta">Found {{ store.entry(a.id)?.timesFound }}×</span>
+                        <span class="asm-album-date">{{ formatDate(store.entry(a.id)?.firstDiscoveredAt) }}</span>
+                      } @else {
+                        <span class="asm-album-name muted">? ? ?</span>
+                        <span class="asm-album-rarity">{{ rarity[a.rarity].label }}</span>
+                      }
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="asm-sticker-grid">
+                  @for (s of allStickers; track s.id) {
+                    <div class="asm-sticker-cell" [class.locked]="!store.hasSticker(s.id)">
+                      <span class="asm-sticker-emoji">{{ s.animalEmoji }}</span>
+                      @if (store.hasSticker(s.id)) {
+                        <span class="asm-sticker-badge">{{ s.emoji }}</span>
+                        <span class="asm-sticker-name">{{ s.mood }}<br />{{ s.animalName }}</span>
+                      } @else {
+                        <span class="asm-sticker-name muted">???</span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+          }
+
+          <!-- ----- PARADE ----- -->
+          @case ('parade') {
+            @if (store.parade().length) {
+              <p class="asm-parade-count">{{ store.collectionCount() }} animals marching in your parade 🥳</p>
+              <div class="asm-showcase asm-parade-canvas">
+                <canvas #paradeCanvas></canvas>
+              </div>
+              <p class="asm-parade-hint">Every animal you discover joins the parade forever.</p>
+            } @else {
+              <div class="asm-empty">
+                <span class="asm-empty-emoji">🐾</span>
+                <p>Your parade is empty. Match some animals to start it!</p>
+                <button class="asm-btn primary" type="button" (click)="closePanel(); startGame()">▶ Play now</button>
+              </div>
+            }
+          }
+
+          <!-- ----- EGGS ----- -->
+          @case ('eggs') {
+            <p class="asm-egg-balance">🪙 {{ store.coins() }} coins</p>
+            <p class="asm-egg-intro">Open an egg to discover a surprise animal! Duplicates turn into coins.</p>
+
+            @if (eggOpening()) {
+              <div class="asm-egg-opening">
+                <span class="asm-egg-shake">🥚</span>
+                <p>Opening…</p>
+              </div>
+            } @else if (eggResult(); as res) {
+              <div class="asm-egg-result" [style.--rc]="rarity[res.animal.rarity].color">
+                <span class="asm-egg-result-emoji">{{ res.animal.emoji }}</span>
+                <span class="asm-egg-result-name">{{ res.animal.name }}</span>
+                <span class="asm-egg-result-rarity">{{ rarity[res.animal.rarity].label }}</span>
+                @if (res.isDuplicate) {
+                  <span class="asm-egg-dup">Already collected → 🪙 +{{ res.coins }}</span>
+                } @else {
+                  <span class="asm-egg-new">✨ New animal! 🪙 +{{ res.coins }}</span>
+                }
+              </div>
+            }
+
+            <div class="asm-egg-buttons">
+              @for (egg of eggs; track egg.id) {
+                <button
+                  class="asm-egg-buy"
+                  type="button"
+                  [disabled]="eggOpening() || store.coins() < egg.cost"
+                  (click)="openEgg(egg.id)"
+                >
+                  <span class="asm-egg-buy-emoji">{{ egg.emoji }}</span>
+                  <span class="asm-egg-buy-name">{{ egg.label }}</span>
+                  <span class="asm-egg-buy-cost">🪙 {{ egg.cost }}</span>
+                </button>
+              }
+            </div>
+          }
+
+          <!-- ----- DAILY ----- -->
+          @case ('daily') {
+            <p class="asm-daily-streak">🔥 Streak: {{ dailyInfo().streak }} day{{ dailyInfo().streak === 1 ? '' : 's' }}</p>
+            <div class="asm-daily-strip">
+              @for (r of dailyRewards; track r.day) {
+                <div class="asm-daily-day" [class.current]="r.day === dailyInfo().day" [class.claimed]="!dailyInfo().claimable && r.day === dailyInfo().day">
+                  <span class="asm-daily-num">Day {{ r.day }}</span>
+                  <span class="asm-daily-emoji">{{ r.emoji }}</span>
+                  <span class="asm-daily-label">{{ r.label }}</span>
+                </div>
+              }
+            </div>
+
+            @if (dailyResult(); as claim) {
+              <div class="asm-daily-claimed">
+                <span class="asm-daily-claimed-title">🎉 You received:</span>
+                <span class="asm-daily-claimed-body">
+                  @if (claim.animal) { {{ claim.animal.emoji }} {{ claim.animal.name }} }
+                  @if (claim.sticker) { {{ claim.sticker.animalEmoji }}{{ claim.sticker.emoji }} {{ claim.sticker.mood }} {{ claim.sticker.animalName }} }
+                  @if (claim.coins > 0) { · 🪙 +{{ claim.coins }} }
+                </span>
+              </div>
+            } @else if (dailyInfo().claimable) {
+              <button class="asm-btn primary asm-daily-claim" type="button" (click)="claimDaily()">
+                🎁 Claim Day {{ dailyInfo().day }} — {{ dailyInfo().reward.label }}
+              </button>
+            } @else {
+              <p class="asm-daily-done">✅ Come back tomorrow for Day {{ dailyInfo().day }}!</p>
+            }
+          }
+
+          <!-- ----- STATS ----- -->
+          @case ('stats') {
+            <div class="asm-stats-grid">
+              <div class="asm-stat"><span class="asm-stat-num">{{ store.collectionCount() }}</span><span class="asm-stat-label">Animals Found</span></div>
+              <div class="asm-stat"><span class="asm-stat-num">{{ store.gamesPlayed() }}</span><span class="asm-stat-label">Games Played</span></div>
+              <div class="asm-stat"><span class="asm-stat-num">{{ store.collectionCount() }}</span><span class="asm-stat-label">Parade Size</span></div>
+              <div class="asm-stat"><span class="asm-stat-num">{{ store.stickerPct() }}%</span><span class="asm-stat-label">Sticker Book</span></div>
+              <div class="asm-stat"><span class="asm-stat-num">{{ store.collectionPct() }}%</span><span class="asm-stat-label">Collection</span></div>
+              <div class="asm-stat"><span class="asm-stat-num">🪙 {{ store.coins() }}</span><span class="asm-stat-label">Safari Coins</span></div>
+            </div>
+
+            <div class="asm-name-edit">
+              <label for="asm-name">Explorer name</label>
+              <div class="asm-name-row">
+                <input id="asm-name" type="text" maxlength="40" [(ngModel)]="nameDraftModel" (keyup.enter)="saveName()" />
+                <button class="asm-btn" type="button" (click)="saveName()">Save</button>
+              </div>
+            </div>
+
+            <div class="asm-community">
+              <span class="asm-block-title">🌍 Community Discoveries</span>
+              @if (!communityLoaded()) {
+                <p class="asm-muted">Loading…</p>
+              } @else if (communityList().length) {
+                <p class="asm-community-headline">
+                  Explorers have discovered <strong>{{ communityList()[0].total }}</strong>
+                  {{ pluralName(communityList()[0].animal.name) }}!
+                </p>
+                <div class="asm-community-list">
+                  @for (row of communityList().slice(0, 6); track row.animal.id) {
+                    <div class="asm-community-row">
+                      <span class="asm-community-emoji">{{ row.animal.emoji }}</span>
+                      <span class="asm-community-name">{{ row.animal.name }}</span>
+                      <span class="asm-community-count">{{ row.total }}</span>
+                    </div>
+                  }
+                </div>
+                <p class="asm-muted">{{ communityTotalAll() }} animals spotted by explorers worldwide.</p>
+              } @else {
+                <p class="asm-muted">Be the first explorer — match some animals!</p>
+              }
+            </div>
+
+            <button class="asm-reset" type="button" (click)="resetProgress()">Reset progress</button>
+          }
+        }
+      </div>
+      </div>
+    </div>
+  }
+
+  <!-- toasts -->
+  @if (toasts().length) {
+    <div class="asm-toasts">
+      @for (t of toasts(); track t.id) {
+        <div class="asm-toast" [class.success]="t.type === 'success'" [class.error]="t.type === 'error'" [class.info]="t.type === 'info'">
+          {{ t.message }}
+        </div>
+      }
+    </div>
+  }
+</div>
