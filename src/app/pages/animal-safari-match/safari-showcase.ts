@@ -18,17 +18,18 @@ interface ShowItem {
   baseScale: number;
 }
 
-const SPREAD = 1.9; // horizontal spacing between paraders
 const WALK_SPEED = 0.95; // base units/sec a lane drifts left
 const WALK_YAW = -Math.PI / 2; // side profile while walking (front faces -x)
-const FOCUS_RANGE = 2.4; // within this distance of center, animals glance at the viewer
+const FOCUS_RANGE = 2.6; // within this distance of center, animals glance at the viewer
 
-// 3 parade lanes at different depths (front = closer + bigger), each with a
-// randomized speed for a livelier, layered parade.
-const LANE_Z = [1.75, 0.0, -1.75];
-const LANE_SCALE = [1.08, 0.92, 0.76];
+// 3 parade lanes at different depths, viewed from an isometric-ish angle so each
+// lane reads as its own row. Each animal appears exactly once and re-enters from
+// the right after it walks off the left (the loop is wider than the view).
+const LANE_Z = [2.6, 0.0, -2.6];
+const LANE_SCALE = [1.05, 0.93, 0.82];
 const PARADE_Y = -0.5;
-const MAX_PER_LANE = 8; // cap models/lane (mobile-friendly)
+const STEP = 2.7; // spacing between paraders within a lane
+const MIN_LOOP = 13; // min wrap width → sparse lanes get a gap + a re-entry
 
 export class SafariShowcase {
   private renderer: THREE.WebGLRenderer;
@@ -52,7 +53,7 @@ export class SafariShowcase {
   private mode: 'single' | 'parade' = 'single';
   private items: ShowItem[] = [];
   private laneSpeed = [WALK_SPEED, WALK_SPEED, WALK_SPEED];
-  private laneSpan = [SPREAD, SPREAD, SPREAD];
+  private laneSpan = [MIN_LOOP, MIN_LOOP, MIN_LOOP];
   private token = 0; // guards against overlapping async set* calls
 
   constructor(private canvas: HTMLCanvasElement) {
@@ -106,33 +107,43 @@ export class SafariShowcase {
     this.clearItems();
     if (!modelKeys.length) return;
 
-    const perLane = Math.min(Math.max(modelKeys.length, 4), MAX_PER_LANE);
+    // Distribute the UNIQUE animals across 3 lanes (round-robin) — each is shown
+    // exactly once; it walks off the left and re-enters from the right.
+    const lanes: string[][] = [[], [], []];
+    modelKeys.forEach((key, i) => lanes[i % 3].push(key));
+
     for (let lane = 0; lane < 3; lane++) {
-      // pseudo-random but stable speed per lane (varies the layered motion)
-      this.laneSpeed[lane] = WALK_SPEED * (0.6 + Math.random() * 0.8);
-      this.laneSpan[lane] = perLane * SPREAD;
-      const offset = Math.floor((lane * modelKeys.length) / 3);
-      for (let j = 0; j < perLane; j++) {
-        const modelKey = modelKeys[(offset + j) % modelKeys.length];
-        const x = j * SPREAD - this.laneSpan[lane] / 2;
+      const keys = lanes[lane];
+      if (!keys.length) {
+        this.laneSpan[lane] = MIN_LOOP;
+        continue;
+      }
+      this.laneSpeed[lane] = WALK_SPEED * (0.65 + Math.random() * 0.7); // varied motion
+      const span = Math.max(keys.length * STEP, MIN_LOOP);
+      this.laneSpan[lane] = span;
+      keys.forEach((key, j) => {
+        const x = -span / 2 + (j + 0.5) * (span / keys.length); // evenly spread
         const ph = this.makePlaceholder();
         ph.position.set(x, PARADE_Y, LANE_Z[lane]);
         ph.scale.setScalar(LANE_SCALE[lane]);
         this.group.add(ph);
-        const item: ShowItem = {
+        this.items.push({
           holder: ph,
           placeholder: true,
-          modelKey,
+          modelKey: key,
           lane,
-          bob: j * 0.8 + lane * 0.4,
+          bob: j * 0.7 + lane * 0.5,
           baseScale: LANE_SCALE[lane],
-        };
-        this.items.push(item);
-      }
+        });
+      });
     }
 
-    this.camera.position.set(0, 1.5, 7.9);
-    this.camera.lookAt(0, -0.15, -0.1);
+    // raised, slightly telephoto camera → isometric-ish; the 3 lanes separate
+    // into distinct rows instead of occluding each other
+    this.camera.fov = 34;
+    this.camera.position.set(0, 4.8, 6.4);
+    this.camera.lookAt(0, -0.3, -0.2);
+    this.camera.updateProjectionMatrix();
     this.start();
 
     // Each slot loads its own clone (the underlying GLB is fetched+parsed once
