@@ -20,7 +20,8 @@ interface ShowItem {
 
 const WALK_SPEED = 0.95; // base units/sec a lane drifts left
 const WALK_YAW = -Math.PI / 2; // side profile while walking (front faces -x)
-const FOCUS_RANGE = 2.6; // within this distance of center, animals glance at the viewer
+const FOCUS_RANGE = 3.2; // within this distance of center, animals look toward the viewer
+const GLANCE_MAX = 0.95; // how fully they turn to face the camera at the closest point
 
 // 3 parade lanes at different depths, viewed from an isometric-ish angle so each
 // lane reads as its own row. Each animal appears exactly once and re-enters from
@@ -55,6 +56,14 @@ export class SafariShowcase {
   private laneSpeed = [WALK_SPEED, WALK_SPEED, WALK_SPEED];
   private laneSpan = [MIN_LOOP, MIN_LOOP, MIN_LOOP];
   private token = 0; // guards against overlapping async set* calls
+
+  // reused math scratch (avoid per-frame allocation)
+  private _m = new THREE.Matrix4();
+  private _qWalk = new THREE.Quaternion();
+  private _qLook = new THREE.Quaternion();
+  private _euler = new THREE.Euler();
+  private readonly _up = new THREE.Vector3(0, 1, 0);
+  private readonly _flipY = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI, 0));
 
   constructor(private canvas: HTMLCanvasElement) {
     const coarse =
@@ -221,11 +230,19 @@ export class SafariShowcase {
           it.holder.rotation.x += dt * 1.4;
           it.holder.scale.setScalar(it.baseScale * (1 + Math.sin(t * 5 + it.bob) * 0.1));
         } else {
-          // glance at the viewer near center: blend WALK_YAW → face-camera (0)
+          // Near center, actually LOOK AT the camera (yaw + pitch up toward the
+          // raised viewpoint), blended from the side-on walking pose.
           const focus = Math.max(0, 1 - Math.abs(x) / FOCUS_RANGE);
           const eased = focus * focus * (3 - 2 * focus); // smoothstep
-          it.holder.rotation.y = WALK_YAW * (1 - eased);
-          it.holder.rotation.z = Math.sin(t * 5 + it.bob) * 0.04 * (1 - eased * 0.7);
+          this._qWalk.setFromEuler(this._euler.set(0, WALK_YAW, Math.sin(t * 5 + it.bob) * 0.04));
+          if (eased > 0.001) {
+            // lookAt orients -z toward the camera; flip 180° so the model's
+            // front (+z) faces it instead.
+            this._m.lookAt(it.holder.position, this.camera.position, this._up);
+            this._qLook.setFromRotationMatrix(this._m).multiply(this._flipY);
+            this._qWalk.slerp(this._qLook, eased * GLANCE_MAX);
+          }
+          it.holder.quaternion.copy(this._qWalk);
         }
       }
     }
