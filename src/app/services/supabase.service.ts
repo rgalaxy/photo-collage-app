@@ -275,4 +275,81 @@ export class SupabaseService {
     }
     return count ?? 0;
   }
+
+  // Color Hide Methods
+  // ---------------------------------------------------------------------------
+  // One append-only row per finished run. The leaderboard is filterable by mode
+  // ('mix' | 'seek') and difficulty so each tier competes fairly. See
+  //   supabase/migrations/20260701000000_create_color_hide_scores.sql
+  async insertColorHideScore(run: {
+    playerName: string;
+    score: number;
+    mode: string;
+    difficulty: string;
+    perfectMatches: number;
+    attempts: number;
+    bestCombo: number;
+    avgAccuracy: number;
+  }) {
+    const { data, error } = await this.supabase
+      .from('color_hide_scores')
+      .insert([
+        {
+          player_name: run.playerName,
+          score: run.score,
+          mode: run.mode,
+          difficulty: run.difficulty,
+          perfect_matches: run.perfectMatches,
+          attempts: run.attempts,
+          best_combo: run.bestCombo,
+          avg_accuracy: run.avgAccuracy,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+    if (error) {
+      console.error('Insert color hide score error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Top Color Hide scores, optionally scoped to a mode + difficulty.
+  async getColorHideHighScores(
+    limit: number = 10,
+    filter: { mode?: string; difficulty?: string } = {},
+  ) {
+    let query = this.supabase.from('color_hide_scores').select('*');
+    if (filter.mode) query = query.eq('mode', filter.mode);
+    if (filter.difficulty) query = query.eq('difficulty', filter.difficulty);
+
+    const { data, error } = await query.order('score', { ascending: false }).limit(limit);
+
+    if (error) {
+      console.error('Fetch color hide scores error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // A player's best Color Hide score (optionally within a mode + difficulty).
+  async getPlayerBestColorHideScore(
+    playerName: string,
+    filter: { mode?: string; difficulty?: string } = {},
+  ) {
+    let query = this.supabase
+      .from('color_hide_scores')
+      .select('*')
+      .eq('player_name', playerName);
+    if (filter.mode) query = query.eq('mode', filter.mode);
+    if (filter.difficulty) query = query.eq('difficulty', filter.difficulty);
+
+    const { data, error } = await query.order('score', { ascending: false }).limit(1);
+
+    if (error) {
+      console.error('Fetch player best color hide score error:', error);
+      throw error;
+    }
+    return data && data.length > 0 ? data[0] : null;
+  }
 }
