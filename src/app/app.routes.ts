@@ -48,6 +48,11 @@ export const routes: Routes = [
       import('./pages/animal-safari-match/animal-safari-match.component').then(m => m.AnimalSafariMatchComponent),
   },
   {
+    path: 'color-hide-game',
+    loadComponent: () =>
+      import('./pages/color-hide-game/color-hide-game.component').then(m => m.ColorHideGameComponent),
+  },
+  {
     path: 'event/chloe-1st-birthday',
     loadComponent: () =>
       import('./pages/chloe-birthday/chloe-birthday.component').then(m => m.ChloeBirthdayComponent),

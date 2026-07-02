@@ -1,0 +1,484 @@
+<div class="ch pg-dark">
+  <app-game-shell title="🎨 Color Hide">
+    <span shellActions class="ch-sparkle-pill" title="Sparkles — earn by playing, spend on gems">✨ {{ sparkles }}</span>
+    <button shellActions class="ch-howbtn gem" type="button" (click)="openCollection()">💎 Gems</button>
+    <button shellActions class="ch-howbtn" type="button" (click)="toggleHowTo()">How to play</button>
+  </app-game-shell>
+
+  <!-- toasts -->
+  <div class="toast-stack" aria-live="polite">
+    @for (t of toasts; track t.id) {
+      <div class="toast" [class.ok]="t.type === 'success'" [class.bad]="t.type === 'error'">{{ t.message }}</div>
+    }
+  </div>
+
+  <main class="ch-stage">
+    <!-- the WebGL gem — always present so it renders behind every screen -->
+    <canvas #canvas class="ch-canvas"></canvas>
+
+    <!-- ===================== PLAYING ===================== -->
+    @if (screen === 'playing') {
+      <div class="ch-hud" aria-hidden="false">
+        <div class="hud-stat left">
+          <span class="hud-label">Score</span>
+          <span class="hud-val score">{{ score }}</span>
+        </div>
+
+        @if (runKind === 'daily') {
+          <div class="hud-daily">
+            <span class="hud-daily-lbl">Daily · Round {{ dailyRoundNumber }}/{{ DAILY_ROUNDS }}</span>
+            <div class="daily-dots">
+              @for (f of dailyDots; track $index) {
+                <i [class.on]="f"></i>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="hud-time" [class.low]="timeRemaining <= 10">
+            <svg viewBox="0 0 120 120" class="ring">
+              <defs>
+                <linearGradient id="chRing" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#7c3aed" />
+                  <stop offset="0.5" stop-color="#22d3ee" />
+                  <stop offset="1" stop-color="#fb7185" />
+                </linearGradient>
+              </defs>
+              <circle class="ring-track" cx="60" cy="60" r="52" />
+              <circle
+                class="ring-fill"
+                cx="60"
+                cy="60"
+                r="52"
+                [attr.stroke-dasharray]="ringCirc"
+                [attr.stroke-dashoffset]="ringOffset"
+              />
+            </svg>
+            <span class="time-val">{{ timeLabel }}</span>
+          </div>
+        }
+
+        <div class="hud-stat right" [class.live]="combo > 1">
+          <span class="hud-label">{{ comboLabel }}</span>
+          <span class="hud-val combo">{{ combo }}<small>x</small></span>
+          <span class="combo-mult">{{ comboMult | number: '1.1-1' }}× pts</span>
+        </div>
+      </div>
+
+      <!-- big feedback flash -->
+      <div class="ch-grades" aria-hidden="true">
+        @for (g of gradeFlashes; track g.id) {
+          <div class="grade-flash g-{{ g.cls }}">{{ g.text }}</div>
+        }
+      </div>
+
+      <!-- ---------- MIX ---------- -->
+      @if (mode === 'mix') {
+        <div class="ch-mix">
+          <div class="ch-panel" [class.dim]="phase !== 'guess'">
+            <p class="ch-prompt">
+              @if (phase === 'guess') { Recreate the <span class="grad">hidden colour</span> }
+              @else if (phase === 'reveal') { Memorise it… }
+              @else { Next colour incoming… }
+            </p>
+
+            <!-- instrument -->
+            @if (instrument === 'wheel') {
+              <div class="ch-wheel-wrap">
+                <canvas #wheelCanvas class="ch-wheel"></canvas>
+                <div class="ch-light">
+                  <span class="ch-light-lbl">Light</span>
+                  <input
+                    type="range"
+                    min="4"
+                    max="96"
+                    [ngModel]="guess.l"
+                    (ngModelChange)="onLightness($event)"
+                    [style.background]="lightTrack"
+                    aria-label="Lightness"
+                  />
+                </div>
+              </div>
+            } @else {
+              <div class="ch-bars">
+                <div class="ch-chan-toggle">
+                  <button type="button" [class.on]="channels === 'hsl'" (click)="selectChannels('hsl')">HSL</button>
+                  <button type="button" [class.on]="channels === 'rgb'" (click)="selectChannels('rgb')">RGB</button>
+                </div>
+                @if (channels === 'hsl') {
+                  <label class="ch-bar">
+                    <span>H</span>
+                    <input type="range" min="0" max="360" [ngModel]="guess.h" (ngModelChange)="onHslBar('h', $event)" [style.background]="hueTrack" />
+                    <b>{{ guessRounded.h }}°</b>
+                  </label>
+                  <label class="ch-bar">
+                    <span>S</span>
+                    <input type="range" min="0" max="100" [ngModel]="guess.s" (ngModelChange)="onHslBar('s', $event)" [style.background]="satTrack" />
+                    <b>{{ guessRounded.s }}%</b>
+                  </label>
+                  <label class="ch-bar">
+                    <span>L</span>
+                    <input type="range" min="0" max="100" [ngModel]="guess.l" (ngModelChange)="onHslBar('l', $event)" [style.background]="lightTrack" />
+                    <b>{{ guessRounded.l }}%</b>
+                  </label>
+                } @else {
+                  <label class="ch-bar">
+                    <span>R</span>
+                    <input type="range" min="0" max="255" [(ngModel)]="rgbR" [style.background]="rgbTrack('r')" />
+                    <b>{{ rgb.r }}</b>
+                  </label>
+                  <label class="ch-bar">
+                    <span>G</span>
+                    <input type="range" min="0" max="255" [(ngModel)]="rgbG" [style.background]="rgbTrack('g')" />
+                    <b>{{ rgb.g }}</b>
+                  </label>
+                  <label class="ch-bar">
+                    <span>B</span>
+                    <input type="range" min="0" max="255" [(ngModel)]="rgbB" [style.background]="rgbTrack('b')" />
+                    <b>{{ rgb.b }}</b>
+                  </label>
+                }
+              </div>
+            }
+
+            <!-- preview + action -->
+            <div class="ch-preview">
+              <span class="ch-swatch" [style.background]="guessCss"></span>
+              <span class="ch-swatch-meta">
+                <small>your colour</small>
+                <b>{{ guessRounded.h }}° · {{ guessRounded.s }}% · {{ guessRounded.l }}%</b>
+              </span>
+              <button class="btn-play ch-match" type="button" [disabled]="phase !== 'guess'" (click)="submitMatch()">
+                Match! <span>✦</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- reveal / result overlays live at stage level so they paint above the WebGL gem -->
+        @if (phase === 'reveal') {
+          <div class="ch-overlay ch-reveal">
+            <p class="reveal-hint">Memorise this colour</p>
+            <span class="ch-big-swatch" [style.background]="targetCss"></span>
+            <div class="reveal-count">
+              <span class="reveal-num">{{ revealSeconds }}</span>
+              <span class="reveal-bar"><i [style.width.%]="revealBar * 100"></i></span>
+            </div>
+          </div>
+        }
+        @if (phase === 'result') {
+          <div class="ch-overlay result g-{{ lastGrade }}">
+            <div class="cmp">
+              <div class="cmp-cell"><span class="ch-big-swatch small" [style.background]="targetCss"></span><small>target</small></div>
+              <div class="cmp-acc">
+                <b>{{ lastAccuracy | number: '1.0-0' }}%</b>
+                <em>{{ lastMsg }}</em>
+              </div>
+              <div class="cmp-cell"><span class="ch-big-swatch small" [style.background]="guessCss"></span><small>you</small></div>
+            </div>
+            <div class="teach">
+              <span class="teach-chip" [class.ok]="deltaOk(lastDelta.dh)">Hue {{ deltaText(lastDelta.dh, '°') }}</span>
+              <span class="teach-chip" [class.ok]="deltaOk(lastDelta.ds)">Sat {{ deltaText(lastDelta.ds, '%') }}</span>
+              <span class="teach-chip" [class.ok]="deltaOk(lastDelta.dl)">Light {{ deltaText(lastDelta.dl, '%') }}</span>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- ---------- SEEK ---------- -->
+      @if (mode === 'seek') {
+        <div class="ch-seek">
+          <p class="ch-prompt">Tap the <span class="grad">odd colour</span> out</p>
+          <div class="ch-grid" [style.grid-template-columns]="'repeat(' + cfg.grid + ', 1fr)'">
+            @for (tile of seekTiles; track trackSeek(tile)) {
+              <button
+                class="ch-tile"
+                type="button"
+                [style.background]="tile.css"
+                [style.--i]="tile.index"
+                (click)="tapTile(tile, $event)"
+                [attr.aria-label]="'colour tile ' + (tile.index + 1)"
+              ></button>
+            }
+          </div>
+        </div>
+      }
+
+      <button class="ch-quit" type="button" (click)="quitToIntro()">End run</button>
+    }
+
+    <!-- ===================== INTRO ===================== -->
+    @if (screen === 'intro') {
+      <section class="ch-screen intro">
+        <div class="intro-card">
+          <p class="intro-kicker">match · collect · share</p>
+          <h2 class="intro-title">See it. Then <span class="grad">hide</span> it. Match it.</h2>
+          <p class="intro-sub">
+            A colour blooms, then <strong>hides</strong>. Re-mix it or spot the odd shade — land
+            <strong>Perfect Matches</strong>, earn <strong>✨ Sparkles</strong>, collect gems.
+          </p>
+
+          <!-- Daily Challenge -->
+          <div class="daily-card" [class.done]="dailyDoneToday">
+            <span class="daily-emoji">🗓️</span>
+            <div class="daily-info">
+              <b>Daily Challenge @if (dailyStreak > 0) {<span class="streak">🔥 {{ dailyStreak }}</span>}</b>
+              <small>{{ dailyDoneToday ? "Done today — come back tomorrow!" : "5 colours · everyone plays the same" }}</small>
+            </div>
+            @if (!dailyDoneToday) {
+              <button class="btn-play sm" type="button" (click)="startDaily(false)">Play <span>→</span></button>
+            } @else {
+              <button class="btn-ghost sm" type="button" (click)="shareDaily()">Share 📋</button>
+            }
+          </div>
+
+          <div class="opt-group">
+            <span class="opt-label">Choose a mode</span>
+            <div class="mode-grid">
+              <button type="button" class="mode-card" [class.on]="mode === 'mix'" (click)="selectMode('mix')">
+                <span class="mode-emoji">🎯</span>
+                <span class="mode-txt"><b>Mix</b><small>Recreate the colour</small></span>
+                <span class="mode-check" [class.show]="mode === 'mix'">✓</span>
+              </button>
+              <button type="button" class="mode-card" [class.on]="mode === 'seek'" (click)="selectMode('seek')">
+                <span class="mode-emoji">🔍</span>
+                <span class="mode-txt"><b>Seek</b><small>Spot the odd one</small></span>
+                <span class="mode-check" [class.show]="mode === 'seek'">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="opt-group">
+            <span class="opt-label">Difficulty</span>
+            <div class="diff-grid">
+              @for (d of difficulties; track d.key) {
+                <button type="button" class="diff-chip" [class.on]="difficultyKey === d.key" (click)="selectDifficulty(d.key)">
+                  <b>{{ d.emoji }} {{ d.label }}</b>
+                  <small>{{ d.blurb }}</small>
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (mode === 'mix') {
+            <div class="opt-group">
+              <span class="opt-label">Instrument</span>
+              <div class="seg small">
+                <button type="button" [class.on]="instrument === 'wheel'" (click)="selectInstrument('wheel')">◔ Wheel</button>
+                <button type="button" [class.on]="instrument === 'bars'" (click)="selectInstrument('bars')">▮ Bars</button>
+                @if (instrument === 'bars') {
+                  <span class="seg-div"></span>
+                  <button type="button" [class.on]="channels === 'hsl'" (click)="selectChannels('hsl')">HSL</button>
+                  <button type="button" [class.on]="channels === 'rgb'" (click)="selectChannels('rgb')">RGB</button>
+                }
+              </div>
+            </div>
+          }
+
+          <input
+            class="name-input"
+            [(ngModel)]="playerName"
+            maxlength="18"
+            placeholder="Your name"
+            (keyup.enter)="startGame()"
+            aria-label="Player name"
+          />
+
+          <div class="intro-actions">
+            <button class="btn-play" type="button" (click)="startGame()">Start <span>→</span></button>
+            <button class="btn-ghost" type="button" (click)="toggleHowTo()">How to play</button>
+          </div>
+
+          @if (bestScore > 0) {
+            <p class="intro-best">🏅 Your best: <b>{{ bestScore }}</b></p>
+          }
+        </div>
+
+        <div class="intro-board">
+          <h3>🏆 Top — {{ cfg.label }} · {{ mode === 'mix' ? 'Mix' : 'Seek' }}</h3>
+          <ol class="lb-list">
+            @for (s of highScores; track $index; let i = $index) {
+              <li class="lb-item" [class.gold]="i === 0">
+                <span class="lb-rank">{{ i + 1 }}</span>
+                <span class="lb-main">
+                  <span class="lb-name">{{ s.player_name || 'Anonymous' }}</span>
+                  <span class="lb-meta">{{ s.perfect_matches }} perfect · {{ s.avg_accuracy }}% avg</span>
+                </span>
+                <span class="lb-score">{{ s.score }}</span>
+              </li>
+            }
+            @if (highScores.length === 0) {
+              <li class="lb-empty">No scores yet — be the first!</li>
+            }
+          </ol>
+        </div>
+      </section>
+    }
+
+    <!-- ===================== GAME OVER ===================== -->
+    @if (screen === 'over') {
+      <section class="ch-screen over">
+        <!-- ---- DAILY result ---- -->
+        @if (runKind === 'daily' && dailyResult) {
+          <div class="result-card">
+            <div class="result-emoji">🗓️</div>
+            <h3 class="result-title">Daily done!</h3>
+            <div class="daily-stars">{{ starStr(dailyResult.stars) }}</div>
+            <p class="result-bigscore"><small>score</small>{{ dailyResult.score }}</p>
+            <div class="daily-grid-big">{{ dailyResult.grid }}</div>
+
+            <div class="result-grid">
+              <div class="rg-cell perfect"><span>Perfect</span><b>{{ dailyResult.perfect }}/{{ DAILY_ROUNDS }}</b></div>
+              <div class="rg-cell acc"><span>Avg accuracy</span><b>{{ dailyResult.avgAccuracy }}%</b></div>
+              <div class="rg-cell combo"><span>Streak</span><b>🔥 {{ dailyStreak }}</b></div>
+              <div class="rg-cell spark"><span>Sparkles</span><b>+{{ sparklesEarned }} ✨</b></div>
+            </div>
+
+            @if (report) {
+              <div class="report">
+                <h4>👁️ Your colour eye</h4>
+                <div class="report-row">
+                  <span>Hue<b>±{{ report.hue }}°</b></span>
+                  <span>Sat<b>±{{ report.sat }}%</b></span>
+                  <span>Light<b>±{{ report.light }}%</b></span>
+                  <span>Best<b>{{ report.best }}%</b></span>
+                </div>
+                <p class="report-tip">{{ report.tip }}</p>
+              </div>
+            }
+
+            <div class="result-actions">
+              <button class="btn-ghost" type="button" (click)="quitToIntro()">Done</button>
+              <button class="btn-ghost" type="button" (click)="startDaily(true)">Practice</button>
+              <button class="btn-play" type="button" (click)="shareDaily()">Share <span>📋</span></button>
+            </div>
+          </div>
+        } @else if (summary) {
+          <!-- ---- ARCADE result ---- -->
+          <div class="result-card">
+            <div class="result-emoji">🎨</div>
+            <h3 class="result-title">Run complete!</h3>
+            <p class="result-bigscore"><small>final score</small>{{ summary.score }}</p>
+
+            <div class="result-grid">
+              <div class="rg-cell perfect"><span>Perfect</span><b>{{ summary.perfectMatches }}</b></div>
+              <div class="rg-cell attempts"><span>{{ summary.mode === 'mix' ? 'Matches' : 'Taps' }}</span><b>{{ summary.attempts }}</b></div>
+              <div class="rg-cell acc"><span>Avg accuracy</span><b>{{ summary.avgAccuracy }}%</b></div>
+              <div class="rg-cell spark"><span>Sparkles</span><b>+{{ sparklesEarned }} ✨</b></div>
+            </div>
+
+            <p class="result-tier">{{ cfg.emoji }} {{ cfg.label }} · {{ summary.mode === 'mix' ? 'Mix' : 'Seek' }}</p>
+
+            @if (report) {
+              <div class="report">
+                <h4>👁️ Your colour eye</h4>
+                <div class="report-row">
+                  <span>Hue<b>±{{ report.hue }}°</b></span>
+                  <span>Sat<b>±{{ report.sat }}%</b></span>
+                  <span>Light<b>±{{ report.light }}%</b></span>
+                  <span>Best<b>{{ report.best }}%</b></span>
+                </div>
+                <p class="report-tip">{{ report.tip }}</p>
+              </div>
+            }
+
+            @if (submitting) {
+              <p class="result-saving">Saving your score…</p>
+            }
+
+            @if (highScores.length) {
+              <div class="result-board">
+                <h4>🏆 Top players</h4>
+                <ol class="lb-list">
+                  @for (s of highScores; track $index; let i = $index) {
+                    <li class="lb-item" [class.gold]="i === 0" [class.you]="isYou(s)">
+                      <span class="lb-rank">{{ i + 1 }}</span>
+                      <span class="lb-main">
+                        <span class="lb-name">{{ s.player_name || 'Anonymous' }}</span>
+                        <span class="lb-meta">{{ s.perfect_matches }} perfect · {{ s.avg_accuracy }}% avg</span>
+                      </span>
+                      <span class="lb-score">{{ s.score }}</span>
+                    </li>
+                  }
+                </ol>
+              </div>
+            }
+
+            <div class="result-actions">
+              <button class="btn-ghost" type="button" (click)="quitToIntro()">Done</button>
+              <button class="btn-play" type="button" (click)="playAgain()">Play again <span>→</span></button>
+            </div>
+          </div>
+        }
+      </section>
+    }
+  </main>
+
+  <!-- ===================== HOW TO PLAY ===================== -->
+  @if (showHowTo) {
+    <div class="modal-overlay" (click)="toggleHowTo()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">How to play</h3>
+        <ul class="howto-list">
+          <li>
+            <span class="ic">🎯</span>
+            <span class="txt"><b>Mix:</b> a colour blooms on the gem, then <b>hides</b>. Re-create it with the <b>wheel</b> or <b>bars</b> and hit <b>Match!</b></span>
+          </li>
+          <li>
+            <span class="ic">🔍</span>
+            <span class="txt"><b>Seek:</b> every tile looks the same but <b>one is off</b> — tap the odd one. A wrong tap costs you 2 seconds.</span>
+          </li>
+          <li>
+            <span class="ic">✦</span>
+            <span class="txt">Score by <b>accuracy</b>. Land a <b>Perfect</b> and the gem shatters — chain them for a combo up to <b>×5</b>.</span>
+          </li>
+          <li>
+            <span class="ic">🔥</span>
+            <span class="txt">Harder tiers hide the colour faster, vary more channels, and pay far more. <b>Oh my eyes!</b> is merciless.</span>
+          </li>
+          <li>
+            <span class="ic">⏱️</span>
+            <span class="txt">You have <b>60 seconds</b>. Match as many as you can, then climb the leaderboard.</span>
+          </li>
+        </ul>
+        <button class="btn-play" type="button" (click)="toggleHowTo()">Got it</button>
+      </div>
+    </div>
+  }
+
+  <!-- ===================== GEM COLLECTION ===================== -->
+  @if (showCollection) {
+    <div class="modal-overlay" (click)="closeCollection()">
+      <div class="modal collection" (click)="$event.stopPropagation()">
+        <div class="coll-head">
+          <h3 class="modal-title">💎 Gem Collection</h3>
+          <span class="coll-sparkles">✨ {{ sparkles }}</span>
+        </div>
+        <p class="coll-hint">Earn ✨ Sparkles by playing. Tap a gem to equip it — or unlock a new one!</p>
+        <div class="coll-grid">
+          @for (skin of skins; track skin.id) {
+            <button
+              class="coll-item"
+              type="button"
+              [class.owned]="owns(skin.id)"
+              [class.equipped]="isEquipped(skin.id)"
+              [class.locked]="!owns(skin.id)"
+              (click)="tapSkin(skin)"
+            >
+              <span class="coll-gem">{{ skin.emoji }}</span>
+              <b>{{ skin.name }}</b>
+              <small>{{ skin.blurb }}</small>
+              @if (isEquipped(skin.id)) {
+                <span class="coll-tag on">Equipped ✓</span>
+              } @else if (owns(skin.id)) {
+                <span class="coll-tag">Tap to equip</span>
+              } @else {
+                <span class="coll-tag cost" [class.afford]="canAfford(skin.cost)">✨ {{ skin.cost }}</span>
+              }
+            </button>
+          }
+        </div>
+        <button class="btn-play" type="button" (click)="closeCollection()">Done</button>
+      </div>
+    </div>
+  }
+</div>

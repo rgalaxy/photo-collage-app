@@ -52,6 +52,14 @@ export const GAMES: GameItem[] = [
     route: '/animal-safari-match'
   },
   {
+    id: 'color-hide-game',
+    title: 'Color Hide',
+    description: 'A 3D colour-perception arcade. A colour blooms then hides — spot the odd shade or re-mix it exactly with a wheel or bars. Chain Perfect Matches and climb the leaderboard.',
+    tags: ['single-player', 'arcade'],
+    imageUrl: '/assets/images/game-covers/color-hide-cover.webp',
+    route: '/color-hide-game'
+  },
+  {
     id: 'snake-game',
     title: 'Snake Game',
     description: 'The timeless snake game with smooth controls and increasing difficulty.',
