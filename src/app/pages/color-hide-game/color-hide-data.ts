@@ -113,6 +113,25 @@ export function difficultyByKey(key: Difficulty): DifficultyConfig {
   return DIFFICULTIES.find(d => d.key === key) ?? DIFFICULTIES[0];
 }
 
+/**
+ * Mix has no difficulty tiers — every arcade Mix round uses this single config.
+ * `revealMs` (the memorise window) is the main dev knob here.
+ */
+export const MIX_CONFIG: DifficultyConfig = {
+  key: 'medium',
+  label: 'Mix',
+  emoji: '🎯',
+  blurb: 'Recreate the hidden colour',
+  vary: { h: true, s: true, l: true },
+  fixedS: 72,
+  fixedL: 56,
+  revealMs: 2500, // dev-configurable Mix memorise window (ms)
+  muted: false,
+  grid: 4,
+  seekGap: 14,
+  pointsMult: 1,
+};
+
 export const GAME_DURATION = 60; // seconds — a Color Hide run
 
 export const GRADE_LABEL: Record<Grade, string> = {
@@ -267,11 +286,19 @@ export function accuracyFromDelta(de: number): number {
   return clamp(100 * (1 - de / DELTA_E_MAX), 0, 100);
 }
 
+// ---------------------------------------------------------------------------
+// TUNABLES (dev-configurable) — the accuracy% that counts as a Perfect, and the
+// accuracy% below which a match breaks the combo. Change these two numbers to
+// retune the whole feel of Mix.
+// ---------------------------------------------------------------------------
+export const PERFECT_THRESHOLD = 85; // ≥ this accuracy% = Perfect
+export const COMBO_BREAK_BELOW = 45; // < this accuracy% breaks the combo
+
 export function gradeForAccuracy(acc: number): Grade {
-  if (acc >= 98) return 'perfect';
-  if (acc >= 92) return 'great';
-  if (acc >= 80) return 'good';
-  if (acc >= 60) return 'close';
+  if (acc >= PERFECT_THRESHOLD) return 'perfect';
+  if (acc >= 85) return 'great';
+  if (acc >= 70) return 'good';
+  if (acc >= COMBO_BREAK_BELOW) return 'close';
   return 'off';
 }
 
@@ -283,13 +310,20 @@ export function chainMultiplier(chain: number): number {
 /** Points for a Mix match. */
 export function mixPoints(accuracy: number, combo: number, tierMult: number): number {
   const base = 100 * (accuracy / 100);
-  const perfectBonus = accuracy >= 98 ? 40 : 0;
+  const perfectBonus = accuracy >= PERFECT_THRESHOLD ? 40 : 0;
   return Math.round((base + perfectBonus) * chainMultiplier(combo) * tierMult);
 }
 
-/** Points for a correct Seek find. */
-export function seekPoints(streak: number, tierMult: number): number {
-  return Math.round(60 * chainMultiplier(streak) * tierMult);
+/**
+ * Points for a correct Seek find — driven by the grid size, so a harder tier
+ * (more tiles) is worth more per find. The slope is gentle on purpose: harder
+ * runs net modestly more, but because bigger grids take longer to scan the
+ * per-second reward stays close, so no single difficulty dominates.
+ *   easy 3×3 → 60 · medium 4×4 → 88 · hard 5×5 → 124 · oh-my-eyes 6×6 → 168
+ */
+export function seekPoints(streak: number, cfg: DifficultyConfig): number {
+  const tiles = cfg.grid * cfg.grid;
+  return Math.round((tiles * 4 + 24) * chainMultiplier(streak));
 }
 
 // ---------------------------------------------------------------------------

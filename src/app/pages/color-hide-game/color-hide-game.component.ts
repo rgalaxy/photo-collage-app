@@ -46,6 +46,9 @@ import {
   GRADE_LABEL,
   GRADE_COLORS,
   ChannelDelta,
+  MIX_CONFIG,
+  PERFECT_THRESHOLD,
+  COMBO_BREAK_BELOW,
   hslToRgb,
   rgbToHsl,
   hslCss,
@@ -120,6 +123,8 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
   readonly difficulties = DIFFICULTIES;
   readonly skins = GEM_SKINS;
   readonly DAILY_ROUNDS = DAILY_ROUNDS;
+  readonly perfectThreshold = PERFECT_THRESHOLD;
+  readonly comboBreakBelow = COMBO_BREAK_BELOW;
   screen: 'intro' | 'playing' | 'over' = 'intro';
   runKind: 'arcade' | 'daily' = 'arcade';
   mode: GameMode = 'mix';
@@ -142,6 +147,7 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
   private dailyPractice = false;
   sparklesEarned = 0;
   private skinPalette: string[] = ['#7c3aed', '#22d3ee', '#c6f24e', '#fb7185'];
+  fxColor = '#c6f24e'; // Perfect-celebration colour (follows the equipped gem)
 
   // ---- run HUD ----
   score = 0;
@@ -171,8 +177,10 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
 
   // ---- flashes / toasts ----
   gradeFlashes: { id: number; text: string; cls: Grade }[] = [];
+  perfectFx: { id: number }[] = []; // non-intrusive Perfect celebration (ring + edge glow)
   toasts: { id: number; message: string; type: 'success' | 'error' | 'info' }[] = [];
   private flashId = 0;
+  private pfId = 0;
   private toastId = 0;
 
   // ---- results / leaderboard ----
@@ -208,6 +216,11 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
 
   get cfg(): DifficultyConfig {
     return difficultyByKey(this.difficultyKey);
+  }
+
+  /** Leaderboard scope: Mix is a single board; Seek is per-difficulty. */
+  get boardDifficulty(): Difficulty {
+    return this.mode === 'mix' ? 'medium' : this.difficultyKey;
   }
 
   // ---- store-backed views ----
@@ -314,6 +327,7 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
   private applySkin(): void {
     const skin = getSkin(this.store.equipped());
     this.skinPalette = skin.palette;
+    this.fxColor = skin.accent;
     this.engine?.setSkin(skin);
   }
 
@@ -559,7 +573,8 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
   // -------------------------------------------------------------- MIX
   private nextMixRound(): void {
     if (this.timeRemaining <= 0) return;
-    this.beginMixReveal(randomTarget(this.cfg, Math.random), this.cfg.revealMs);
+    // Mix has no difficulty tiers — it always uses MIX_CONFIG.
+    this.beginMixReveal(randomTarget(MIX_CONFIG, Math.random), MIX_CONFIG.revealMs);
   }
 
   /** Shared reveal setup for both arcade and daily Mix rounds. */
@@ -596,7 +611,7 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
     const pts =
       this.runKind === 'daily'
         ? Math.round(acc * 10) + (grade === 'perfect' ? 25 : 0)
-        : mixPoints(acc, this.combo, this.cfg.pointsMult);
+        : mixPoints(acc, this.combo, MIX_CONFIG.pointsMult);
 
     this.attempts++;
     this.accSum += acc;
@@ -607,18 +622,17 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
     this.roundResults.push({ accuracy: acc, grade, delta });
     this.score += pts;
 
-    if (grade === 'perfect') {
-      this.perfectMatches++;
-      this.combo++;
-    } else if (grade !== 'great') {
-      this.combo = 0;
-    }
+    if (grade === 'perfect') this.perfectMatches++;
+    // Combo is forgiving: only a poor match (< 50%) breaks it; anything decent builds it.
+    if (acc < COMBO_BREAK_BELOW) this.combo = 0;
+    else this.combo++;
     this.bestCombo = Math.max(this.bestCombo, this.combo);
 
     this.phase = 'result';
     this.zone.runOutsideAngular(() => this.engine?.showResult(this.target, grade === 'perfect'));
     this.pushGrade(grade);
     this.gradeJuice(grade);
+    if (grade === 'perfect') this.firePerfectFx();
 
     // linger longer in Daily (relaxed) so the teaching lands; snappier in the arcade clock
     const dwell = this.runKind === 'daily' ? 1700 : 1050;
@@ -742,7 +756,7 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
       this.combo++;
       this.bestCombo = Math.max(this.bestCombo, this.combo);
       this.perfectMatches++;
-      this.score += seekPoints(this.combo, this.cfg.pointsMult);
+      this.score += seekPoints(this.combo, this.cfg);
       this.pushGrade('perfect', 'FOUND!');
       // sparkles in the equipped gem's colours
       this.juice.burst(x, y, { count: 26, power: 8, colors: this.skinPalette });
@@ -768,6 +782,16 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
     }, 850);
   }
 
+  /** A non-intrusive Perfect celebration: an expanding ring + a soft edge glow
+   *  (pointer-events: none, so it never blocks the controls). */
+  private firePerfectFx(): void {
+    const id = ++this.pfId;
+    this.perfectFx = [{ id }];
+    setTimeout(() => {
+      this.perfectFx = this.perfectFx.filter(f => f.id !== id);
+    }, 1000);
+  }
+
   private gradeJuice(grade: Grade): void {
     const pos = this.engine?.gemScreenPos() ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     // Perfects celebrate in the equipped gem's colours; other grades keep their semantic colour.
@@ -783,9 +807,9 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
     this.juice.burst(pos.x, pos.y, { count, power, colors });
 
     if (grade === 'perfect') {
+      // no screen-shake on Perfect — the ring/glow FX (firePerfectFx) hypes without jolting play
       this.juice.blip(620 + Math.min(this.combo, 20) * 14, { type: 'square', duration: 0.06, gain: 0.045 });
       this.juice.blip(920 + Math.min(this.combo, 20) * 14, { type: 'triangle', duration: 0.1, gain: 0.04 });
-      this.shakeStage(7, 260);
       if (this.combo > 0 && this.combo % 5 === 0) this.juice.confetti(40);
     } else if (grade === 'great') {
       this.juice.blip(520, { type: 'square', duration: 0.06, gain: 0.04 });
@@ -823,7 +847,7 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
     const summary: RunSummary = {
       score: this.score,
       mode: this.mode,
-      difficulty: this.difficultyKey,
+      difficulty: this.boardDifficulty,
       perfectMatches: this.perfectMatches,
       attempts: this.attempts,
       bestCombo: this.bestCombo,
@@ -837,8 +861,15 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
       localStorage.setItem(BEST_KEY, String(summary.score));
     }
 
-    // reward Sparkles for the collection (score + Perfects)
-    this.sparklesEarned = Math.round(summary.score / 60) + summary.perfectMatches * 3;
+    // Reward Sparkles for the collection. The two modes score very differently
+    // (Seek = many fast finds → high totals; Mix = few slow matches → low totals),
+    // so each has its own rate tuned to give a similar payout per good run.
+    //   Seek: score-based, boosted +210% (× 3.1) over the base score/80.
+    //   Mix:  much smaller divisor (its totals are far lower) + a Perfect bonus.
+    this.sparklesEarned =
+      summary.mode === 'seek'
+        ? Math.round((summary.score / 80) * 3.1)
+        : Math.round(summary.score / 6) + summary.perfectMatches * 8;
     this.store.addSparkles(this.sparklesEarned);
 
     this.juice.confetti(110);
@@ -874,7 +905,7 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
     try {
       const rows = await this.supabase.getColorHideHighScores(8, {
         mode: this.mode,
-        difficulty: this.difficultyKey,
+        difficulty: this.boardDifficulty,
       });
       this.highScores = (rows as CHScore[]) || [];
     } catch (e) {
@@ -926,13 +957,14 @@ export class ColorHideGameComponent implements OnInit, AfterViewInit, OnDestroy 
       // re-arm the mix round timer we lost on pause so the run never stalls
       if (this.mode === 'mix') {
         if (this.phase === 'reveal') {
-          this.revealTotalMs = this.cfg.revealMs;
-          this.revealMsLeft = this.cfg.revealMs;
-          this.revealEndAt = performance.now() + this.cfg.revealMs;
+          // restart the memorise window using this round's own duration
+          const rem = this.revealTotalMs || MIX_CONFIG.revealMs;
+          this.revealMsLeft = rem;
+          this.revealEndAt = performance.now() + rem;
           this.roundTimer = setTimeout(() => {
             this.phase = 'guess';
             this.zone.runOutsideAngular(() => this.engine?.startGuess());
-          }, this.cfg.revealMs);
+          }, rem);
         } else if (this.phase === 'result') {
           this.roundTimer = setTimeout(() => this.advanceRound(), 500);
         }

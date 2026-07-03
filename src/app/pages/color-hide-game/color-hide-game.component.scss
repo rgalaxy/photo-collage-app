@@ -203,6 +203,43 @@
   100% { transform: scale(0.96) translateY(-14px); opacity: 0; }
 }
 
+/* ============ Perfect celebration (non-blocking) ============ */
+.perfect-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  overflow: hidden;
+}
+.pf-ring {
+  position: absolute;
+  left: 50%;
+  top: 33%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 4px solid var(--ch-fx, #c6f24e);
+  opacity: 0;
+  animation: pf-ring 0.85s var(--ease-out-expo, ease) forwards;
+  &.two { animation-delay: 0.12s; border-width: 2px; }
+}
+@keyframes pf-ring {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  70% { opacity: 0.45; }
+  100% { transform: scale(15); opacity: 0; }
+}
+.pf-glow {
+  position: absolute;
+  inset: 0;
+  animation: pf-glow 0.8s ease forwards;
+}
+@keyframes pf-glow {
+  0% { box-shadow: inset 0 0 0 0 color-mix(in srgb, var(--ch-fx, #c6f24e) 0%, transparent); }
+  25% { box-shadow: inset 0 0 130px 24px color-mix(in srgb, var(--ch-fx, #c6f24e) 42%, transparent); }
+  100% { box-shadow: inset 0 0 165px 44px color-mix(in srgb, var(--ch-fx, #c6f24e) 0%, transparent); }
+}
+
 /* ============ MIX ============ */
 .ch-mix {
   position: absolute;
@@ -435,23 +472,38 @@
 }
 .ch-tile {
   border: none;
-  border-radius: clamp(12px, 2.4vw, 20px);
+  border-radius: 26%;
   cursor: pointer;
-  /* tactile "candy" depth — a top sheen + soft drop */
+  /* tactile "candy" depth — CONSTANT top sheen, so interaction never shifts the
+     tile's colour (only the drop shadow changes for a depth cue). */
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, 0.3),
     inset 0 -5px 11px rgba(0, 0, 0, 0.22),
     0 8px 18px -10px rgba(0, 0, 0, 0.6);
-  transition: transform 0.14s var(--ease-spring, ease), box-shadow 0.14s ease, filter 0.14s ease;
-  /* gentle cascade when a new board appears */
-  animation: ch-tile-in 0.34s var(--ease-spring, ease) both;
+  transition:
+    transform 0.16s var(--ease-spring, ease),
+    border-radius 0.24s var(--ease-spring, ease),
+    box-shadow 0.16s ease;
+  /* gentle cascade when a new board appears (backwards fill so it doesn't lock
+     the transform and block the hover/press morphs afterwards) */
+  animation: ch-tile-in 0.34s var(--ease-spring, ease) backwards;
   animation-delay: calc(var(--i, 0) * 12ms);
-  &:hover {
-    transform: translateY(-3px) scale(1.05);
-    filter: brightness(1.08);
-    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 14px 26px -10px rgba(0, 0, 0, 0.7);
+  /* Feedback is SHAPE-only — the tile morphs (rounder) and squishes; it never
+     changes colour, so it can never be mistaken for the odd tile. */
+  &:active {
+    transform: scale(0.95);
+    border-radius: 32%;
   }
-  &:active { transform: scale(0.93); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: scale(1.03);
+      border-radius: 32%;
+      box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -5px 11px rgba(0, 0, 0, 0.22),
+        0 13px 24px -10px rgba(0, 0, 0, 0.68);
+    }
+  }
 }
 @keyframes ch-tile-in {
   from { opacity: 0; transform: scale(0.55); }
@@ -1081,6 +1133,8 @@ input[type='range'] {
   .ch-big-swatch,
   .ch-overlay.result .cmp,
   .ch-tile,
+  .pf-ring,
+  .pf-glow,
   .hud-time.low .ring-fill { animation: none; }
   .ch-tile,
   .coll-item,
