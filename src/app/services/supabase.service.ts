@@ -352,4 +352,67 @@ export class SupabaseService {
     }
     return data && data.length > 0 ? data[0] : null;
   }
+
+  // Bubble Reef Methods
+  // ---------------------------------------------------------------------------
+  // The reef itself (rescued friends, cuddles) is local-first in localStorage.
+  // Supabase only stores one append-only row per finished Bubble Rush run. See
+  //   supabase/migrations/20260703000000_create_bubble_reef_scores.sql
+  async insertBubbleReefScore(run: {
+    playerName: string;
+    score: number;
+    bubblesPopped: number;
+    friendsRescued: number;
+    bestCombo: number;
+  }) {
+    const { data, error } = await this.supabase
+      .from('bubble_reef_scores')
+      .insert([
+        {
+          player_name: run.playerName,
+          score: run.score,
+          bubbles_popped: run.bubblesPopped,
+          friends_rescued: run.friendsRescued,
+          best_combo: run.bestCombo,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+    if (error) {
+      console.error('Insert bubble reef score error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // Top Bubble Rush scores (global leaderboard).
+  async getBubbleReefHighScores(limit: number = 10) {
+    const { data, error } = await this.supabase
+      .from('bubble_reef_scores')
+      .select('*')
+      .order('score', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Fetch bubble reef scores error:', error);
+      throw error;
+    }
+    return data;
+  }
+
+  // A player's best Bubble Rush score.
+  async getPlayerBestBubbleReefScore(playerName: string) {
+    const { data, error } = await this.supabase
+      .from('bubble_reef_scores')
+      .select('*')
+      .eq('player_name', playerName)
+      .order('score', { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error('Fetch player best bubble reef score error:', error);
+      throw error;
+    }
+    return data && data.length > 0 ? data[0] : null;
+  }
 }

@@ -53,6 +53,11 @@ export const routes: Routes = [
       import('./pages/color-hide-game/color-hide-game.component').then(m => m.ColorHideGameComponent),
   },
   {
+    path: 'bubble-reef-game',
+    loadComponent: () =>
+      import('./pages/bubble-reef-game/bubble-reef-game.component').then(m => m.BubbleReefGameComponent),
+  },
+  {
     path: 'event/chloe-1st-birthday',
     loadComponent: () =>
       import('./pages/chloe-birthday/chloe-birthday.component').then(m => m.ChloeBirthdayComponent),

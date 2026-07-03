@@ -1,0 +1,372 @@
+<div class="br pg-dark">
+  <app-game-shell title="Bubble Reef">
+    <button
+      shellActions
+      class="br-shell-btn"
+      type="button"
+      (click)="toggleMusic()"
+      [attr.aria-label]="musicOn() ? 'Turn music off' : 'Turn music on'"
+    >
+      <br-icon [name]="musicOn() ? 'music' : 'musicOff'" />
+    </button>
+    @if (screen() !== 'home') {
+      <button shellActions class="br-shell-btn" type="button" (click)="goHome()" aria-label="Back to the reef home">
+        <br-icon name="home" />
+      </button>
+    }
+  </app-game-shell>
+
+  <div class="br-sea" [class.br-sea-playing]="screen() === 'playing'">
+    <!-- ambient light rays + drifting background bubbles -->
+    <div class="br-rays" aria-hidden="true"></div>
+    <div class="br-ambient" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- collected friends swim across the home screen -->
+    @if (screen() === 'home' && sprites()) {
+      <div class="br-home-swimmers" aria-hidden="true">
+        @for (f of store.collectedFriends(); track f.id) {
+          <span
+            class="br-swimmer"
+            [class.br-swim-reverse]="swimStyle(f).reverse"
+            [style.top]="swimStyle(f).top"
+            [style.animation-duration]="swimStyle(f).duration"
+            [style.animation-delay]="swimStyle(f).delay"
+          >
+            <br-sprite [src]="spriteOf(f.id)" [size]="swimStyle(f).scale * 74" />
+          </span>
+        }
+      </div>
+    }
+
+    <!-- sea floor (SVG silhouettes, no emoji) -->
+    <div class="br-floor" aria-hidden="true"></div>
+
+    <!-- ============================== HOME ============================== -->
+    @if (screen() === 'home') {
+      <section class="br-home">
+        <header class="br-hero">
+          <div class="br-logo-bubbles" aria-hidden="true"><i></i><i></i><i></i></div>
+          <h2 class="br-logo">Bubble Reef</h2>
+          <p class="br-tagline">Pop bubbles · Rescue sea friends · Build your cozy reef</p>
+        </header>
+
+        <div class="br-modes">
+          <button class="br-mode br-mode-fins" type="button" (click)="startMode('fins')">
+            <span class="br-mode-badge">AGES 2+</span>
+            <span class="br-mode-art">
+              @if (sprites()) {
+                <br-sprite [src]="spriteOf('coral')" [size]="96" />
+              }
+            </span>
+            <span class="br-mode-name">Little Fins</span>
+            <span class="br-mode-desc">Just pop! No timer, no losing — made for tiny fingers.</span>
+            <span class="br-mode-play"><br-icon name="play" /> Play</span>
+          </button>
+
+          <button class="br-mode br-mode-rush" type="button" (click)="startMode('rush')">
+            <span class="br-mode-badge br-badge-gold">60 SECONDS</span>
+            <span class="br-mode-art">
+              @if (sprites()) {
+                <br-sprite [src]="spriteOf('splash')" [size]="96" />
+              }
+            </span>
+            <span class="br-mode-name">Bubble Rush</span>
+            <span class="br-mode-desc">A relaxed score dash — chain pops into big combos.</span>
+            <span class="br-mode-play"><br-icon name="play" /> Play</span>
+          </button>
+        </div>
+
+        <nav class="br-stats" aria-label="Reef menu">
+          <button class="br-chip" type="button" (click)="openPanel('reef')">
+            <br-icon name="wave" class="br-chip-ic" />
+            <span>My Reef</span>
+            <b>{{ store.collectedCount() }}/{{ totalFriends }}</b>
+          </button>
+          <button class="br-chip" type="button" (click)="openPanel('album')">
+            <br-icon name="book" class="br-chip-ic" />
+            <span>Friends</span>
+          </button>
+          <button class="br-chip" type="button" (click)="openPanel('board')">
+            <br-icon name="trophy" class="br-chip-ic" />
+            <span>Best</span>
+            <b>{{ store.bestRush() | number }}</b>
+          </button>
+          <button class="br-chip" type="button" (click)="openPanel('howto')">
+            <br-icon name="question" class="br-chip-ic" />
+            <span>How to play</span>
+          </button>
+        </nav>
+
+        <p class="br-credit">{{ musicCredit }}</p>
+      </section>
+    }
+
+    <!-- ============================= PLAYING ============================ -->
+    @if (screen() === 'playing') {
+      <section class="br-play">
+        @if (mode() === 'rush') {
+          <div class="br-hud">
+            <div class="br-plate br-plate-score">
+              <span class="br-plate-label">Score</span>
+              <span class="br-plate-value">{{ score() | number }}</span>
+              @if (combo() >= 2) {
+                <span class="br-combo" [class.br-combo-hot]="comboMult() >= 3">
+                  <br-icon name="chain" /> ×{{ comboMult() }} · {{ combo() }}
+                </span>
+              }
+            </div>
+            <div class="br-plate br-plate-time" role="timer" [attr.aria-label]="(timeLeft() | number: '1.0-0') + ' seconds left'">
+              <span class="br-plate-value br-time-value">
+                <br-icon name="clock" class="br-time-ic" />{{ timeLeft() | number: '1.0-0' }}
+              </span>
+              <span class="br-timebar" [class.br-time-low]="timeLeft() <= 10">
+                <span class="br-timebar-fill" [style.width.%]="timePct()"></span>
+              </span>
+            </div>
+          </div>
+        } @else {
+          <div class="br-hud br-hud-fins">
+            <span class="br-plate br-plate-mini">
+              <br-icon name="bubble" class="br-mini-ic" /><b>{{ pops() }}</b>
+            </span>
+            <span class="br-plate br-plate-mini">
+              <br-icon name="fish" class="br-mini-ic" /><b>{{ rescues().length }}</b>
+            </span>
+            <button class="br-plate br-plate-mini br-done" type="button" (click)="endRun()">
+              <br-icon name="check" class="br-mini-ic" /> Done
+            </button>
+          </div>
+        }
+
+        <!-- friend rescued banner -->
+        @if (banner(); as b) {
+          <div class="br-banner" [class.br-banner-new]="b.isNew" [style.--rar]="rarity[b.friend.rarity].color">
+            <span class="br-banner-img"><br-sprite [src]="spriteOf(b.friend.id)" [size]="44" /></span>
+            <span class="br-banner-text">
+              @if (b.isNew) {
+                <em class="br-banner-tag">New friend!</em>
+              }
+              <strong>{{ b.friend.name }}</strong> {{ b.cheer }}
+            </span>
+          </div>
+        }
+
+        <!-- the bubble field (engine renders into this) -->
+        <div #field class="br-field"></div>
+      </section>
+    }
+
+    <!-- ============================ RUSH END ============================ -->
+    @if (screen() === 'rushEnd') {
+      <section class="br-end">
+        <div class="br-card br-end-card">
+          <h3 class="br-end-title">Time's up!</h3>
+          @if (isNewBest()) {
+            <p class="br-end-best"><br-icon name="medal" /> New personal best!</p>
+          }
+          <p class="br-end-score">{{ score() | number }}</p>
+
+          <div class="br-end-stats">
+            <span class="br-end-stat"><br-icon name="bubble" /><b>{{ pops() }}</b> pops</span>
+            <span class="br-end-stat"><br-icon name="chain" /><b>×{{ bestCombo() }}</b> chain</span>
+            <span class="br-end-stat"><br-icon name="fish" /><b>{{ rescues().length }}</b> rescued</span>
+          </div>
+
+          @if (rescues().length && sprites()) {
+            <div class="br-end-friends">
+              @for (f of rescues(); track $index) {
+                <span class="br-end-friend" [title]="f.name"><br-sprite [src]="spriteOf(f.id)" [size]="52" /></span>
+              }
+            </div>
+          }
+
+          @if (!submitted()) {
+            <div class="br-submit">
+              <input
+                class="br-input"
+                type="text"
+                maxlength="24"
+                placeholder="Your name"
+                [ngModel]="playerName()"
+                (ngModelChange)="playerName.set($event)"
+                (keyup.enter)="submitScore()"
+              />
+              <button
+                class="br-btn br-btn-primary"
+                type="button"
+                [disabled]="!playerName().trim() || submitting()"
+                (click)="submitScore()"
+              >
+                {{ submitting() ? 'Sending…' : 'Save score' }}
+              </button>
+            </div>
+          } @else {
+            <p class="br-submit-ok"><br-icon name="check" /> Saved to the reef board!</p>
+          }
+
+          <div class="br-end-actions">
+            <button class="br-btn br-btn-primary" type="button" (click)="startMode('rush')">
+              <br-icon name="replay" /> Play again
+            </button>
+            <button class="br-btn" type="button" (click)="goHome()"><br-icon name="home" /> Home</button>
+            <button class="br-btn" type="button" (click)="openPanel('board')"><br-icon name="trophy" /> Board</button>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ============================= PANELS ============================= -->
+    @if (panel() !== 'none') {
+      <div class="br-overlay" (click)="closePanel()">
+        <div class="br-card br-panel" (click)="$event.stopPropagation()">
+          <header class="br-panel-head">
+            <h3 class="br-panel-title">
+              @switch (panel()) {
+                @case ('reef') { <br-icon name="wave" class="br-title-ic" /> My Reef }
+                @case ('album') { <br-icon name="book" class="br-title-ic" /> Friend Album }
+                @case ('board') { <br-icon name="trophy" class="br-title-ic" /> Reef Board }
+                @case ('howto') { <br-icon name="question" class="br-title-ic" /> How to play }
+              }
+            </h3>
+            <button class="br-close" type="button" (click)="closePanel()" aria-label="Close">✕</button>
+          </header>
+
+          <!-- ---- My Reef: your friends swim here; tap to cuddle ---- -->
+          @if (panel() === 'reef') {
+            <div class="br-reef">
+              @if (!store.collectedCount()) {
+                <p class="br-empty">
+                  Your reef is waiting for friends!<br />
+                  Pop bubbles with sea friends inside to rescue them.
+                </p>
+              } @else {
+                <div class="br-reef-tank">
+                  @for (f of store.collectedFriends(); track f.id) {
+                    <button
+                      class="br-swimmer br-swimmer-tap"
+                      type="button"
+                      [class.br-swim-reverse]="swimStyle(f).reverse"
+                      [style.top]="swimStyle(f).top"
+                      [style.animation-duration]="swimStyle(f).duration"
+                      [style.animation-delay]="swimStyle(f).delay"
+                      [attr.aria-label]="'Pet ' + f.name"
+                      (click)="cuddle(f, $event)"
+                    >
+                      <br-sprite [src]="spriteOf(f.id)" [size]="swimStyle(f).scale * 88" />
+                    </button>
+                  }
+                  <div class="br-reef-sand" aria-hidden="true"></div>
+                </div>
+                @if (cuddleFact(); as cf) {
+                  <p class="br-fact">
+                    <br-sprite class="br-fact-img" [src]="spriteOf(cf.friend.id)" [size]="46" />
+                    <span><strong>{{ cf.friend.name }}:</strong> {{ cf.text }}</span>
+                  </p>
+                } @else {
+                  <p class="br-hint"><br-icon name="heart" class="br-hint-ic" /> Tap a friend to pet them</p>
+                }
+              }
+            </div>
+          }
+
+          <!-- ---- Album: every friend, silhouetted until rescued ---- -->
+          @if (panel() === 'album') {
+            <div class="br-album">
+              <p class="br-album-progress">
+                <b>{{ store.collectedCount() }}</b> of {{ totalFriends }} friends found
+              </p>
+              @for (r of rarityOrder; track r) {
+                <h4 class="br-album-rarity" [style.color]="rarity[r].color">{{ rarity[r].label }}</h4>
+                <div class="br-album-grid">
+                  @for (f of friendsByRarity(r); track f.id) {
+                    <div
+                      class="br-album-cell"
+                      [class.br-album-owned]="store.owns(f.id)"
+                      [style.--rar]="rarity[r].color"
+                    >
+                      @if (sprites()) {
+                        <br-sprite
+                          class="br-album-img"
+                          [class.br-album-shadow]="!store.owns(f.id)"
+                          [src]="spriteOf(f.id)"
+                          [size]="58"
+                          [attr.aria-label]="store.owns(f.id) ? f.name : 'Unknown friend'"
+                        />
+                      }
+                      <span class="br-album-name">{{ store.owns(f.id) ? f.name : '???' }}</span>
+                      @if (store.countOf(f.id) > 1) {
+                        <span class="br-album-count">×{{ store.countOf(f.id) }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- ---- Leaderboard ---- -->
+          @if (panel() === 'board') {
+            <div class="br-board">
+              @if (boardLoading()) {
+                <p class="br-empty">Diving for scores…</p>
+              } @else if (!boardScores().length) {
+                <p class="br-empty">No scores yet — be the first!</p>
+              } @else {
+                <ol class="br-board-list">
+                  @for (s of boardScores(); track $index) {
+                    <li class="br-board-row" [class.br-board-top]="$index < 3">
+                      <span class="br-board-rank br-rank-{{ $index + 1 }}">{{ $index + 1 }}</span>
+                      <span class="br-board-name">{{ s.player_name }}</span>
+                      <span class="br-board-meta">
+                        <br-icon name="bubble" />{{ s.bubbles_popped }}
+                        <br-icon name="fish" />{{ s.friends_rescued }}
+                      </span>
+                      <span class="br-board-score">{{ s.score | number }}</span>
+                    </li>
+                  }
+                </ol>
+              }
+            </div>
+          }
+
+          <!-- ---- How to play ---- -->
+          @if (panel() === 'howto') {
+            <div class="br-howto">
+              <div class="br-howto-row">
+                <span class="br-howto-ic br-ic-bubble"><br-icon name="bubble" /></span>
+                <span>Tap bubbles to pop them. That's it — really!</span>
+              </div>
+              <div class="br-howto-row">
+                @if (sprites()) {
+                  <br-sprite class="br-howto-img" [src]="spriteOf('tilly')" [size]="44" />
+                }
+                <span>Some bubbles carry a sea friend. Pop to rescue them into <strong>My Reef</strong> — they stay forever.</span>
+              </div>
+              <div class="br-howto-row">
+                <span class="br-howto-ic br-ic-gold"><br-icon name="sparkle" /></span>
+                <span>Golden bubbles are worth extra, and rainbow bubbles rain confetti!</span>
+              </div>
+              <div class="br-howto-row">
+                <span class="br-howto-ic br-ic-star"><br-icon name="star" /></span>
+                <span>In <strong>Bubble Rush</strong>, star bubbles add +3 seconds and quick pops chain into combos (up to ×5).</span>
+              </div>
+              <div class="br-howto-row">
+                @if (sprites()) {
+                  <br-sprite class="br-howto-img" [src]="spriteOf('grump')" [size]="44" />
+                }
+                <span>Grump bubbles break your chain. No harm done — they're just grumpy.</span>
+              </div>
+              <div class="br-howto-row">
+                <span class="br-howto-ic br-ic-heart"><br-icon name="heart" /></span>
+                <span><strong>Little Fins</strong> has no timer and no losing — made for the tiniest players.</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -59,10 +59,9 @@ import { JuiceService } from '../juice/juice.service';
         align-items: center;
         gap: 14px;
         padding: 9px clamp(12px, 2.4vw, 22px);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(7, 7, 13, 0.74));
+        background: rgba(10, 10, 17, 0.92);
         backdrop-filter: blur(16px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
       }
 
       /* ---- left: window controls = back ---- */

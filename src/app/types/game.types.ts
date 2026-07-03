@@ -60,6 +60,14 @@ export const GAMES: GameItem[] = [
     route: '/color-hide-game'
   },
   {
+    id: 'bubble-reef-game',
+    title: 'Bubble Reef',
+    description: 'A cozy underwater bubble-popper for every age (2-year-olds included). Pop bubbles, rescue cute sea friends into your forever reef, and chase relaxed combos in Bubble Rush.',
+    tags: ['single-player', 'arcade'],
+    imageUrl: '/assets/images/game-covers/bubble-reef-cover.webp',
+    route: '/bubble-reef-game'
+  },
+  {
     id: 'snake-game',
     title: 'Snake Game',
     description: 'The timeless snake game with smooth controls and increasing difficulty.',
