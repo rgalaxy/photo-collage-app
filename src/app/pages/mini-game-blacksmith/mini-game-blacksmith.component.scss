@@ -390,14 +390,34 @@
   height: 70%;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 169, 85, 0.9), transparent 70%);
+  /* tinted by evolution stage so the whole anvil matches the weapon's scheme */
+  background: radial-gradient(circle, var(--stage-glow, rgba(255, 169, 85, 0.9)), transparent 70%);
   filter: blur(30px);
   opacity: calc(0.25 + var(--heat) * 0.75);
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, background 0.6s ease;
+}
+
+/* ---- 3D weapon mount (emoji shows until the glTF model is in) ---- */
+.wd-model {
+  position: relative;
+  width: min(380px, 100%);
+  height: clamp(190px, 16vw + 120px, 280px);
+}
+/* the canvas is injected by three.js, so it has no Angular scoping attribute */
+.wd-model ::ng-deep canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  filter: drop-shadow(0 10px 26px color-mix(in srgb, var(--stage-glow, #ff8c00) 45%, transparent));
 }
 .wd-icon {
-  position: relative;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
   font-size: clamp(4rem, 3rem + 6vw, 7rem);
   line-height: 1;
   filter: drop-shadow(0 8px 24px rgba(255, 140, 0, calc(0.3 + var(--heat) * 0.6)));
@@ -405,6 +425,50 @@
 }
 @keyframes float-icon {
   50% { transform: translateY(-8px); }
+}
+
+/* ---- Evolution spectacle ---- */
+.weapon-display.evolving {
+  border-color: var(--stage-glow, #ffd63a);
+  box-shadow: 0 0 70px -14px var(--stage-glow, #ffd63a), inset 0 0 50px -24px var(--stage-glow, #ffd63a);
+}
+.evolve-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.evolve-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.95), transparent 70%);
+  opacity: 0;
+  animation: evolve-flash 1s ease-out forwards;
+}
+@keyframes evolve-flash {
+  0% { opacity: 0; }
+  40% { opacity: 1; } /* peak while the 3D model swaps behind it */
+  100% { opacity: 0; }
+}
+.evolve-ring {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 70px;
+  height: 70px;
+  margin: -35px;
+  border-radius: 50%;
+  border: 3px solid var(--stage-glow, #ffd63a);
+  opacity: 0;
+  animation: evolve-ring 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.4s forwards;
+}
+.evolve-ring.late {
+  border-width: 2px;
+  animation-delay: 0.6s;
+}
+@keyframes evolve-ring {
+  0% { opacity: 1; transform: scale(0.35); }
+  100% { opacity: 0; transform: scale(5.5); }
 }
 .wd-refine {
   position: relative;
@@ -653,23 +717,24 @@ button.action:disabled {
 /* ============ Toasts ============ */
 .toast-stack {
   position: fixed;
-  top: 76px;
+  top: 72px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 120;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   align-items: center;
   pointer-events: none;
   width: max-content;
   max-width: 92vw;
 }
 .toast {
-  padding: 9px 18px;
+  padding: 5px 13px;
   border-radius: 100px;
-  font-size: 0.84rem;
+  font-size: 0.76rem;
   font-weight: 500;
+  line-height: 1.4;
   backdrop-filter: blur(10px);
   border: 1px solid var(--pg-border);
   animation: toast-in 0.3s var(--ease-out-expo, ease);

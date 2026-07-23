@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ElementRef, NgZone, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase.service';
 import { GameShellComponent } from '../../shared/game-shell/game-shell.component';
 import { JuiceService } from '../../shared/juice/juice.service';
+import { WeaponViewer, STAGE_THEMES } from './weapon-viewer';
 
 interface Weapon {
   id: string;
@@ -51,7 +52,7 @@ interface ForgeResult {
 })
 export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
   // ----- tunables -----
-  readonly GAME_TIME = 105;
+  readonly GAME_TIME = 200;
   readonly MAX_REFINE = 15;
   readonly DANGER_FROM = 10; // strikes past +10 can SHATTER; +10 and below only cost time
   readonly ELEMENT_UNLOCK = 4; // refinement needed before infusing elements
@@ -79,12 +80,36 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
   private toastIdCounter = 0;
   private gameTimer: any;
 
+  // ----- 3D weapon display -----
+  modelReady = false; // real glTF rendered → hide the emoji fallback
+  evolveFx = false; // drives the DOM flash/ring overlay during evolution
+  private viewer: WeaponViewer | null = null;
+  private evolveFxTimer: any;
+
+  /** The anvil's 3D mount — exists only while a weapon is being forged. */
+  @ViewChild('weaponStage') set weaponStageRef(ref: ElementRef<HTMLDivElement> | undefined) {
+    if (ref && !this.viewer) {
+      this.viewer = this.zone.runOutsideAngular(() => {
+        const v = new WeaponViewer(ref.nativeElement);
+        v.start();
+        return v;
+      });
+      this.loadViewerWeapon();
+    } else if (!ref && this.viewer) {
+      this.viewer.dispose();
+      this.viewer = null;
+      this.modelReady = false;
+    }
+  }
+
   // ----- data -----
   weapons: Weapon[] = [
     { id: 'dagger', name: 'Dagger', baseScore: 12, icon: '🗡️', blurb: 'Fast & forgiving' },
     { id: 'sword', name: 'Sword', baseScore: 20, icon: '⚔️', blurb: 'Balanced classic' },
     { id: 'bow', name: 'Bow', baseScore: 16, icon: '🏹', blurb: 'Steady aim' },
+    { id: 'spear', name: 'Spear', baseScore: 18, icon: '🔱', blurb: 'Long reach' },
     { id: 'axe', name: 'Battle Axe', baseScore: 26, icon: '🪓', blurb: 'Heavy hitter' },
+    { id: 'staff', name: 'Staff', baseScore: 22, icon: '🪄', blurb: 'Arcane conduit' },
     { id: 'hammer', name: 'Warhammer', baseScore: 32, icon: '🔨', blurb: 'High risk, high base' },
   ];
 
@@ -124,11 +149,13 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
     bow: ['Bow', 'Crossbow', 'Arbalest', 'Ballista'],
     axe: ['Battle Axe', 'Greataxe', 'War Cleaver', 'Ragnarök'],
     hammer: ['Warhammer', 'Maul', 'Earthshaker', 'Mjölnir'],
+    spear: ['Spear', 'Partisan', 'Halberd', 'Gungnir'],
+    staff: ['Staff', 'Battlestaff', 'Runestaff', 'Worldtree'],
   };
   readonly EVOLVE_REFINE_REQ = 10;
   readonly EVOLVE_QUALITY_REQ = 3; // masterwork index
 
-  constructor(private supabaseService: SupabaseService, private juice: JuiceService) {}
+  constructor(private supabaseService: SupabaseService, private juice: JuiceService, private zone: NgZone) {}
 
   ngOnInit(): void {
     this.loadHighScores();
@@ -136,6 +163,9 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.gameTimer) clearInterval(this.gameTimer);
+    if (this.evolveFxTimer) clearTimeout(this.evolveFxTimer);
+    this.viewer?.dispose();
+    this.viewer = null;
   }
 
   async loadHighScores(): Promise<void> {
@@ -161,6 +191,12 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
     this.showFinishConfirmation = false;
     this.showGameOverModal = false;
 
+    // the clock only starts once a weapon is chosen (selectWeapon)
+    if (this.gameTimer) clearInterval(this.gameTimer);
+    this.gameTimer = null;
+  }
+
+  private startTimer(): void {
     if (this.gameTimer) clearInterval(this.gameTimer);
     this.gameTimer = setInterval(() => {
       this.timeRemaining--;
@@ -179,6 +215,8 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
     this.currentWeapon = { weapon: { ...weapon }, refinement: 0, quality: 'common', elements: [], evolveStage: 0 };
     this.score = weapon.baseScore;
     this.breakdown.base = weapon.baseScore;
+    this.loadViewerWeapon(); // usually a no-op — the viewer mounts via @ViewChild after this render
+    this.startTimer();
     this.juice.blip(520, { type: 'triangle', duration: 0.08, gain: 0.04 });
   }
 
@@ -333,9 +371,31 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
     w.quality = 'common';
     w.elements = [];
     this.showToast(`Evolved into the ${this.weaponBaseName()}!  +${bonus}`, true);
-    this.juiceForge(true);
+    this.playEvolveFx();
     this.juice.confetti(40);
     this.juice.blip(1047, { type: 'triangle', duration: 0.22, gain: 0.055 });
+  }
+
+  /** Evolution spectacle: 3D spin-up/white-out/reveal + DOM flash-ring overlay. */
+  private playEvolveFx(): void {
+    const w = this.currentWeapon!;
+    this.viewer?.evolve(w.weapon.id, w.evolveStage);
+    this.viewer?.setHeat(this.heat());
+    this.evolveFx = false; // retrigger the CSS animation even on back-to-back evolves
+    if (this.evolveFxTimer) clearTimeout(this.evolveFxTimer);
+    setTimeout(() => (this.evolveFx = true));
+    this.evolveFxTimer = setTimeout(() => (this.evolveFx = false), 1600);
+    const el = document.querySelector('.weapon-display') as HTMLElement | null;
+    this.juice.shake(el, 9, 500);
+    if (el) {
+      const r = el.getBoundingClientRect();
+      this.juice.burst(r.left + r.width / 2, r.top + r.height * 0.45, {
+        count: 34,
+        power: 10,
+        gravity: 0.25,
+        colors: [this.stageGlow(), '#ffffff', '#ffd63a'],
+      });
+    }
   }
 
   // ===================== rules =====================
@@ -444,6 +504,23 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
     return this.currentWeapon ? this.elementRate(this.currentWeapon.elements.length) : 0;
   }
 
+  /** DOM accent color for the current evolution stage (matches the 3D tint). */
+  stageGlow(): string {
+    const stage = this.currentWeapon?.evolveStage ?? 0;
+    return STAGE_THEMES[Math.min(stage, STAGE_THEMES.length - 1)].glow;
+  }
+
+  private loadViewerWeapon(): void {
+    const w = this.currentWeapon;
+    if (!w || !this.viewer) return;
+    this.modelReady = false;
+    this.viewer.setHeat(this.heat());
+    this.viewer.setWeapon(w.weapon.id, w.evolveStage).then(ok => {
+      // loader resolves outside Angular's zone — bring the flag back in
+      this.zone.run(() => (this.modelReady = ok));
+    });
+  }
+
   getWeaponDisplayName(): string {
     if (!this.currentWeapon) return '';
     const w = this.currentWeapon;
@@ -477,6 +554,8 @@ export class MiniGameBlacksmithComponent implements OnInit, OnDestroy {
   }
 
   private juiceForge(success: boolean): void {
+    this.viewer?.strike(success);
+    this.viewer?.setHeat(this.heat());
     const el = document.querySelector('.weapon-display') as HTMLElement | null;
     if (success) {
       this.juice.shake(el, 6, 220);

@@ -59,9 +59,9 @@
     @if (gameActive && !currentWeapon) {
       <section class="screen picker">
         <div class="picker-head">
-          <span class="hud-pill time" [class.low]="timeRemaining <= 10">⏱ {{ timeRemaining }}s</span>
+          <span class="hud-pill time">⏱ {{ GAME_TIME }}s</span>
           <h2>Choose your base</h2>
-          <p>Higher base = higher ceiling, but harder to perfect. The clock is already running.</p>
+          <p>Higher base = higher ceiling, but harder to perfect. The clock starts when you pick.</p>
         </div>
         <div class="weapon-grid">
           @for (w of weapons; track w.id) {
@@ -84,7 +84,9 @@
             <span class="hud-label">Time</span>
             <span class="hud-val time" [class.low]="timeRemaining <= 10">{{ timeRemaining }}<small>s</small></span>
           </div>
-          <div class="hud-name">{{ getWeaponDisplayName() }}</div>
+          <div class="hud-name" [style.color]="currentWeapon.evolveStage ? stageGlow() : null">
+            {{ getWeaponDisplayName() }}
+          </div>
           <div class="hud-stat right">
             <span class="hud-label">Score</span>
             <span class="hud-val score">{{ score }}</span>
@@ -93,9 +95,26 @@
 
         <div class="game-body">
           <!-- Anvil / weapon -->
-          <div class="weapon-display" [class.danger]="isDanger()" [style.--heat]="heat()">
+          <div
+            class="weapon-display"
+            [class.danger]="isDanger()"
+            [class.evolving]="evolveFx"
+            [style.--heat]="heat()"
+            [style.--stage-glow]="stageGlow()"
+          >
             <div class="anvil-glow"></div>
-            <div class="wd-icon">{{ currentWeapon.weapon.icon }}</div>
+            <div class="wd-model" #weaponStage>
+              @if (!modelReady) {
+                <div class="wd-icon">{{ currentWeapon.weapon.icon }}</div>
+              }
+            </div>
+            @if (evolveFx) {
+              <div class="evolve-fx" aria-hidden="true">
+                <span class="evolve-flash"></span>
+                <span class="evolve-ring"></span>
+                <span class="evolve-ring late"></span>
+              </div>
+            }
 
             <div class="wd-refine">
               <span class="wd-refine-val">+{{ currentWeapon.refinement }}</span>
